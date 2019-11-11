@@ -11,6 +11,34 @@ import java.sql.*;
 @RestController
 public class DemoController {
 
+    private Connection conn = null;
+    private final String url = "jdbc:postgresql://ec2-174-129-253-169.compute-1.amazonaws.com/d9vsaknll1319";
+    private final String user = "lfoagdwpzckmuq";
+    private final String password = "7cf9b7a5b57780ee7f45c96cac75808dd2cc2ba77b123cf0948cfb290ad1d93c";
+
+    public Statement connectToDB(){
+        Statement stmt = null;
+        try {
+            conn = DriverManager.getConnection(url, user, password);
+            stmt = conn.createStatement();
+            System.out.println("Opened DB connection.");
+        }catch(SQLException e){
+            System.out.println(e);
+        }
+        return stmt;
+    }
+
+    public void closeDB(Connection con){
+        try{
+            if (con != null){
+                System.out.println("\\ Closed DB connection");
+                con.close();
+            }
+        }catch (SQLException e){
+            System.out.println(e);
+        }
+    }
+
     @GetMapping(value = "/hello")
     public String demo() {
         return "Hello, World!";
@@ -24,14 +52,8 @@ public class DemoController {
     @GetMapping(value = "/testing{ti}")
     public String demo3(@RequestParam("ti") String ti){
         String output = "";
-        Connection conn = null;
-        String url = "jdbc:postgresql://ec2-174-129-253-169.compute-1.amazonaws.com/d9vsaknll1319";
-        String user = "lfoagdwpzckmuq";
-        String password = "7cf9b7a5b57780ee7f45c96cac75808dd2cc2ba77b123cf0948cfb290ad1d93c";
         try{
-            conn = DriverManager.getConnection(url, user, password);
-            System.out.println("title = "+ti);
-            Statement stmt = conn.createStatement();
+            Statement stmt = connectToDB();
             String sql = "SELECT * FROM book WHERE TITLE = "+ti;
             //String sql = "SELECT * FROM book";
             ResultSet rs = stmt.executeQuery(sql);
@@ -46,7 +68,9 @@ public class DemoController {
             }
 
         }catch(SQLException e){
-            output = "Error:"+e;
+            System.out.println(e);
+        }finally{
+            closeDB(conn);
         }
         return output;
     }
