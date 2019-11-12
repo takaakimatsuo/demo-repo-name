@@ -1,6 +1,6 @@
 package com.example.demo;
 
-import com.google.gson.Gson;
+//import com.google.gson.Gson;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.BookClass;
 import java.sql.*;
@@ -56,8 +56,8 @@ public class DemoController {
             for(BookClass b:lb) {
                 output +=b.getTitle()+"," ;
             }
-            Gson gson = new Gson();
-            String json = gson.toJson(lb);
+            //Gson gson = new Gson();
+            //String json = gson.toJson(lb);
             System.out.println(json);
 
         }catch(SQLException e){
