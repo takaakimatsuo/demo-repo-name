@@ -1,8 +1,12 @@
 package DatabaseQueryApplier;
 
+import com.example.demo.BookClass;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.awt.print.Book;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class psqlApi {
     private Connection conn = null;
@@ -87,9 +91,38 @@ public class psqlApi {
         return output;
     }
 
-    @PostMapping("/addBook")
-    public void addBook(int ID) throws SQLException {
+    public List<BookClass> getAllBooks() throws SQLException{
+        List<BookClass> lb = new ArrayList<>();
 
+        try {
+            String query = "SELECT * FROM book";
+            ResultSet rs = ExecuteQuery(query);
+            System.out.println(rs);
+            int colCount = rs.getMetaData().getColumnCount();
+            System.out.println("取得したカラム数:" + colCount);
+
+            while (rs.next()) {
+                BookClass book = new BookClass();
+                book.setPrice(rs.getInt("PRICE"));
+                book.setQuantity(rs.getInt("QUANTITY"));
+                book.setTitle(rs.getString("TITLE"));
+                book.setURL(rs.getString("URL"));
+                lb.add(book);
+            }
+        }catch (SQLException e) {
+            throw new SQLException("SQL query failure: ", e);
+        }
+        return lb;
+    }
+
+    public void addBook(int ID) throws SQLException {
+        try {
+            String query = "SELECT * FROM book WHERE ID = " + ID;
+            ResultSet rs = ExecuteQuery(query);
+
+        }catch(SQLException e){
+            throw e;
+        }
     }
 
 
