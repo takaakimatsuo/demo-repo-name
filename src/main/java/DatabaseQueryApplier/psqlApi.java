@@ -8,29 +8,43 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
+final class ConnAndStat{
+    Connection conn;
+    Statement stmt;
+    ConnAndStat( Connection conn, Statement stmt){
+        this.conn = conn;
+        this.stmt = stmt;
+    }
+    ConnAndStat( Connection conn){
+        this.conn = conn;
+        this.stmt = null;
+    }
+}
+
 public class psqlApi {
-    private Connection conn = null;
+
     private final String url = "jdbc:postgresql://ec2-174-129-253-169.compute-1.amazonaws.com/d9vsaknll1319";
     private final String user = "lfoagdwpzckmuq";
     private final String password = "7cf9b7a5b57780ee7f45c96cac75808dd2cc2ba77b123cf0948cfb290ad1d93c";
 
 
-    private Statement connectToDB() throws SQLException{
+    private ConnAndStat connectToDB(Connection conn) throws SQLException{
         Statement stmt = null;
         try {
             conn = DriverManager.getConnection(url, user, password);
             stmt = conn.createStatement();
-            System.out.println("Opened DB connection.");
+            System.out.println("[INFO]  Opened DB connection.");
         }catch(SQLException e){
             throw new SQLException("Database Connection: ", e) ;
         }
-        return stmt;
+        return new ConnAndStat(conn,stmt);
     }
 
     private void closeDB(Connection con) throws SQLException{
         try{
             if (con != null){
-                System.out.println("\\ Closed DB connection");
+                System.out.println("[INFO] Closed DB connection.");
                 con.close();
             }
         }catch (SQLException e){
@@ -39,16 +53,26 @@ public class psqlApi {
     }
 
     private ResultSet ExecuteQuery(String query) throws SQLException{
+        Connection conn = null;
+        ConnAndStat cs = new ConnAndStat(conn);
         try {
-            Statement stmt = connectToDB();
+            //Establish DB connection.
+            cs = connectToDB(conn);
             final String sql = query;
-            //String sql = "SELECT * FROM book";
-            ResultSet rs = stmt.executeQuery(sql);
+            ResultSet rs = cs.stmt.executeQuery(sql);
+            System.out.println("[INFO] Executed query.");
             return rs;
         }catch(SQLException e){
             throw e;
+        }finally {
+            //Close DB connection.
+            closeDB(cs.conn);
         }
     }
+
+
+
+
     public String getBookFromTitle(String title) throws SQLException {
         String output = "";
         try {
@@ -115,11 +139,11 @@ public class psqlApi {
         return lb;
     }
 
-    public void addBook(int ID) throws SQLException {
+    public void addBook(BookClass book) throws SQLException {
         try {
-            String query = "SELECT * FROM book WHERE ID = " + ID;
+            String query = "Insert into book(title,price,quantity,borrowed,url) values('Dummy_title',100,1,0,'dummy@url.com')";
             ResultSet rs = ExecuteQuery(query);
-
+            System.out.println(rs);
         }catch(SQLException e){
             throw e;
         }

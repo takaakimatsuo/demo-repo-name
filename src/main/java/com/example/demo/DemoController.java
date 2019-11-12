@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.google.gson.Gson;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.BookClass;
 import java.sql.*;
@@ -55,10 +56,10 @@ public class DemoController {
             for(BookClass b:lb) {
                 output +=b.getTitle()+"," ;
             }
-            //Gson gson = new Gson();
-            //String json = gson.toJson(model);
+            Gson gson = new Gson();
+            String json = gson.toJson(lb);
+            System.out.println(json);
 
-            //System.out.println(json);
         }catch(SQLException e){
             output = e.toString();
             System.out.println(e);
@@ -70,12 +71,13 @@ public class DemoController {
     @PostMapping(value = "/addBook")
     public String demo4(@RequestBody BookClass inputs){
         String output = "";
-        /*try {
-            output = new psqlApi().getBookFromID(id);
+        try {
+            new psqlApi().addBook(inputs);
+            output = "All OK";
         }catch(SQLException e){
             output = e.toString();
-        }*/
-        System.out.println("At least you are here. \n"+inputs.getTitle());
+        }
+        //System.out.println("At least you are here. \n"+inputs.getTitle());
         return output;
     }
 }
