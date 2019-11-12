@@ -29,6 +29,11 @@ public class psqlApi {
     private final String password = "7cf9b7a5b57780ee7f45c96cac75808dd2cc2ba77b123cf0948cfb290ad1d93c";
 
 
+
+
+
+
+
     private ConnAndStat connectToDB(Connection conn) throws SQLException{
         Statement stmt = null;
         try {
@@ -57,10 +62,10 @@ public class psqlApi {
         ConnAndStat cs = new ConnAndStat(conn);
         try {
             //Establish DB connection.
+            System.out.println("[INFO] Executed query.");
             cs = connectToDB(conn);
             final String sql = query;
             ResultSet rs = cs.stmt.executeQuery(sql);
-            System.out.println("[INFO] Executed query.");
             return rs;
         }catch(SQLException e){
             throw e;
@@ -69,6 +74,13 @@ public class psqlApi {
             closeDB(cs.conn);
         }
     }
+
+
+
+
+
+
+
 
 
 
@@ -94,6 +106,8 @@ public class psqlApi {
         return output;
     }
 
+
+
     public String getBookFromID(int ID) throws SQLException {
         String output = "";
         try {
@@ -114,6 +128,8 @@ public class psqlApi {
         }
         return output;
     }
+
+
 
     public List<BookClass> getAllBooks() throws SQLException{
         List<BookClass> lb = new ArrayList<>();
@@ -139,9 +155,11 @@ public class psqlApi {
         return lb;
     }
 
+
+
     public void addBook(BookClass book) throws SQLException {
         try {
-            String query = "Insert into book(title,price,quantity,borrowed,url) values('Dummy_title',100,1,0,'dummy@url.com')";
+            String query = "Insert into book(title,price,quantity,borrowed,url) values('"+book.getTitle()+"',"+book.getPrice()+","+book.getQuantity()+",0,'"+book.getURL()+"')";
             ResultSet rs = ExecuteQuery(query);
             System.out.println(rs);
         }catch(SQLException e){
