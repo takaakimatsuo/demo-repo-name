@@ -58,7 +58,7 @@ public class DemoController {
             }
             //Gson gson = new Gson();
             //String json = gson.toJson(lb);
-            System.out.println(json);
+            //System.out.println(json);
 
         }catch(SQLException e){
             output = e.toString();
