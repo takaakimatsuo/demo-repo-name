@@ -1,12 +1,18 @@
 package DatabaseQueryApplier;
 
 import com.example.demo.BookClass;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.awt.print.Book;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+//import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 
 final class ConnAndStat{
@@ -57,13 +63,15 @@ public class psqlApi {
         }
     }
 
+    //Used for executing an arbitrary SQL query.
+    //Input: String query - Simple raw query for sql.
     private ResultSet ExecuteQuery(String query) throws SQLException{
         Connection conn = null;
         ConnAndStat cs = new ConnAndStat(conn);
         try {
             //Establish DB connection.
-            System.out.println("[INFO] Executed query.");
             cs = connectToDB(conn);
+            System.out.println("[INFO] Executed query.");
             final String sql = query;
             ResultSet rs = cs.stmt.executeQuery(sql);
             return rs;
@@ -141,6 +149,8 @@ public class psqlApi {
             int colCount = rs.getMetaData().getColumnCount();
             System.out.println("取得したカラム数:" + colCount);
 
+            ObjectMapper mapper = new ObjectMapper();
+
             while (rs.next()) {
                 BookClass book = new BookClass();
                 book.setPrice(rs.getInt("PRICE"));
@@ -157,14 +167,23 @@ public class psqlApi {
 
 
 
-    public void addBook(BookClass book) throws SQLException {
+    public String addBook(BookClass book) throws SQLException, JsonProcessingException {
+        String output = "";
         try {
             String query = "Insert into book(title,price,quantity,borrowed,url) values('"+book.getTitle()+"',"+book.getPrice()+","+book.getQuantity()+",0,'"+book.getURL()+"')";
+            System.out.println("[QUERY] "+query);
             ResultSet rs = ExecuteQuery(query);
             System.out.println(rs);
-        }catch(SQLException e){
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(book);
+
+            output = "{ message: This is a test Message. book:"+book+"}";
+
+        }catch(SQLException | JsonProcessingException e){
+            output += e;
             throw e;
         }
+        return output;
     }
 
 

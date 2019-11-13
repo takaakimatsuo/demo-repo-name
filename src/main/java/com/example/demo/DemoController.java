@@ -1,6 +1,6 @@
 package com.example.demo;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.BookClass;
 import java.sql.*;
@@ -47,7 +47,9 @@ public class DemoController {
         return output;
     }
 
+    @CrossOrigin
     @GetMapping(value = "/getAllBooks")
+    //Return with Class!
     public String searchAllBooks(){
         String output = "";
         List<BookClass> lb = new ArrayList<>();
@@ -72,9 +74,8 @@ public class DemoController {
     public String demo4(@RequestBody BookClass inputs){
         String output = "";
         try {
-            new psqlApi().addBook(inputs);
-            output = "All OK";
-        }catch(SQLException e){
+            output = new psqlApi().addBook(inputs);
+        }catch(SQLException | JsonProcessingException e){
             output = e.toString();
         }
         //System.out.println("At least you are here. \n"+inputs.getTitle());
