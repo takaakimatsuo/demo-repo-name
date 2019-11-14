@@ -1,9 +1,11 @@
 package DatabaseQueryApplier;
-
+import com.example.demo.ResponseBooks;
 import com.example.demo.BookClass;
-import com.fasterxml.jackson.core.JsonParseException;
+import com.example.demo.ResponseMsg;
+import com.example.demo.response_status;
+//import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.springframework.web.bind.annotation.PostMapping;
+//import org.springframework.web.bind.annotation.PostMapping;
 
 import java.awt.print.Book;
 import java.sql.*;
@@ -24,6 +26,10 @@ final class ConnAndStat{
     }
     ConnAndStat( Connection conn){
         this.conn = conn;
+        this.stmt = null;
+    }
+    ConnAndStat(){
+        this.conn = null;
         this.stmt = null;
     }
 }
@@ -66,16 +72,16 @@ public class psqlApi {
     //Used for executing an arbitrary SQL query.
     //Input: String query - Simple raw query for sql.
     private ResultSet ExecuteQuery(String query) throws SQLException{
-        Connection conn = null;
-        ConnAndStat cs = new ConnAndStat(conn);
+        ConnAndStat cs = new ConnAndStat();
         try {
             //Establish DB connection.
-            cs = connectToDB(conn);
-            System.out.println("[INFO] Executed query.");
+            cs = connectToDB(cs.conn);
+            System.out.println("[INFO] Trying to execute query "+query);
             final String sql = query;
             ResultSet rs = cs.stmt.executeQuery(sql);
             return rs;
         }catch(SQLException e){
+            System.out.println("[ERROR] Something is wrong in ExecuteQuery()");
             throw e;
         }finally {
             //Close DB connection.
@@ -139,51 +145,74 @@ public class psqlApi {
 
 
 
-    public List<BookClass> getAllBooks() throws SQLException{
+    public ResponseBooks getAllBooks() throws SQLException{
+        ResponseBooks res = new ResponseBooks();
+        ResponseMsg msg = new ResponseMsg();
         List<BookClass> lb = new ArrayList<>();
-
         try {
-            String query = "SELECT * FROM book";
+            //String query = "select title AS \"Book Title\", borrowed_by, (SELECT ARRAY( select family_name from book_user u JOIN books b ON u.phone_number = ANY(b.borrowed_by) WHERE b.title = Z.title)) from books AS Z";
+            String query = "select title from bookshelf";
             ResultSet rs = ExecuteQuery(query);
             System.out.println(rs);
             int colCount = rs.getMetaData().getColumnCount();
             System.out.println("取得したカラム数:" + colCount);
-
-            ObjectMapper mapper = new ObjectMapper();
+            msg.setMsg("All books searched!");
+            //ObjectMapper mapper = new ObjectMapper();
 
             while (rs.next()) {
                 BookClass book = new BookClass();
                 book.setPrice(rs.getInt("PRICE"));
                 book.setQuantity(rs.getInt("QUANTITY"));
                 book.setTitle(rs.getString("TITLE"));
-                book.setURL(rs.getString("URL"));
+                book.setUrl(rs.getString("URL"));
                 lb.add(book);
             }
+
+            res.setResponseStatus(msg);
+            res.setListBooks(lb);
+
         }catch (SQLException e) {
+            msg.setMsg(e.toString());
+            msg.setRS(response_status.ERR);
+            res.setResponseStatus(msg);
             throw new SQLException("SQL query failure: ", e);
         }
-        return lb;
+        return res;
     }
 
 
 
-    public String addBook(BookClass book) throws SQLException, JsonProcessingException {
+    public ResponseMsg addBook(BookClass book) throws SQLException, JsonProcessingException {
+        ResponseMsg rm = new ResponseMsg();
         String output = "";
+        int flag = 0;
         try {
-            String query = "Insert into book(title,price,quantity,borrowed,url) values('"+book.getTitle()+"',"+book.getPrice()+","+book.getQuantity()+",0,'"+book.getURL()+"')";
-            System.out.println("[QUERY] "+query);
-            ResultSet rs = ExecuteQuery(query);
-            System.out.println(rs);
-            ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString(book);
+            System.out.println("Hello there!");
+            String check_existance_query = "Select count(title) AS checking from bookshelf WHERE title ='"+book.getTitle()+"' LIMIT 1";
+            ResultSet check = ExecuteQuery(check_existance_query);
+            while(check.next()) {
+                flag = check.getInt("checking");//1 if a book with the same title already exists.
+            }
+            if(flag==0) {
+                String query = "INSERT INTO bookshelf(title,price,quantity,url) values('" + book.getTitle() + "'," + book.getPrice() + "," + book.getQuantity() + ",'" + book.getUrl() + "') RETURNING 'All OK'";
+                System.out.println("[QUERY] " + query);
+                ResultSet rs = ExecuteQuery(query);
+                //System.out.println(rs);
+                //ObjectMapper mapper = new ObjectMapper();
+                //String json = mapper.writeValueAsString(book);
+                output = "All ok. Book inserted to database.";
+            }else{
+                output = "The same book already exists in the database.";
+                rm.setRS(response_status.ERR);
+            }
 
-            output = "{ message: This is a test Message. book:"+book+"}";
-
-        }catch(SQLException | JsonProcessingException e){
+        }catch(SQLException e /*| JsonProcessingException e*/){
             output += e;
+            System.out.println("Error!!!");
             throw e;
         }
-        return output;
+        rm.setMsg(output);
+        return rm;
     }
 
 

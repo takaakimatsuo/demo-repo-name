@@ -14,24 +14,32 @@
 <body>
     hello there!
 
-    <p>Title：<br>
-        <input type="text" id="title" size="30" value = "テスト題名"></p>
+    <div>
+        <p>Title：<br>
+            <input type="text" id="title" size="30" value = "テスト題名"></p>
 
-    <p>Price：<br>
-        <input name="number" id = "price"  value = 1000 size = "30"></input></p>
+        <p>Price：<br>
+            <input type="number" id = "price"  value = 1000 size = "30"></input></p>
 
-    <p>Quantity：<br>
-        <input name="number" id = "quantity" value = 1 size = 30></input></p>
+        <p>Quantity：<br>
+            <input type="number" id = "quantity" value = 1 size = 30></input></p>
 
-    <p>URL：<br>
-        <input name="url"  id = "url" size = 30></input></p><input type="button" value="addBook" onclick="POST_addBook();"/><br />
+        <p>Url：<br>
+            <input type="text" id = "url" value = "https://examplebookurl.com" size = 30></input></p>
+        </p>
+        <input type="button" value="addBook" onclick="POST_addBook();"/><br />
+        <textarea id="ADDresult" rows="10" cols="50"></textarea>
+    </div>
 </body>
+
+
 
 
 
 <body>
 IDによる本の検索
         <input type="button" value="getAllBook" onclick="GET_getAllBooks();"/><br />
+        <textarea id="getBooksresult" rows="10" cols="50"></textarea>
 </body>
 
 

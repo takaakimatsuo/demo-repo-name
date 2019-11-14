@@ -1,11 +1,30 @@
 package com.example.demo;
 
+
 public class BookClass {
     private String title;
     private int price;
     private String url;
     private int quantity;
-    private int borrowed;
+    private String[] borrowed_by_msn;
+    //private String[] borrowed_by_name;
+    private ResponseMsg status;
+
+    public void setBorrowed_by_msn(String[] msns){
+        this.borrowed_by_msn = msns;
+    }
+
+    public String[] getBorrowed_by_msn(){
+        return this.borrowed_by_msn;
+    }
+
+    public ResponseMsg getResponseStatus(){
+        return status;
+    }
+
+    public void setResponseStatus(ResponseMsg rs){
+        this.status = rs;
+    }
 
     public String getTitle() {
         return title;
@@ -21,10 +40,10 @@ public class BookClass {
         this.price = price;
     }
 
-    public String getURL() {
+    public String getUrl() {
         return url;
     }
-    public void setURL(String url) {
+    public void setUrl(String url) {
         this.url = url;
     }
 

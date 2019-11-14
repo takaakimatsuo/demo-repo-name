@@ -9,32 +9,33 @@ function POST_addBook(){
         "title": Title,
         "price": Price,
         "quantity": Quantity,
-        "Url": Url
+        "url": Url
     };
 
 
     // 通信実行
     $.ajax({
-        type:"post",
-        url: "https://takaakidemo.herokuapp.com/sample/addBook",
+        type:"POST",
+        //url: "https://takaakidemo.herokuapp.com/sample/addBook",
+        url: "http://localhost:8080/sample/addBook",
         data:JSON.stringify(data),
         contentType: 'application/json',
         dataType: "json",
         crossDomain: true,
         headers: {
             'Access-Control-Allow-Origin': '*'
-        },
-        success: function (data) {
-            alert(JSON.stringify(data));
-            console.log(data);
-        },success: function () {
-            alert("Success, but with no response.");
-        },
-        error: function(xhr, status, error){
-            alert("Cannot get data:"+xhr.responseText);
-            console.log(xhr.responseText);
         }
-    });
+    }).then(
+        // 1つめは通信成功時のコールバック
+        function (data) {
+            //alert(JSON.stringify(data,null,"\t"));
+            document.getElementById("ADDresult").value = JSON.stringify(data,null,"\t");
+            //alert(FormatJSON(data));
+        },
+        // 2つめは通信失敗時のコールバック
+        function () {
+            alert("読み込み失敗");
+        });
 }
 
 
@@ -43,7 +44,8 @@ function POST_addBook(){
 function GET_getAllBooks(){
     // 通信実行
     $.ajax({
-        url: 'https://takaakidemo.herokuapp.com/sample/getAllBooks',
+        //url: 'https://takaakidemo.herokuapp.com/sample/getAllBooks',
+        url: "http://localhost:8080/sample/getAllBooks",
         type: 'GET',
         dataType: 'json',
         timeout: 5000,
@@ -51,14 +53,11 @@ function GET_getAllBooks(){
         headers: {
             'Access-Control-Allow-Origin': '*'
         }
-    })
-        .done(function(data) {
-            // 通信成功時の処理を記述
-            alert("done");
-        })
-        .fail(function(jqax) {
-            // 通信失敗時の処理を記述
-            alert("Failed");
-            console.log(jqax);
+    }).then(
+        function (data) {
+            document.getElementById("getBooksresult").value = JSON.stringify(data,null,"\t");
+        },
+        function () {
+            alert("読み込み失敗");
         });
 }

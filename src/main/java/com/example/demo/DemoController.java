@@ -1,8 +1,10 @@
 package com.example.demo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.bind.annotation.*;
-import com.example.demo.BookClass;
+import com.example.demo.response_status;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,14 +52,15 @@ public class DemoController {
     @CrossOrigin
     @GetMapping(value = "/getAllBooks")
     //Return with Class!
-    public String searchAllBooks(){
+    public ResponseBooks searchAllBooks(){
         String output = "";
-        List<BookClass> lb = new ArrayList<>();
+        ResponseBooks lb = new ResponseBooks();
         try {
             lb = new psqlApi().getAllBooks();
-            for(BookClass b:lb) {
+            /*for(BookClass b:lb.getListBooks()) {
                 output +=b.getTitle()+"," ;
-            }
+                lb.add(b);
+            }*/
             //Gson gson = new Gson();
             //String json = gson.toJson(lb);
             //System.out.println(json);
@@ -66,19 +69,27 @@ public class DemoController {
             output = e.toString();
             System.out.println(e);
         }
-        return output;
+        //return output;
+        return lb;
     }
 
     @CrossOrigin
     @PostMapping(value = "/addBook")
-    public String demo4(@RequestBody BookClass inputs){
-        String output = "";
-        try {
-            output = new psqlApi().addBook(inputs);
-        }catch(SQLException | JsonProcessingException e){
-            output = e.toString();
+    public BookClass demo4(@RequestBody BookClass inputs) throws JsonProcessingException {
+        ResponseMsg response = new ResponseMsg();
+        System.out.println("URL is "+ inputs.getUrl());
+        if(inputs.getTitle()==""){
+            inputs.setResponseStatus(new ResponseMsg(response_status.ERR,"User input with no title forbidden."));
+        }else if(inputs.getQuantity()<=0 || inputs.getPrice()<0){
+            inputs.setResponseStatus(new ResponseMsg(response_status.ERR,"Quantity must be more than 1, and Price must be more than 0."));
+        } else {
+            try {
+                 response = new psqlApi().addBook(inputs);
+                 inputs.setResponseStatus(response);
+            } catch (SQLException | JsonProcessingException e) {
+                 inputs.setResponseStatus(new ResponseMsg(response_status.ERR,e.toString()));
+            }
         }
-        //System.out.println("At least you are here. \n"+inputs.getTitle());
-        return output;
+        return inputs;
     }
 }
