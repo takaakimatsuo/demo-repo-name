@@ -122,16 +122,27 @@ public final class DemoDomain {
 
 
     public void check_Status_inconsistency(BookStatus current_status, int requested_status) throws BookException{
+        System.out.println("Current Status = "+current_status.toString());
         if(current_status == BookStatus.UNKNOWN){
+            System.out.println("[Error] Unexpected output. This should not happen.");
             throw new BookException("Unexpected output. This should not happen.");
         }else if (current_status == BookStatus.BOOK_NOT_EXISTING) {
+            System.out.println("[Error] Book does not exist.");
             throw new BookException("Book does not exist.");
         }else if(current_status == BookStatus.BOOK_BORROWED_BY_THIS_USER && requested_status == 0){
+            System.out.println("[Error] Book already borrowed by the same user.");
             throw new BookException("Book already borrowed by the same user.");
-        }else if (current_status == BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER && requested_status == 1) {
+        }else if (current_status == BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER && (requested_status == 1 || requested_status == 2)){
+            System.out.println("[Error] Trying to return/report a book that has not been borrowed by the user.");
             throw new BookException("Trying to return a book that has not been borrowed by the user.");
-        }
+        }/*else if(current_status == BookStatus.BOOK_STOCK_NOT_AVAILABLE && requested_status == 0){
+            System.out.println("[Error] Book stock not available.");
+            throw new BookException("Book stock not available.");
+        }*/
     }
+
+
+
 
     public ResponseBooks updateBookStatus(UpdateBookStatus upd_status) throws SQLException{
         ResponseBooks res = new ResponseBooks();
@@ -143,17 +154,20 @@ public final class DemoDomain {
         try{
             //Check inconsistency. e.g. User trying to return a book that has not been borrowed.
             check_Status_inconsistency(current_status, action);
-            System.out.println("All ok!");
             switch(action){
                 case 0:{//Borrow!
                     borrowBook(upd_status.getBook_id(), upd_status.getPhone_number());
+                    rm.setMsg("Borrowed book successfully.");
                     break;
                 }
                 case 1:{
                     returnBook(upd_status.getBook_id(), upd_status.getPhone_number());
+                    rm.setMsg("Returned book successfully.");
                     break;
                 }
                 case 2:{;
+                    lostBook(upd_status.getBook_id(),upd_status.getPhone_number());
+                    rm.setMsg("Reported lost book successfully.");
                     break;
                 } default:{
                     System.out.println("[ERROR] Invalid status inputted.");
@@ -161,17 +175,10 @@ public final class DemoDomain {
                 }
             }
         }catch(BookException e){
+            rm.setRS(response_status.ERR);
             rm.setMsg(e.getMessage());
         }
-
-        /*try {
-            //String query = "UPDATE SET status = "+upd_status.getStatus()+" WHERE id=";
-
-        }catch(SQLException e){
-            rm.setMsg(e.toString());
-            System.out.println("[Error] "+e.toString());
-            throw e;
-        }*/
+        res.setResponseStatus(rm);
         return res;
     }
 

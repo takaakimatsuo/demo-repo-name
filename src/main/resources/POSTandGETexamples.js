@@ -20,8 +20,8 @@ function PATCH_updateBookStatus(){
     // 通信実行
     $.ajax({
         type:"PATCH",
-        url: "https://takaakidemo.herokuapp.com/sample/updateBookStatus",
-        //url: "http://localhost:8080/sample/updateBookStatus",
+        //url: "https://takaakidemo.herokuapp.com/sample/updateBookStatus",
+        url: "http://localhost:8080/sample/updateBookStatus",
         data:JSON.stringify(data),
         contentType: 'application/json',
         dataType: "json",
@@ -60,8 +60,8 @@ function POST_addBook(){
     // 通信実行
     $.ajax({
         type:"PUT",
-        url: "https://takaakidemo.herokuapp.com/sample/addBook",
-        //url: "http://localhost:8080/sample/addBook",
+        //url: "https://takaakidemo.herokuapp.com/sample/addBook",
+        url: "http://localhost:8080/sample/addBook",
         data:JSON.stringify(data),
         contentType: 'application/json',
         dataType: "json",
@@ -88,8 +88,8 @@ function POST_addBook(){
 function GET_searchAllBooks(){
     // 通信実行
     $.ajax({
-        url: 'https://takaakidemo.herokuapp.com/sample/getAllBooks',
-        //url: "http://localhost:8080/sample/getAllBooks",
+        //url: 'https://takaakidemo.herokuapp.com/sample/getAllBooks',
+        url: "http://localhost:8080/sample/getAllBooks",
         type: 'GET',
         dataType: 'json',
         timeout: 5000,
@@ -116,8 +116,8 @@ function GET_searchBook(){
         "id": id
     };*/
     $.ajax({
-        url: 'https://takaakidemo.herokuapp.com/sample/getBook?id='+id,
-        //url: "http://localhost:8080/sample/getBook?id="+id,
+        //url: 'https://takaakidemo.herokuapp.com/sample/getBook?id='+id,
+        url: "http://localhost:8080/sample/getBook?id="+id,
         type: 'GET',
         //dataType: 'json',
         //data:JSON.stringify(data),
@@ -146,8 +146,8 @@ function DELETE_removeBook(){
     var id = document.getElementById("bookid_delete").value;
 
     $.ajax({
-        url: 'https://takaakidemo.herokuapp.com/sample/deleteBook?id='+id,
-        //url: "http://localhost:8080/sample/deleteBook?id="+id,
+        //url: 'https://takaakidemo.herokuapp.com/sample/deleteBook?id='+id,
+        url: "http://localhost:8080/sample/deleteBook?id="+id,
         type: 'GET',
         timeout: 5000,
         crossDomain: true,

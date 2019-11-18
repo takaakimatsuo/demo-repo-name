@@ -1,6 +1,8 @@
 package SQLappliers;
 
 
+import DemoBackend.BookException;
+
 import java.sql.*;
 import java.util.Arrays;
 
@@ -33,17 +35,18 @@ public final class PSQL_APIs {
 
 
     public static String[] splitStringIntoArray(String str, String splitter, String[] replacer){
-
-        String output = "";
+        String[] adjusted_to_array = new String[0];
+        String output = str;
         if(str==null){
-            return new String[]{};
+            return adjusted_to_array;
         }
-
         for(String rep: replacer) {
-            System.out.println("rep = "+rep+", from str="+str);
-            output = str.replace(rep, "");
+            System.out.println("rep = "+rep+", from str="+output);
+            output = output.replace(rep, "");
         }
-        String[] adjusted_to_array = output.split(splitter);
+        if(output.split(splitter)[0].compareTo("")!=0){
+            adjusted_to_array=output.split(splitter);
+        }
         return adjusted_to_array;
     }
 
@@ -106,7 +109,7 @@ public final class PSQL_APIs {
             System.out.println("[INFO] Executed query ");
             return update;
         }catch(SQLException e){
-            System.out.println("[ERROR] Something is wrong in ExecuteQuery() : "+e.getMessage());
+            System.out.println("[ERROR] SQLException: "+e.getMessage());
             throw e;
         }finally {
             //Close DB connection.
@@ -117,12 +120,11 @@ public final class PSQL_APIs {
 
     // Outputs:
     //      BOOK_NOT_EXISTING - Book not existing.
-    //      BOOK_STOCK_NOT_AVAILABLE - Book stock not available,
     //      BOOK_NOT_BORROWED_BY_THIS_USER - Book currently not borrowed by the user. The users action must be "borrow".
     //      BOOK_BORROWED_BY_THIS_USER - Book currently borrowed by the user. The users action must be either "return", or "lost".
     public static final BookStatus checkBookStatus(Integer book_id, String phone_number) throws SQLException {
 
-        String query = "Select quantity, borrowed_by AS customers from bookshelf WHERE id = " + book_id;
+        String query = "Select borrowed_by AS customers from bookshelf WHERE id = " + book_id;
         BookStatus st = BookStatus.UNKNOWN;
         try {
             ResultSet check = ExecuteQuery(query);//Execute query.
@@ -131,18 +133,14 @@ public final class PSQL_APIs {
                  st = BookStatus.BOOK_NOT_EXISTING;
             }else{
                 if(check.next()) {
-                    String quantity = check.getString("QUANTITY");
                     String arr = check.getString("CUSTOMERS");
                     String[] customers = splitStringIntoArray(arr, ",", new String[]{"\"", "}", "{"});
-                    if (Arrays.asList(customers).contains(phone_number)) {
-                        System.out.println("[INFO] User already borrowing the same book.");
-                        return BookStatus.BOOK_BORROWED_BY_THIS_USER;
-                    }else if (customers.length >= Integer.parseInt(quantity)) {
-                        System.out.println("[INFO] Book stock not available.");
-                        return BookStatus.BOOK_STOCK_NOT_AVAILABLE;
-                    } else {
+                    if (Arrays.asList(customers).contains(phone_number)) {//Book is borrowed by the user.
+                        System.out.println("[INFO] User already borrowing the book.");
+                        st = BookStatus.BOOK_BORROWED_BY_THIS_USER;
+                    }else{
                         System.out.println("[INFO] User not borrowing the book yet.");
-                        return BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER;
+                        st = BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER;
                     }
                 }
             }
@@ -153,9 +151,31 @@ public final class PSQL_APIs {
     }
 
 
-    public static final void borrowBook(Integer book_id, String phone_number) throws SQLException {
-        String query = "UPDATE bookshelf SET borrowed_by = array_append(borrowed_by, '"+phone_number+"') WHERE id = " + book_id;
-        int updated = ExecuteUpdate(query);
+    public static final boolean checkStockAvailability(Integer book_id) throws SQLException {
+        boolean availability = false;
+        String query = "Select quantity, borrowed_by AS customers from bookshelf WHERE id = " + book_id;
+        ResultSet check = ExecuteQuery(query);//Execute query.
+        if(check.next()) {
+            String quantity = check.getString("QUANTITY");
+            String arr = check.getString("CUSTOMERS");
+            String[] customers = splitStringIntoArray(arr, ",", new String[]{"\"", "}", "{"});
+            if(Integer.parseInt(quantity) > customers.length){
+                System.out.println("[INFO] Book stock available");
+                availability = true;
+            }
+
+            System.out.println(Integer.parseInt(quantity)+">"+customers.length);
+        }
+        return availability;
+    }
+
+    public static final void borrowBook(Integer book_id, String phone_number) throws SQLException, BookException {
+        if(checkStockAvailability(book_id)) {
+            String query = "UPDATE bookshelf SET borrowed_by = array_append(borrowed_by, '" + phone_number + "') WHERE id = " + book_id;
+            int updated = ExecuteUpdate(query);
+        }else{
+            throw new BookException("Book stock not available");
+        }
     }
 
     public static final void returnBook(Integer book_id, String phone_number) throws SQLException {
