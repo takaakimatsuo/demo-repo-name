@@ -1,30 +1,38 @@
-package com.example.demo;
+package DemoBackend;
 
 
 public class BookClass {
+    private int id;
     private String title;
     private int price;
     private String url;
     private int quantity;
-    private String[] borrowed_by_msn;
+    private String[] borrowed_by;
     //private String[] borrowed_by_name;
-    private ResponseMsg status;
+    //private ResponseMsg status;
 
-    public void setBorrowed_by_msn(String[] msns){
-        this.borrowed_by_msn = msns;
+    public void setId(int id){
+        this.id = id;
+    }
+    public int getId(){
+        return id;
     }
 
-    public String[] getBorrowed_by_msn(){
-        return this.borrowed_by_msn;
+    public void setBorrowed_by(String[] msns){
+        this.borrowed_by = msns;
     }
 
-    public ResponseMsg getResponseStatus(){
+    public String[] getBorrowed_by(){
+        return this.borrowed_by;
+    }
+
+    /*public ResponseMsg getResponseStatus(){
         return status;
     }
 
     public void setResponseStatus(ResponseMsg rs){
         this.status = rs;
-    }
+    }*/
 
     public String getTitle() {
         return title;

@@ -1,95 +1,90 @@
 package com.example.demo;
 
+import DemoBackend.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.bind.annotation.*;
-import com.example.demo.response_status;
-
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-
-import DatabaseQueryApplier.psqlApi;
 
 @RestController
 public class DemoController {
 
 
-
-    @GetMapping(value = "/hello")
-    public String demo() {
-        return "Hello, World!";
-    }
-
-    @GetMapping(value = "/hi")
-    public String demo2() {
-        return "Hi, World!";
-    }
-
-    @GetMapping(value = "/testing{ti}")
-    public String demo3(@RequestParam("ti") String ti){
-        String output = "";
+    @CrossOrigin
+    @GetMapping(value = "/getBook")
+    public ResponseBooks demo5(@RequestParam("id") String id){
+        ResponseBooks lb = new ResponseBooks();
         try {
-            output = new psqlApi().getBookFromTitle(ti);
+            lb = new DemoDomain().getBook(Integer.parseInt(id));
         }catch(SQLException e){
-            output = e.toString();
+            System.out.println(e);
         }
-        return output;
+        return lb;
     }
 
-
-    @GetMapping(value = "/getBookFromID{id}")
-    public String demo3(@RequestParam("id") int id){
-        String output = "";
-        try {
-            output = new psqlApi().getBookFromID(id);
-        }catch(SQLException e){
-            output = e.toString();
-        }
-        return output;
-    }
 
     @CrossOrigin
     @GetMapping(value = "/getAllBooks")
     //Return with Class!
     public ResponseBooks searchAllBooks(){
-        String output = "";
         ResponseBooks lb = new ResponseBooks();
         try {
-            lb = new psqlApi().getAllBooks();
-            /*for(BookClass b:lb.getListBooks()) {
-                output +=b.getTitle()+"," ;
-                lb.add(b);
-            }*/
-            //Gson gson = new Gson();
-            //String json = gson.toJson(lb);
-            //System.out.println(json);
-
+            lb = new DemoDomain().getAllBooks();
         }catch(SQLException e){
-            output = e.toString();
             System.out.println(e);
         }
-        //return output;
         return lb;
     }
 
+
     @CrossOrigin
-    @PostMapping(value = "/addBook")
-    public BookClass demo4(@RequestBody BookClass inputs) throws JsonProcessingException {
-        ResponseMsg response = new ResponseMsg();
+    @PutMapping(value = "/addBook")
+    public ResponseBooks demo4(@RequestBody BookClass inputs) {
+        ResponseBooks response = new ResponseBooks();
         System.out.println("URL is "+ inputs.getUrl());
         if(inputs.getTitle()==""){
-            inputs.setResponseStatus(new ResponseMsg(response_status.ERR,"User input with no title forbidden."));
+            System.out.println("[ERROR] Empty title input from user.");
+            response.setResponseStatus(new ResponseMsg(response_status.ERR,"User input with no title forbidden."));
         }else if(inputs.getQuantity()<=0 || inputs.getPrice()<0){
-            inputs.setResponseStatus(new ResponseMsg(response_status.ERR,"Quantity must be more than 1, and Price must be more than 0."));
+            response.setResponseStatus(new ResponseMsg(response_status.ERR,"Quantity must be more than 1, and Price must be more than 0."));
         } else {
             try {
-                 response = new psqlApi().addBook(inputs);
-                 inputs.setResponseStatus(response);
-            } catch (SQLException | JsonProcessingException e) {
-                 inputs.setResponseStatus(new ResponseMsg(response_status.ERR,e.toString()));
+                 response = new DemoDomain().addBook(inputs);
+            } catch (SQLException e) {
+                response.setResponseStatus(new ResponseMsg(response_status.ERR,e.toString()));
+                System.out.println(e);
             }
         }
-        return inputs;
+        return response;
     }
+
+
+    @CrossOrigin
+    @GetMapping(value = "/deleteBook")
+    public ResponseBooks demo6(@RequestParam("id") String id){
+        ResponseBooks lb = new ResponseBooks();
+        try {
+            lb = new DemoDomain().removeBook(Integer.parseInt(id));
+        }catch(SQLException e){
+            System.out.println(e);
+        }
+        return lb;
+    }
+
+
+    @CrossOrigin
+    @PatchMapping(value = "/updateBookStatus")
+    public ResponseBooks demo7(@RequestBody UpdateBookStatus upd_status){
+        ResponseBooks lb = new ResponseBooks();
+        System.out.println(upd_status.getBook_id()+","+upd_status.getPhone_number()+","+upd_status.getStatus());
+        try {
+            lb = new DemoDomain().updateBookStatus(upd_status);
+        }catch(SQLException e){
+            System.out.println(e);
+        }
+        return lb;
+    }
+
+
+
 }
+

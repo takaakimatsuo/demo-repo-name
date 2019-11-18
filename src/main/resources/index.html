@@ -12,8 +12,7 @@
 
 
 <body>
-    hello there!
-
+    本の追加
     <div>
         <p>Title：<br>
             <input type="text" id="title" size="30" value = "テスト題名"></p>
@@ -30,17 +29,48 @@
         <input type="button" value="addBook" onclick="POST_addBook();"/><br />
         <textarea id="ADDresult" rows="10" cols="50"></textarea>
     </div>
-</body>
 
 
-
-
-
-<body>
-IDによる本の検索
-        <input type="button" value="getAllBook" onclick="GET_getAllBooks();"/><br />
+    <div>
+        全ての本と借りた人の検索
+        <input type="button" value="getAllBook" onclick="GET_searchAllBooks();"/><br />
         <textarea id="getBooksresult" rows="10" cols="50"></textarea>
+    </div>
+
+
+    <div>
+        IDによる本の検索
+        <input type="number" id = "bookid" value=1 /><br />
+        <input type="button" value="getBook" onclick="GET_searchBook();"/><br />
+        <textarea id="getBookresult" rows="10" cols="50"></textarea>
+    </div>
+
+    <div>
+        IDによる本の削除
+        <input type="number" id = "bookid_delete" value=1 /><br />
+        <input type="button" value="deleteBook" onclick="DELETE_removeBook();"/><br />
+        <textarea id="deleteBookresult" rows="10" cols="50"></textarea>
+    </div>
+
+
+    <div>
+        本の借り出し
+        <input type="number" id = "bookid2" value=1 /><br />
+        <input type="text" id = "phone_number2" value=08011113333 /><br />
+        <p>
+            <select id="bookstatus" type ="number">
+                <option value=0>0.借りる</option>
+                <option value=1>1.返却</option>
+                <option value=2>2.紛失</option>
+            </select>
+        </p>
+        <input type="button" value="patchBookStatus" onclick="PATCH_updateBookStatus();"/><br />
+        <textarea id="patchBookStatus"rows="10" cols="50"></textarea>
+    </div>
 </body>
+
+
+
 
 
 

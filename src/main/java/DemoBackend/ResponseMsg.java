@@ -1,4 +1,6 @@
-package com.example.demo;
+package DemoBackend;
+
+import DemoBackend.response_status;
 
 public class ResponseMsg{
         response_status rs;
