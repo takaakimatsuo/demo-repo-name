@@ -1,7 +1,13 @@
 package DemoBackend;
-import SQLappliers.BookStatus;
+import DemoBackend.CustomENUMs.response_status;
+import DemoBackend.CustomExceptions.BookException;
+import DemoBackend.CustomObjects.BookClass;
+import DemoBackend.CustomObjects.ResponseBooks;
+import DemoBackend.CustomObjects.ResponseHeader;
+import DemoBackend.CustomObjects.UpdateBookStatus;
+import SQLappliers.CustomENUMs.BookStatus;
+
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import static SQLappliers.PSQL_APIs.*;
 
@@ -16,35 +22,18 @@ public final class DemoDomain {
     //Output: ResponseBooks res - A list of BookClass objects.
     public ResponseBooks getAllBooks() throws SQLException{
         ResponseBooks res = new ResponseBooks();
-        ResponseMsg msg = new ResponseMsg();
-        List<BookClass> lb = new ArrayList<>();
+        ResponseHeader header = new ResponseHeader();
+
         try {
-            String query = "select id, title, price, quantity, (SELECT ARRAY( select family_name ||' '|| first_name from book_user u JOIN bookshelf b ON u.phone_number = ANY(b.borrowed_by) WHERE b.title = OuterQuery.title)) AS \"customers\", url from bookshelf AS OuterQuery ORDER BY id DESC;";
-            System.out.println("[INFO] Requesting query execution");
-            ResultSet rs = ExecuteQuery(query);
-            System.out.println("[INFO] Done query execution");
-            msg.setMsg("All books searched!");
-
-            while (rs.next()) {
-                BookClass book = new BookClass();
-                book.setId(rs.getInt("ID"));
-                book.setPrice(rs.getInt("PRICE"));
-                book.setQuantity(rs.getInt("QUANTITY"));
-                book.setTitle(rs.getString("TITLE"));
-                book.setUrl(rs.getString("URL"));
-                String arr = rs.getString("CUSTOMERS");
-                String[] ary = splitStringIntoArray(arr, ",", new String[]{"\"", "}", "{"});
-                book.setBorrowed_by(ary);
-                lb.add(book);
-            }
-
-            res.setListBooks(lb);
-            res.setResponseStatus(msg);
+            List<BookClass> lb = searchAllBooks();
+            header.setMsg("All books searched!");
+            res.setBooks(lb);
+            res.setResponseHeader(header);
 
         }catch (SQLException e) {
-            msg.setMsg(e.toString());
-            msg.setRS(response_status.ERR);
-            res.setResponseStatus(msg);
+            header.setMsg(e.toString());
+            header.setRS(response_status.ERR);
+            res.setResponseHeader(header);
             throw new SQLException("SQL query failure: ", e);
         }
         return res;
@@ -56,21 +45,22 @@ public final class DemoDomain {
 
     public ResponseBooks removeBook(Integer id) throws SQLException{
         ResponseBooks res = new ResponseBooks();
-        ResponseMsg msg = new ResponseMsg();
+        ResponseHeader header = new ResponseHeader();
         try {
             int update = deleteBook(id);
-            msg.setMsg(update+" Data deleted from table.");
-            res.setResponseStatus(msg);
+            header.setMsg(update+" Data deleted from table.");
+            res.setResponseHeader(header);
 
         }catch (SQLException e) {
-            msg.setMsg(e.toString());
-            msg.setRS(response_status.ERR);
-            res.setResponseStatus(msg);
+            header.setMsg(e.toString());
+            header.setRS(response_status.ERR);
+            res.setResponseHeader(header);
             throw new SQLException("SQL query failure: ", e);
         }
         return res;
 
     }
+
 
 
     //Simply return all books stored in the bookshelf table.
@@ -78,50 +68,28 @@ public final class DemoDomain {
     //Output: ResponseBooks res - A list, but storing only a single BookClass object.
     public ResponseBooks getBook(Integer id) throws SQLException{
         ResponseBooks res = new ResponseBooks();
-        ResponseMsg msg = new ResponseMsg();
-        List<BookClass> lb = new ArrayList<>();
+        ResponseHeader header = new ResponseHeader();
+
         try {
-
-            String query = "select id, title, price, quantity, (SELECT ARRAY( select family_name ||' '|| first_name from book_user u JOIN bookshelf b ON u.phone_number = ANY(b.borrowed_by) WHERE b.title = OuterQuery.title)) AS \"customers\", url from bookshelf AS OuterQuery WHERE id = "+id;
-            System.out.println("[INFO] Requesting query execution");
-            ResultSet rs = ExecuteQuery(query);
-            System.out.println("[INFO] Done query execution");
-
-            if(!rs.isBeforeFirst()){
-                msg.setMsg("No book found with the given ID = "+id+".");
-            }else{
-                msg.setMsg("A book found with the given ID = "+id+".");
-            }
-            while (rs.next()) {
-                BookClass book = new BookClass();
-                book.setId(rs.getInt("ID"));
-                book.setPrice(rs.getInt("PRICE"));
-                book.setQuantity(rs.getInt("QUANTITY"));
-                book.setTitle(rs.getString("TITLE"));
-                book.setUrl(rs.getString("URL"));
-                String arr = rs.getString("CUSTOMERS");
-                arr = arr.replace("}","");
-                arr = arr.replace("{","");
-                arr = arr.replace("\"","");
-                String[] ary = arr.split(",");
-                book.setBorrowed_by(ary);
-                lb.add(book);
-            }
-
-            res.setResponseStatus(msg);
-            res.setListBooks(lb);
+            List<BookClass> lb = searchBook(id);
+            if(lb.size()==0)
+                header.setMsg("Book with id=" + id + " not found!");
+            else
+                header.setMsg("Book with id=" + id + " searched!");
+            res.setResponseHeader(header);
+            res.setBooks(lb);
 
         }catch (SQLException e) {
-            msg.setMsg(e.toString());
-            msg.setRS(response_status.ERR);
-            res.setResponseStatus(msg);
+            header.setMsg(e.toString());
+            header.setRS(response_status.ERR);
+            res.setResponseHeader(header);
             throw new SQLException("SQL query failure: ", e);
         }
         return res;
     }
 
 
-    public void check_Status_inconsistency(BookStatus current_status, int requested_status) throws BookException{
+    private void check_Status_inconsistency(BookStatus current_status, int requested_status) throws BookException {
         System.out.println("Current Status = "+current_status.toString());
         if(current_status == BookStatus.UNKNOWN){
             System.out.println("[Error] Unexpected output. This should not happen.");
@@ -146,7 +114,7 @@ public final class DemoDomain {
 
     public ResponseBooks updateBookStatus(UpdateBookStatus upd_status) throws SQLException{
         ResponseBooks res = new ResponseBooks();
-        ResponseMsg rm = new ResponseMsg();
+        ResponseHeader rm = new ResponseHeader();
         int action = upd_status.getStatus();//0 = Borrow, 1 = Return, 2 = Lost.
 
         BookStatus current_status = checkBookStatus(upd_status.getBook_id(), upd_status.getPhone_number());
@@ -170,7 +138,8 @@ public final class DemoDomain {
                     rm.setMsg("Reported lost book successfully.");
                     break;
                 } default:{
-                    System.out.println("[ERROR] Invalid status inputted.");
+                    rm.setMsg("Invalid status input.");
+                    System.out.println("[ERROR] Invalid status input.");
                     break;
                 }
             }
@@ -178,7 +147,7 @@ public final class DemoDomain {
             rm.setRS(response_status.ERR);
             rm.setMsg(e.getMessage());
         }
-        res.setResponseStatus(rm);
+        res.setResponseHeader(rm);
         return res;
     }
 
@@ -186,35 +155,16 @@ public final class DemoDomain {
 
     public ResponseBooks addBook(BookClass book) throws SQLException {
         ResponseBooks res = new ResponseBooks();
-        ResponseMsg rm = new ResponseMsg();
-        int flag = 0;
+        ResponseHeader rm = new ResponseHeader();
+
         try {
-            //System.out.println("Hello there!");
-            String check_existance_query = "Select count(title) AS checking from bookshelf WHERE title ='"+book.getTitle()+"' LIMIT 1";
-            ResultSet check = ExecuteQuery(check_existance_query);
+            //Check if the book-to-be-added already exists in the bookshelf table.
+            boolean this_book_already_exists = check_Book_Exists(book.getTitle());
 
-            ResultSetMetaData rsmd = check.getMetaData();
-            int columns = rsmd.getColumnCount();
-            //String[] str = new String[columns];
-            for (int x = 1; x <= columns; x++) {
-                System.out.println(rsmd.getColumnName(x));
-                //str[x] = rsmd.getColumnName(x);
-            }
-
-
-            while(check.next()) {
-                flag = check.getInt("checking");//1 if a book with the same title already exists.
-            }
-            if(flag==0) {
-                String query = "INSERT INTO bookshelf(title,price,quantity,url) values('" + book.getTitle() + "'," + book.getPrice() + "," + book.getQuantity() + ",'" + book.getUrl() + "') RETURNING id";
-                System.out.println("[QUERY] " + query);
-                ResultSet rs  = ExecuteQuery(query);
-
-                while (rs.next()) {
-                    book.setId(rs.getInt("ID"));
-                }
+            if(!this_book_already_exists) {
+                List<BookClass> lb = insertBook(book);
+                res.setBooks(lb);
                 rm.setMsg("All ok. Book inserted to database.");
-
             }else{
                 rm.setMsg("The same book already exists in the database.");
                 rm.setRS(response_status.ERR);
@@ -225,15 +175,9 @@ public final class DemoDomain {
             System.out.println("[Error] "+e.toString());
             throw e;
         }
-        res.setResponseStatus(rm);
-        res.getListBooks();
-        List<BookClass>bo = new ArrayList<>();
-        bo.add(book);
-        res.setListBooks(bo);
+        res.setResponseHeader(rm);
         return res;
     }
-
-
 
 
 }

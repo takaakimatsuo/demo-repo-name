@@ -1,5 +1,5 @@
 
-package SQLappliers;
+package SQLappliers.CustomENUMs;
 
 
 public enum BookStatus {

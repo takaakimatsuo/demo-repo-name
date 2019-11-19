@@ -1,4 +1,4 @@
-package DemoBackend;
+package DemoBackend.CustomObjects;
 
 public class UpdateBookStatus {
 

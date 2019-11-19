@@ -1,15 +1,13 @@
-package DemoBackend;
+package DemoBackend.CustomObjects;
 
 
 public class BookClass {
     private int id;
-    private String title;
-    private int price;
-    private String url;
-    private int quantity;
-    private String[] borrowed_by;
-    //private String[] borrowed_by_name;
-    //private ResponseMsg status;
+    private String title = "";
+    private int price = 0;
+    private String url = "";
+    private int quantity = 1;
+    private String[] borrowed_by = {};
 
     public void setId(int id){
         this.id = id;
@@ -21,18 +19,9 @@ public class BookClass {
     public void setBorrowed_by(String[] msns){
         this.borrowed_by = msns;
     }
-
     public String[] getBorrowed_by(){
         return this.borrowed_by;
     }
-
-    /*public ResponseMsg getResponseStatus(){
-        return status;
-    }
-
-    public void setResponseStatus(ResponseMsg rs){
-        this.status = rs;
-    }*/
 
     public String getTitle() {
         return title;

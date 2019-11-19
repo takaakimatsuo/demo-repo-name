@@ -167,7 +167,55 @@ function DELETE_removeBook(){
 
 
 
+function GET_Books(){
 
+    //var id = document.getElementById("bookid").value;
+
+    $.ajax({
+        //url: 'https://takaakidemo.herokuapp.com/sample/getBook?id='+id,
+        url: "http://localhost:8080/sample/books",
+        type: 'GET',
+        //dataType: 'json',
+        //data:JSON.stringify(data),
+        timeout: 5000,
+        crossDomain: true,
+        headers: {
+            'Access-Control-Allow-Origin': '*'
+        }
+    }).then(
+        function (data,status, xhr) {
+            //document.getElementById("getBookresult").value = JSON.stringify(data,null,"\t");
+        },
+        function () {
+            alert("読み込み失敗");
+        });
+}
+
+
+
+function GET_BooksID(){
+
+    var id = 4;
+
+    $.ajax({
+        //url: 'https://takaakidemo.herokuapp.com/sample/getBook?id='+id,
+        url: "http://localhost:8080/sample/books/?id="+id,
+        type: 'GET',
+        //dataType: 'json',
+        //data:JSON.stringify(data),
+        timeout: 5000,
+        crossDomain: true,
+        headers: {
+            'Access-Control-Allow-Origin': '*'
+        }
+    }).then(
+        function (data,status, xhr) {
+            //document.getElementById("getBookresult").value = JSON.stringify(data,null,"\t");
+        },
+        function () {
+            alert("読み込み失敗");
+        });
+}
 
 
 
