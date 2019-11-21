@@ -44,7 +44,7 @@ public class InputResolverTest {
 
     }
 
-
+/*
     @Test
     public void test_succeed_checkBook() throws InputFormatExeption {
 
@@ -53,7 +53,7 @@ public class InputResolverTest {
         }
         //checkURL(url);
 
-    }
+    }*/
 
 
 
