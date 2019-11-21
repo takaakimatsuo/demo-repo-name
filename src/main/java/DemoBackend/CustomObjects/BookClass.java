@@ -1,5 +1,7 @@
 package DemoBackend.CustomObjects;
 
+import DemoBackend.CustomExceptions.InputFormatExeption;
+import static com.example.demo.InputResolver.*;
 
 public class BookClass {
     private int id;

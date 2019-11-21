@@ -33,7 +33,7 @@
 
     <div>
         全ての本と借りた人の検索
-        <input type="button" value="getAllBook" onclick="GET_searchAllBooks();"/><br />
+        <input type="button" value="getAllBook" onclick="GET_Books();"/><br />
         <textarea id="getBooksresult" rows="10" cols="50"></textarea>
     </div>
 
@@ -41,14 +41,14 @@
     <div>
         IDによる本の検索
         <input type="number" id = "bookid" value=1 /><br />
-        <input type="button" value="getBook" onclick="GET_searchBook();"/><br />
+        <input type="button" value="getBook" onclick="GET_Book_fromID();"/><br />
         <textarea id="getBookresult" rows="10" cols="50"></textarea>
     </div>
 
     <div>
         IDによる本の削除
         <input type="number" id = "bookid_delete" value=1 /><br />
-        <input type="button" value="deleteBook" onclick="DELETE_removeBook();"/><br />
+        <input type="button" value="deleteBook" onclick="DELETE_Book_fromID();"/><br />
         <textarea id="deleteBookresult" rows="10" cols="50"></textarea>
     </div>
 

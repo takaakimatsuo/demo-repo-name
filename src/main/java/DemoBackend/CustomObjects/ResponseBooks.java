@@ -1,12 +1,32 @@
 package DemoBackend.CustomObjects;
 
-import java.util.ArrayList;
 import java.util.List;
+
+
 
 public class ResponseBooks {
 
-    private List<BookClass> books = new ArrayList<>();
-    private ResponseHeader msg = new ResponseHeader();
+
+    private List<BookClass> books;
+    private ResponseHeader msg;
+
+
+    public ResponseBooks(List<BookClass> books,ResponseHeader msg){
+        this.books = books;
+        this.msg = msg;
+    }
+
+    public ResponseBooks(List<BookClass> books){
+        this.books = books;
+    }
+
+    public ResponseBooks(ResponseHeader msg){
+        this.msg = msg;
+    }
+
+    public ResponseBooks(){
+    }
+
 
     public List<BookClass> getBooks(){
         return books;

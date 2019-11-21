@@ -1,38 +1,41 @@
 package DemoBackend;
 import DemoBackend.CustomENUMs.response_status;
 import DemoBackend.CustomExceptions.BookException;
-import DemoBackend.CustomObjects.BookClass;
-import DemoBackend.CustomObjects.ResponseBooks;
-import DemoBackend.CustomObjects.ResponseHeader;
-import DemoBackend.CustomObjects.UpdateBookStatus;
-import SQLappliers.CustomENUMs.BookStatus;
+import DemoBackend.CustomObjects.*;
+import DataAccess.CustomENUMs.BookStatus;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.List;
-import static SQLappliers.PSQL_APIs.*;
+import static DataAccess.BookDao.*;
 
 //import static BackEnd_domain.*;
 
 
-public final class DemoDomain {
+@Component
+public final class DemoBusinessLogic {
 
+    private static ResponseBooks res = new ResponseBooks();
+    private static ResponseHeader header = new ResponseHeader();
+    //private static ResponseBooks res;
+    //private static ResponseHeader header;
 
-    //Simply return all books stored in the bookshelf table.
-    //Input: None
-    //Output: ResponseBooks res - A list of BookClass objects.
-    public ResponseBooks getAllBooks() throws SQLException{
-        ResponseBooks res = new ResponseBooks();
-        ResponseHeader header = new ResponseHeader();
+    /*
+    * Simply return all books stored in the bookshelf table.
+    * @param: None
+    * @return: ResponseBooks res - A list of BookClass objects with the ResponseHeader class.
+    */
+     public ResponseBooks getAllBooks() throws SQLException{
 
         try {
-            List<BookClass> lb = searchAllBooks();
-            header.setMsg("All books searched!");
-            res.setBooks(lb);
+            List<BookClass> books = searchAllBooks();
+            header.setMessage("All books searched!");
+            res.setBooks(books);
             res.setResponseHeader(header);
 
         }catch (SQLException e) {
-            header.setMsg(e.toString());
-            header.setRS(response_status.ERR);
+            header.setMessage(e.toString());
+            header.setStatus(response_status.ERR);
             res.setResponseHeader(header);
             throw new SQLException("SQL query failure: ", e);
         }
@@ -44,16 +47,15 @@ public final class DemoDomain {
 
 
     public ResponseBooks removeBook(Integer id) throws SQLException{
-        ResponseBooks res = new ResponseBooks();
-        ResponseHeader header = new ResponseHeader();
+
         try {
             int update = deleteBook(id);
-            header.setMsg(update+" Data deleted from table.");
+            header.setMessage(update+" Data deleted from table.");
             res.setResponseHeader(header);
 
         }catch (SQLException e) {
-            header.setMsg(e.toString());
-            header.setRS(response_status.ERR);
+            header.setMessage(e.toString());
+            header.setStatus(response_status.ERR);
             res.setResponseHeader(header);
             throw new SQLException("SQL query failure: ", e);
         }
@@ -65,23 +67,21 @@ public final class DemoDomain {
 
     //Simply return all books stored in the bookshelf table.
     //Input: Integer id - Unique identifier for the stored BookClass.
-    //Output: ResponseBooks res - A list, but storing only a single BookClass object.
+    //Output: ResponseBooks res - A list, but storing only a single BookClass object with the ResponseHeader class.
     public ResponseBooks getBook(Integer id) throws SQLException{
-        ResponseBooks res = new ResponseBooks();
-        ResponseHeader header = new ResponseHeader();
 
         try {
-            List<BookClass> lb = searchBook(id);
-            if(lb.size()==0)
-                header.setMsg("Book with id=" + id + " not found!");
+            List<BookClass> books = searchBook(id);
+            if(books.size()==0)
+                header.setMessage("Book with id=" + id + " not found!");
             else
-                header.setMsg("Book with id=" + id + " searched!");
+                header.setMessage("Book with id=" + id + " searched!");
             res.setResponseHeader(header);
-            res.setBooks(lb);
+            res.setBooks(books);
 
         }catch (SQLException e) {
-            header.setMsg(e.toString());
-            header.setRS(response_status.ERR);
+            header.setMessage(e.toString());
+            header.setStatus(response_status.ERR);
             res.setResponseHeader(header);
             throw new SQLException("SQL query failure: ", e);
         }
@@ -110,11 +110,11 @@ public final class DemoDomain {
     }
 
 
-
+/*
 
     public ResponseBooks updateBookStatus(UpdateBookStatus upd_status) throws SQLException{
         ResponseBooks res = new ResponseBooks();
-        ResponseHeader rm = new ResponseHeader();
+        ResponseHeader header = new ResponseHeader();
         int action = upd_status.getStatus();//0 = Borrow, 1 = Return, 2 = Lost.
 
         BookStatus current_status = checkBookStatus(upd_status.getBook_id(), upd_status.getPhone_number());
@@ -125,57 +125,98 @@ public final class DemoDomain {
             switch(action){
                 case 0:{//Borrow!
                     borrowBook(upd_status.getBook_id(), upd_status.getPhone_number());
-                    rm.setMsg("Borrowed book successfully.");
+                    header.setMessage("Borrowed book successfully.");
                     break;
                 }
                 case 1:{
                     returnBook(upd_status.getBook_id(), upd_status.getPhone_number());
-                    rm.setMsg("Returned book successfully.");
+                    header.setMessage("Returned book successfully.");
                     break;
                 }
                 case 2:{;
                     lostBook(upd_status.getBook_id(),upd_status.getPhone_number());
-                    rm.setMsg("Reported lost book successfully.");
+                    header.setMessage("Reported lost book successfully.");
                     break;
                 } default:{
-                    rm.setMsg("Invalid status input.");
+                    header.setMessage("Invalid status input.");
                     System.out.println("[ERROR] Invalid status input.");
                     break;
                 }
             }
         }catch(BookException e){
-            rm.setRS(response_status.ERR);
-            rm.setMsg(e.getMessage());
+            header.setStatus(response_status.ERR);
+            header.setMessage(e.getMessage());
         }
-        res.setResponseHeader(rm);
+        res.setResponseHeader(header);
+        return res;
+    }
+
+*/
+
+
+    public ResponseBooks updateBookStatus(Integer book_id, PatchBookClass upd_status) throws SQLException{
+
+        int action = upd_status.getStatus();//0 = Borrow, 1 = Return, 2 = Lost.
+
+        BookStatus current_status = checkBookStatus(book_id, upd_status.getBorrower());
+
+        try{
+            //Check inconsistency. e.g. User trying to return a book that has not been borrowed.
+            check_Status_inconsistency(current_status, action);
+            switch(action){
+                case 0:{//Borrow!
+                    borrowBook(book_id, upd_status.getBorrower());
+                    header.setMessage("Borrowed book successfully.");
+                    break;
+                }
+                case 1:{
+                    returnBook(book_id, upd_status.getBorrower());
+                    header.setMessage("Returned book successfully.");
+                    break;
+                }
+                case 2:{;
+                    lostBook(book_id,upd_status.getBorrower());
+                    header.setMessage("Reported lost book successfully.");
+                    break;
+                } default:{
+                    header.setMessage("Invalid status input.");
+                    System.out.println("[ERROR] Invalid status input.");
+                    break;
+                }
+            }
+        }catch(BookException e){
+            header.setStatus(response_status.ERR);
+            header.setMessage(e.getMessage());
+        }
+        res.setResponseHeader(header);
         return res;
     }
 
 
 
+
+
     public ResponseBooks addBook(BookClass book) throws SQLException {
-        ResponseBooks res = new ResponseBooks();
-        ResponseHeader rm = new ResponseHeader();
 
         try {
             //Check if the book-to-be-added already exists in the bookshelf table.
             boolean this_book_already_exists = check_Book_Exists(book.getTitle());
 
             if(!this_book_already_exists) {
-                List<BookClass> lb = insertBook(book);
-                res.setBooks(lb);
-                rm.setMsg("All ok. Book inserted to database.");
+                List<BookClass> books = insertBook(book);
+                res.setBooks(books);
+                header.setMessage("All ok. Book inserted to database.");
             }else{
-                rm.setMsg("The same book already exists in the database.");
-                rm.setRS(response_status.ERR);
+                header.setMessage("The same book already exists in the database.");
+                header.setStatus(response_status.ERR);
             }
 
         }catch(SQLException e){
-            rm.setMsg(e.toString());
+            header.setMessage(e.toString());
             System.out.println("[Error] "+e.toString());
             throw e;
         }
-        res.setResponseHeader(rm);
+        res.setResponseHeader(header);
         return res;
     }
 

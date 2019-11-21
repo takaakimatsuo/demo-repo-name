@@ -1,6 +1,6 @@
 
 
-
+/*
 
 function PATCH_updateBookStatus(){
 
@@ -112,9 +112,9 @@ function GET_searchBook(){
 
     var id = document.getElementById("bookid").value;
     //console.log(bid);
-    /*var data = {
-        "id": id
-    };*/
+    //var data = {
+    //    "id": id
+    //};
     $.ajax({
         //url: 'https://takaakidemo.herokuapp.com/sample/getBook?id='+id,
         url: "http://localhost:8080/sample/getBook?id="+id,
@@ -134,8 +134,6 @@ function GET_searchBook(){
             alert("読み込み失敗");
         });
 }
-
-
 
 
 
@@ -162,21 +160,17 @@ function DELETE_removeBook(){
         function (XMLHttpRequest, textStatus, errorThrown) {
             alert("読み込み失敗: XMLHttpRequest : " + XMLHttpRequest.status+", textStatus : " + textStatus+", errorThrown : " + errorThrown.message);
         });
-}
+}*/
 
 
 
 
 function GET_Books(){
 
-    //var id = document.getElementById("bookid").value;
-
     $.ajax({
-        //url: 'https://takaakidemo.herokuapp.com/sample/getBook?id='+id,
+        //url: 'https://takaakidemo.herokuapp.com/sample/books',
         url: "http://localhost:8080/sample/books",
         type: 'GET',
-        //dataType: 'json',
-        //data:JSON.stringify(data),
         timeout: 5000,
         crossDomain: true,
         headers: {
@@ -184,7 +178,7 @@ function GET_Books(){
         }
     }).then(
         function (data,status, xhr) {
-            //document.getElementById("getBookresult").value = JSON.stringify(data,null,"\t");
+            document.getElementById("getBooksresult").value = JSON.stringify(data,null,"\t");
         },
         function () {
             alert("読み込み失敗");
@@ -193,16 +187,14 @@ function GET_Books(){
 
 
 
-function GET_BooksID(){
+function GET_Book_fromID(){
 
-    var id = 4;
+    var id = document.getElementById("bookid").value;
 
     $.ajax({
-        //url: 'https://takaakidemo.herokuapp.com/sample/getBook?id='+id,
-        url: "http://localhost:8080/sample/books/?id="+id,
+        //url: 'https://takaakidemo.herokuapp.com/sample/books/?id='+id,
+        url: "http://localhost:8080/sample/books/"+id,
         type: 'GET',
-        //dataType: 'json',
-        //data:JSON.stringify(data),
         timeout: 5000,
         crossDomain: true,
         headers: {
@@ -210,10 +202,36 @@ function GET_BooksID(){
         }
     }).then(
         function (data,status, xhr) {
-            //document.getElementById("getBookresult").value = JSON.stringify(data,null,"\t");
+            document.getElementById("getBookresult").value = JSON.stringify(data,null,"\t");
         },
         function () {
             alert("読み込み失敗");
+        });
+}
+
+
+
+
+function DELETE_Book_fromID(){
+
+    var id = document.getElementById("bookid_delete").value;
+
+    $.ajax({
+        //url: 'https://takaakidemo.herokuapp.com/sample/deleteBook?id='+id,
+        url: "http://localhost:8080/sample/deleteBook?id="+id,
+        type: 'GET',
+        timeout: 5000,
+        crossDomain: true,
+        headers: {
+            'Access-Control-Allow-Origin': '*'
+        }
+    }).then(
+        function (data,status, xhr) {
+            console.log(xhr.statusCode());
+            document.getElementById("deleteBookresult").value = JSON.stringify(data,null,"\t");
+        },
+        function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("読み込み失敗: XMLHttpRequest : " + XMLHttpRequest.status+", textStatus : " + textStatus+", errorThrown : " + errorThrown.message);
         });
 }
 

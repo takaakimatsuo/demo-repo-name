@@ -2,9 +2,11 @@ package com.example.demo;
 
 import DemoBackend.*;
 import DemoBackend.CustomENUMs.response_status;
+import DemoBackend.CustomExceptions.InputFormatExeption;
 import DemoBackend.CustomObjects.*;
 import org.springframework.web.bind.annotation.*;
 import java.sql.*;
+import static com.example.demo.InputResolver.*;
 
 @RestController
 public class DemoController {
@@ -59,7 +61,7 @@ public class DemoController {
         }
         return response;
     }
-*/
+
 
     @CrossOrigin
     @GetMapping(value = "/deleteBook")
@@ -87,17 +89,20 @@ public class DemoController {
         return lb;
     }
 
-
+*/
 
 
 
     @CrossOrigin
     @GetMapping(value = "/books/{id}")
     public ResponseBooks GET_book(@PathVariable("id") String book_id){
+
         ResponseBooks lb = new ResponseBooks();
         try {
-            lb = new DemoDomain().getBook(Integer.parseInt(book_id));
+            lb = new DemoBusinessLogic().getBook(assureInteger(book_id));
         }catch(SQLException e){
+            System.out.println(e);
+        }catch(InputFormatExeption e){
             System.out.println(e);
         }
         return lb;
@@ -109,7 +114,7 @@ public class DemoController {
     public ResponseBooks GET_books(){
         ResponseBooks lb = new ResponseBooks();
         try {
-            lb = new DemoDomain().getAllBooks();
+            lb = new DemoBusinessLogic().getAllBooks();
         }catch(SQLException e){
             System.out.println(e);
         }
@@ -120,29 +125,24 @@ public class DemoController {
     @PostMapping(value = "/books")
     public ResponseBooks POST_books(@RequestBody BookClass inputs){
         ResponseBooks response = new ResponseBooks();
-        System.out.println("URL is "+ inputs.getUrl());
-        if(inputs.getTitle()==""){
-            System.out.println("[ERROR] Empty title input from user.");
-            response.setResponseHeader(new ResponseHeader(response_status.ERR,"User input with no title forbidden."));
-        }else if(inputs.getQuantity()<=0 || inputs.getPrice()<0){
-            response.setResponseHeader(new ResponseHeader(response_status.ERR,"Quantity must be more than 1, and Price must be more than 0."));
-        } else {
-            try {
-                response = new DemoDomain().addBook(inputs);
-            } catch (SQLException e) {
-                response.setResponseHeader(new ResponseHeader(response_status.ERR,e.toString()));
-                System.out.println(e);
-            }
+        try {
+            response = new DemoBusinessLogic().addBook(assureBookClassList(inputs));
+        } catch (SQLException | InputFormatExeption e ) {
+            response.setResponseHeader(new ResponseHeader(response_status.ERR,e.getMessage()));
+            System.out.println(e.getMessage());
         }
+
         return response;
     }
 
+    //TODO
     @CrossOrigin
     @PutMapping(value = "/books/{id}")
     public ResponseBooks PUT_book(@PathVariable("id") String id, @RequestBody BookClass inputs){
         ResponseBooks lb = new ResponseBooks();
+        //checkInteger(book_id)
 
-        System.out.println("Here I am PUT[id]"+id+", "+inputs.getTitle());
+        //System.out.println("Here I am PUT[id]"+id+", "+inputs.getTitle());
         return lb;
     }
 
@@ -150,8 +150,13 @@ public class DemoController {
     @PatchMapping(value = "/books/{id}")
     public ResponseBooks PATCH_book(@PathVariable("id") String id, @RequestBody PatchBookClass inputs){
         ResponseBooks lb = new ResponseBooks();
-
-        System.out.println("Here I am PATCH[id]"+id+", "+inputs.getBorrower());
+        try {
+            lb = new DemoBusinessLogic().updateBookStatus(assureInteger(id),assurePatchBookClass(inputs));
+        }catch(SQLException e){
+            System.out.println(e);
+        }catch(InputFormatExeption e){
+            System.out.println(e);
+        }
         return lb;
     }
 
@@ -159,8 +164,13 @@ public class DemoController {
     @DeleteMapping(value = "/books/{id}")
     public ResponseBooks DELETE_book(@PathVariable("id") String id){
         ResponseBooks lb = new ResponseBooks();
-
-        System.out.println("Here I am Delete[id]"+id);
+        try {
+            lb = new DemoBusinessLogic().removeBook(assureInteger(id));
+        }catch(SQLException e){
+            System.out.println(e);
+        }catch(InputFormatExeption e){
+            System.out.println(e);
+        }
         return lb;
     }
 

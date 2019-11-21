@@ -1,10 +1,15 @@
 package DemoBackend.CustomObjects;
 
 import DemoBackend.CustomENUMs.response_status;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+
 
 public class ResponseHeader {
-        response_status status;
-        String message;
+        private response_status status;
+        private String message;
+
 
         public ResponseHeader(response_status rs, String msg){
                 this.status = rs;
@@ -16,17 +21,19 @@ public class ResponseHeader {
                 this.message = "Blank message";
         }
 
-        public response_status getRS() {
+        public response_status getStatus() {
                 return status;
         }
-        public void setRS(response_status rs) {
+
+        public void setStatus(response_status rs) {
                 this.status = rs;
         }
 
-        public String getMsg() {
+        public String getMessage() {
                 return message;
         }
-        public void setMsg(String msg) {
+
+        public void setMessage(String msg) {
                 this.message = msg;
         }
 

@@ -1,16 +1,16 @@
-package SQLappliers;
+package DataAccess;
 
 
 import DemoBackend.CustomExceptions.BookException;
 import DemoBackend.CustomObjects.BookClass;
-import SQLappliers.CustomENUMs.BookStatus;
+import DataAccess.CustomENUMs.BookStatus;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 
-public final class PSQL_APIs {
+public final class BookDao {
     private static final String url = "jdbc:postgresql://ec2-174-129-253-169.compute-1.amazonaws.com/d9vsaknll1319";
     private static final String user = "lfoagdwpzckmuq";
     private static final String password = "7cf9b7a5b57780ee7f45c96cac75808dd2cc2ba77b123cf0948cfb290ad1d93c";
@@ -85,7 +85,7 @@ public final class PSQL_APIs {
 
     //Used for executing an arbitrary SQL query.
     //Input: String query - Simple raw query for sql.
-    public static final ResultSet SafeExecuteQuery(String query) throws SQLException{
+    private static ResultSet SafeExecuteQuery(String query) throws SQLException{
         Connection con = null;
         try {
             //Establish DB connection.
@@ -107,7 +107,7 @@ public final class PSQL_APIs {
 
     //Used for executing an arbitrary SQL query.
     //Input: String query - Simple raw query for sql.
-    public static final int SafeExecuteUpdate(String query, List<Object> params) throws SQLException{
+    private static int SafeExecuteUpdate(String query, List<Object> params) throws SQLException{
         Connection con = null;
         try {
             //Establish DB connection.
@@ -133,7 +133,7 @@ public final class PSQL_APIs {
     //      BOOK_NOT_EXISTING - Book not existing.
     //      BOOK_NOT_BORROWED_BY_THIS_USER - Book currently not borrowed by the user. The users action must be "borrow".
     //      BOOK_BORROWED_BY_THIS_USER - Book currently borrowed by the user. The users action must be either "return", or "lost".
-    public static final BookStatus checkBookStatus(Integer book_id, String phone_number) throws SQLException {
+    public static BookStatus checkBookStatus(Integer book_id, String phone_number) throws SQLException {
 
         String query = "SELECT borrowed_by FROM bookshelf WHERE id = ?";
         List<Object> param_list = new ArrayList<Object>();
@@ -164,7 +164,7 @@ public final class PSQL_APIs {
     }
 
 
-    public static final boolean check_BookStock_Availability(Integer book_id) throws SQLException {
+    private static boolean check_BookStock_Availability(Integer book_id) throws SQLException {
         boolean available = false;
         //String query = "Select quantity, borrowed_by AS customers from bookshelf WHERE id = " + book_id;
         String query = "SELECT COALESCE(array_length(borrowed_by, 1), 0) < quantity as stock_available FROM bookshelf WHERE id = ?";
@@ -180,7 +180,7 @@ public final class PSQL_APIs {
 
 
 
-    public static final void borrowBook(Integer book_id, String phone_number) throws SQLException, BookException {
+    public static void borrowBook(Integer book_id, String phone_number) throws SQLException, BookException {
         if(check_BookStock_Availability(book_id)) {
             //String query = "UPDATE bookshelf SET borrowed_by = array_append(borrowed_by, '" + phone_number + "') WHERE id = " + book_id;
             String query = "UPDATE bookshelf SET borrowed_by = array_append(borrowed_by, ?) WHERE id = ?";
@@ -196,7 +196,7 @@ public final class PSQL_APIs {
 
 
 
-    public static final void returnBook(Integer book_id, String phone_number) throws SQLException {
+    public static void returnBook(Integer book_id, String phone_number) throws SQLException {
         String query = "UPDATE bookshelf SET borrowed_by = array_remove(borrowed_by, ?) WHERE id = ?";
         List<Object> param_list = new ArrayList<Object>();
         param_list.add(phone_number);
@@ -206,7 +206,7 @@ public final class PSQL_APIs {
 
 
     //Reports a book as lost. This will decrease the book's quantity by 1, and delete the entire data from the bookshelf table when the quantity becomes less than 0.
-    public static final void lostBook(Integer book_id, String phone_number) throws SQLException {
+    public static void lostBook(Integer book_id, String phone_number) throws SQLException {
         //String query = "UPDATE bookshelf SET borrowed_by = array_remove(borrowed_by, '"+phone_number+"') SET quantity = quantity-1 WHERE id = " + book_id+" RETURNING quantity";
         String query = "UPDATE bookshelf SET borrowed_by = array_remove(borrowed_by, ?), quantity = (quantity-1) WHERE id = ? RETURNING quantity";
         List<Object> param_list = new ArrayList<Object>();
@@ -216,7 +216,7 @@ public final class PSQL_APIs {
         //ResultSet rs = ExecuteQuery(query);
         if (rs.next()) {
             int quantity = rs.getInt("QUANTITY");
-            if(quantity < 0){//If quantity is less than 0
+            if(quantity <= 0){//If quantity is less than 0
                 deleteBook(book_id);//Simply remove the book from the bookshelf
             }
         }
@@ -224,7 +224,7 @@ public final class PSQL_APIs {
 
 
 
-    public static final List<BookClass> insertBook(BookClass book) throws SQLException{
+    public static List<BookClass> insertBook(BookClass book) throws SQLException{
         //String query = "INSERT INTO bookshelf(title,price,quantity,url) values('" + book.getTitle() + "'," + book.getPrice() + "," + book.getQuantity() + ",'" + book.getUrl() + "') RETURNING *";
         String query = "INSERT INTO bookshelf(title,price,quantity,url) values(?, ?, ?, ?) RETURNING *";
         List<Object> param_list = new ArrayList<Object>();
@@ -240,7 +240,7 @@ public final class PSQL_APIs {
 
 
 
-    public static final int deleteBook(Integer book_id) throws SQLException {
+    public static int deleteBook(Integer book_id) throws SQLException {
         String query = "DELETE FROM bookshelf WHERE id = ?";
         List<Object> param_list = new ArrayList<Object>();
         param_list.add(book_id);

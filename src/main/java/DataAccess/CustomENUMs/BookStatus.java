@@ -1,5 +1,5 @@
 
-package SQLappliers.CustomENUMs;
+package DataAccess.CustomENUMs;
 
 
 public enum BookStatus {

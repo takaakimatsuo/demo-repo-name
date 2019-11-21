@@ -10,7 +10,7 @@ public class PatchBookClass {
         return borrower;
     }
 
-    public void setStatus(int id){
+    public void setStatus(int status){
         this.status = status;
     }
     public int getStatus(){
