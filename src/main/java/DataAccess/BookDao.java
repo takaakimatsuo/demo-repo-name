@@ -4,6 +4,8 @@ package DataAccess;
 import DemoBackend.CustomExceptions.BookException;
 import DemoBackend.CustomObjects.BookClass;
 import DataAccess.CustomENUMs.BookStatus;
+
+import java.awt.print.Book;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -129,36 +131,34 @@ public final class BookDao {
     }
 
 
+
     // Outputs:
     //      BOOK_NOT_EXISTING - Book not existing.
     //      BOOK_NOT_BORROWED_BY_THIS_USER - Book currently not borrowed by the user. The users action must be "borrow".
     //      BOOK_BORROWED_BY_THIS_USER - Book currently borrowed by the user. The users action must be either "return", or "lost".
-    public static BookStatus checkBookStatus(Integer book_id, String phone_number) throws SQLException {
+    public BookStatus checkBookStatus(Integer book_id, String phone_number) throws SQLException {
 
         String query = "SELECT borrowed_by FROM bookshelf WHERE id = ?";
         List<Object> param_list = new ArrayList<Object>();
         param_list.add(book_id);
         BookStatus st = BookStatus.UNKNOWN;
-        try {
-            ResultSet check = SafeExecuteQuery(query,param_list);//Execute query.
-            if(!check.isBeforeFirst()){//SQL returned an empty output. No data matched the condition.
-                System.out.println("[INFO] Book with id="+book_id+" doesnt exist in the table.");
-                 st = BookStatus.BOOK_NOT_EXISTING;
-            }else{
-                if(check.next()) {
-                    String arr = check.getString("BORROWED_BY");
-                    String[] customers = splitStringIntoArray(arr, ",", new String[]{"\"", "}", "{"});
-                    if (Arrays.asList(customers).contains(phone_number)) {//Book is borrowed by the user.
-                        System.out.println("[INFO] User already borrowing the book.");
-                        st = BookStatus.BOOK_BORROWED_BY_THIS_USER;
-                    }else{
-                        System.out.println("[INFO] User not borrowing the book yet.");
-                        st = BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER;
-                    }
+
+        ResultSet check = SafeExecuteQuery(query,param_list);//Execute query.
+        if(!check.isBeforeFirst()){//SQL returned an empty output. No data matched the condition.
+            System.out.println("[INFO] Book with id="+book_id+" doesnt exist in the table.");
+            st = BookStatus.BOOK_NOT_EXISTING;
+        }else{
+            if(check.next()) {
+                String arr = check.getString("BORROWED_BY");
+                String[] customers = splitStringIntoArray(arr, ",", new String[]{"\"", "}", "{"});
+                if (Arrays.asList(customers).contains(phone_number)) {//Book is borrowed by the user.
+                    System.out.println("[INFO] User already borrowing the book.");
+                    st = BookStatus.BOOK_BORROWED_BY_THIS_USER;
+                }else{
+                    System.out.println("[INFO] User not borrowing the book yet.");
+                    st = BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER;
                 }
             }
-        }catch (SQLException e){
-            throw e;
         }
         return st;
     }
@@ -180,7 +180,7 @@ public final class BookDao {
 
 
 
-    public static void borrowBook(Integer book_id, String phone_number) throws SQLException, BookException {
+    public void borrowBook(Integer book_id, String phone_number) throws SQLException, BookException {
         if(check_BookStock_Availability(book_id)) {
             //String query = "UPDATE bookshelf SET borrowed_by = array_append(borrowed_by, '" + phone_number + "') WHERE id = " + book_id;
             String query = "UPDATE bookshelf SET borrowed_by = array_append(borrowed_by, ?) WHERE id = ?";
@@ -196,7 +196,7 @@ public final class BookDao {
 
 
 
-    public static void returnBook(Integer book_id, String phone_number) throws SQLException {
+    public void returnBook(Integer book_id, String phone_number) throws SQLException {
         String query = "UPDATE bookshelf SET borrowed_by = array_remove(borrowed_by, ?) WHERE id = ?";
         List<Object> param_list = new ArrayList<Object>();
         param_list.add(phone_number);
@@ -206,7 +206,7 @@ public final class BookDao {
 
 
     //Reports a book as lost. This will decrease the book's quantity by 1, and delete the entire data from the bookshelf table when the quantity becomes less than 0.
-    public static void lostBook(Integer book_id, String phone_number) throws SQLException {
+    public void lostBook(Integer book_id, String phone_number) throws SQLException {
         //String query = "UPDATE bookshelf SET borrowed_by = array_remove(borrowed_by, '"+phone_number+"') SET quantity = quantity-1 WHERE id = " + book_id+" RETURNING quantity";
         String query = "UPDATE bookshelf SET borrowed_by = array_remove(borrowed_by, ?), quantity = (quantity-1) WHERE id = ? RETURNING quantity";
         List<Object> param_list = new ArrayList<Object>();
@@ -217,14 +217,14 @@ public final class BookDao {
         if (rs.next()) {
             int quantity = rs.getInt("QUANTITY");
             if(quantity <= 0){//If quantity is less than 0
-                deleteBook(book_id);//Simply remove the book from the bookshelf
+                new BookDao().deleteBook(book_id);//Simply remove the book from the bookshelf
             }
         }
     }
 
 
 
-    public static List<BookClass> insertBook(BookClass book) throws SQLException{
+    public List<BookClass> insertBook(BookClass book) throws SQLException{
         //String query = "INSERT INTO bookshelf(title,price,quantity,url) values('" + book.getTitle() + "'," + book.getPrice() + "," + book.getQuantity() + ",'" + book.getUrl() + "') RETURNING *";
         String query = "INSERT INTO bookshelf(title,price,quantity,url) values(?, ?, ?, ?) RETURNING *";
         List<Object> param_list = new ArrayList<Object>();
@@ -240,7 +240,7 @@ public final class BookDao {
 
 
 
-    public static int deleteBook(Integer book_id) throws SQLException {
+    public int deleteBook(Integer book_id) throws SQLException {
         String query = "DELETE FROM bookshelf WHERE id = ?";
         List<Object> param_list = new ArrayList<Object>();
         param_list.add(book_id);
@@ -249,7 +249,7 @@ public final class BookDao {
     }
 
 
-    public static List<BookClass> searchAllBooks() throws SQLException{
+    public List<BookClass> searchAllBooks() throws SQLException{
         String query = "SELECT id, title, price, quantity, (SELECT ARRAY( select family_name ||' '|| first_name FROM book_user u JOIN bookshelf b ON u.phone_number = ANY(b.borrowed_by) WHERE b.title = OuterQuery.title)) AS \"borrowed_by\", url FROM bookshelf AS OuterQuery ORDER BY id DESC;";
         System.out.println("[INFO] Requesting query execution");
         ResultSet rs = SafeExecuteQuery(query);
@@ -258,7 +258,7 @@ public final class BookDao {
         return lb;
     }
 
-    public static List<BookClass> searchBook(Integer id) throws SQLException{
+    public List<BookClass> searchBook(Integer id) throws SQLException{
         String query = "select id, title, price, quantity, (SELECT ARRAY( select family_name ||' '|| first_name from book_user u JOIN bookshelf b ON u.phone_number = ANY(b.borrowed_by) WHERE b.title = OuterQuery.title)) AS \"borrowed_by\", url from bookshelf AS OuterQuery WHERE id = ?";
         List<Object> param_list = new ArrayList<Object>();
         param_list.add(id);
@@ -274,7 +274,7 @@ public final class BookDao {
     //Checks whether a specific book already exists in the bookshelf table.
     //Input: String book_title - The title of book to be searched.
     //Output: boolean exists - True if the book with the given input exists in the bookshelf table, otherwise False.
-    public static final boolean check_Book_Exists(String book_title) throws SQLException {
+    public final boolean check_Book_Exists(String book_title) throws SQLException {
         boolean exists = true;
         String query = "SELECT count(title)>0 AS book_exists FROM bookshelf WHERE title = ? LIMIT 1";
         List<Object> param_list = new ArrayList<Object>();
@@ -288,7 +288,7 @@ public final class BookDao {
 
 
 
-    public static List<BookClass> copy_BookClass_From_ResultSet(ResultSet rs)throws SQLException{
+    private static List<BookClass> copy_BookClass_From_ResultSet(ResultSet rs)throws SQLException{
         List<BookClass> lb = new ArrayList<>();
         if(!rs.isBeforeFirst()) {
             return lb;

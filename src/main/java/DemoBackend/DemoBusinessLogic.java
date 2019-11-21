@@ -1,4 +1,5 @@
 package DemoBackend;
+import DataAccess.BookDao;
 import DemoBackend.CustomENUMs.response_status;
 import DemoBackend.CustomExceptions.BookException;
 import DemoBackend.CustomObjects.*;
@@ -17,6 +18,7 @@ public final class DemoBusinessLogic {
 
     private static ResponseBooks res = new ResponseBooks();
     private static ResponseHeader header = new ResponseHeader();
+    private static BookDao bookDao = new BookDao();
     //private static ResponseBooks res;
     //private static ResponseHeader header;
 
@@ -28,7 +30,7 @@ public final class DemoBusinessLogic {
      public ResponseBooks getAllBooks() throws SQLException{
 
         try {
-            List<BookClass> books = searchAllBooks();
+            List<BookClass> books = new BookDao().searchAllBooks();
             header.setMessage("All books searched!");
             res.setBooks(books);
             res.setResponseHeader(header);
@@ -49,7 +51,7 @@ public final class DemoBusinessLogic {
     public ResponseBooks removeBook(Integer id) throws SQLException{
 
         try {
-            int update = deleteBook(id);
+            int update = bookDao.deleteBook(id);
             header.setMessage(update+" Data deleted from table.");
             res.setResponseHeader(header);
 
@@ -71,7 +73,7 @@ public final class DemoBusinessLogic {
     public ResponseBooks getBook(Integer id) throws SQLException{
 
         try {
-            List<BookClass> books = searchBook(id);
+            List<BookClass> books = bookDao.searchBook(id);
             if(books.size()==0)
                 header.setMessage("Book with id=" + id + " not found!");
             else
@@ -158,24 +160,24 @@ public final class DemoBusinessLogic {
 
         int action = upd_status.getStatus();//0 = Borrow, 1 = Return, 2 = Lost.
 
-        BookStatus current_status = checkBookStatus(book_id, upd_status.getBorrower());
+        BookStatus current_status = bookDao.checkBookStatus(book_id, upd_status.getBorrower());
 
         try{
             //Check inconsistency. e.g. User trying to return a book that has not been borrowed.
             check_Status_inconsistency(current_status, action);
             switch(action){
                 case 0:{//Borrow!
-                    borrowBook(book_id, upd_status.getBorrower());
+                    bookDao.borrowBook(book_id, upd_status.getBorrower());
                     header.setMessage("Borrowed book successfully.");
                     break;
                 }
                 case 1:{
-                    returnBook(book_id, upd_status.getBorrower());
+                    bookDao.returnBook(book_id, upd_status.getBorrower());
                     header.setMessage("Returned book successfully.");
                     break;
                 }
                 case 2:{;
-                    lostBook(book_id,upd_status.getBorrower());
+                    bookDao.lostBook(book_id,upd_status.getBorrower());
                     header.setMessage("Reported lost book successfully.");
                     break;
                 } default:{
@@ -200,10 +202,10 @@ public final class DemoBusinessLogic {
 
         try {
             //Check if the book-to-be-added already exists in the bookshelf table.
-            boolean this_book_already_exists = check_Book_Exists(book.getTitle());
+            boolean this_book_already_exists = bookDao.check_Book_Exists(book.getTitle());
 
             if(!this_book_already_exists) {
-                List<BookClass> books = insertBook(book);
+                List<BookClass> books = bookDao.insertBook(book);
                 res.setBooks(books);
                 header.setMessage("All ok. Book inserted to database.");
             }else{
