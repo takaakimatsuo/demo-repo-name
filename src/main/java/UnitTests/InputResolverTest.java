@@ -1,10 +1,9 @@
 package UnitTests;
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
 
 import DemoBackend.CustomExceptions.InputFormatExeption;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -13,80 +12,65 @@ import java.util.Arrays;
 
 import static com.example.demo.InputResolver.*;
 
-@RunWith(Parameterized.class)
+@RunWith(Enclosed.class)
 public class InputResolverTest {
 
-    //private static String test_urls[] = {"ht","","http","https://","http:","http://a","https://s"};
-    private static String test_urls_succeed[] = {"http://a", "https://s", ""};
-    private static String test_urls_fail[] = {"https://", "http://", "htt://s", "azacw", "https:///"};
+    @RunWith(Parameterized.class)
+    public static class Test_URL {
 
         @Parameterized.Parameters
-        public static Iterable<? extends Object> data() {
-            return Arrays.asList(new Object[][]{{"http://a", null}, {"https://s", null}, {"", null}, {"a", InputFormatExeption.class},{" ", InputFormatExeption.class}, {"b", InputFormatExeption.class}, {null, InputFormatExeption.class}});
+        public static Iterable<? extends Object> dataURL() {
+            return Arrays.asList(new Object[][]{{"http://a", null}, {"https://s", null}, {"", null}, {"a", InputFormatExeption.class}, {" ", InputFormatExeption.class}, {"b", InputFormatExeption.class}, {null, InputFormatExeption.class}});
         }
 
         @Parameterized.Parameter(0)
-        public String url;
+        public static String url;
         @Parameterized.Parameter(1)
-        public Class<? extends Exception> expectedException;
+        public static Class<? extends Exception> expectedException;
 
         @Rule
         public ExpectedException thrown = ExpectedException.none();
 
+        @Test
+        public void test_succeed_checkURL() throws InputFormatExeption {
+
+            if (expectedException != null) {
+                thrown.expect(expectedException);
+            }
+            assureURL(url);
+        }
+    }
+
+
+
+
+
+    @RunWith(Parameterized.class)
+    public static class Test_PhoneNumber {
+
+        @Parameterized.Parameters
+        public static Iterable<? extends Object> dataURL() {
+            return Arrays.asList(new Object[][]{{"08044660000", null}, {"07000000000", null}, {"01011111111", null}, {"a", InputFormatExeption.class},{" ", InputFormatExeption.class}, {"b", InputFormatExeption.class}, {null, InputFormatExeption.class}});
+        }
+
+        @Parameterized.Parameter(0)
+        public static String phone;
+        @Parameterized.Parameter(1)
+        public static Class<? extends Exception> expectedException;
+
+        @Rule
+        public ExpectedException thrown = ExpectedException.none();
 
         @Test
-    public void test_succeed_checkURL() throws InputFormatExeption {
+        public void test_succeed_checkURL() throws InputFormatExeption {
 
-        if (expectedException != null) {
-            thrown.expect(expectedException);
-        }
-        assureURL(url);
-
-    }
-
-/*
-    @Test
-    public void test_succeed_checkBook() throws InputFormatExeption {
-
-        if (expectedException != null) {
-            thrown.expect(expectedException);
-        }
-        //checkURL(url);
-
-    }*/
-
-
-
-
-    /*
-    @Test (expected = Test.None.class  )//no exception expected
-    public void test_succeed_checkURL() throws InputFormatExeption{
-        try{
-            checkURL(m1);
-        }catch(InputFormatExeption e){
-            throw e;
-        }
-    }*/
-
-    /*
-    @Test (expected = InputFormatExeption.class)
-    public void test_fail_checkURL() throws InputFormatExeption{
-        try{
-            for(String url: test_urls_fail) {
-                checkURL(url);
+            if (expectedException != null) {
+                thrown.expect(expectedException);
             }
-        }catch(InputFormatExeption e){
-            throw e;
+            assurePhoneNumber(phone);
         }
     }
 
-    @Test
-    public void test_checkPhoneNumber(){
-
-        String expected = "a";
-        String actual = "a";
-        assertThat(actual,is(expected));
-    }*/
 
 }
 

@@ -51,6 +51,9 @@ public class InputResolver {
     }
 
     public static void assurePhoneNumber(String number) throws InputFormatExeption{
+        if(number == null){
+            throw new InputFormatExeption("Phone number is null.");
+        }
         Matcher m = phonenumber_pattern.matcher(number);
         if (!m.find()) {
             throw new InputFormatExeption("Phone number is not formatted correctly.");
