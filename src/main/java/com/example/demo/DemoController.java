@@ -1,13 +1,11 @@
 package com.example.demo;
 
-import DemoBackend.*;
-import DemoBackend.CustomENUMs.response_status;
-import DemoBackend.CustomExceptions.InputFormatExeption;
-import DemoBackend.CustomObjects.*;
-import org.springframework.http.HttpStatus;
+import com.example.demo.Backend.*;
+import com.example.demo.Backend.CustomENUMs.response_status;
+import com.example.demo.Backend.CustomExceptions.InputFormatExeption;
+import com.example.demo.Backend.CustomObjects.*;
 import org.springframework.web.bind.annotation.*;
 
-import javax.sound.midi.Soundbank;
 import java.sql.*;
 import static com.example.demo.InputValidator.*;
 
@@ -55,7 +53,6 @@ public class DemoController {
         return response;
     }
 
-    //TODO
     @CrossOrigin
     @PutMapping(value = "/books/{id}")
     public ResponseBooks PUT_book(@PathVariable("id") String id, @RequestBody BookClass inputs){

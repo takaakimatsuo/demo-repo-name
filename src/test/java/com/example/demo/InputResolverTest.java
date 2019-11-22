@@ -1,8 +1,8 @@
 package com.example.demo;
 
 
-import DemoBackend.CustomExceptions.InputFormatExeption;
-import DemoBackend.CustomObjects.BookClass;
+import com.example.demo.Backend.CustomExceptions.InputFormatExeption;
+import com.example.demo.Backend.CustomObjects.BookClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -31,7 +31,6 @@ public class InputResolverTest {
                     {"b", InputFormatExeption.class},
                     {null, InputFormatExeption.class}});
         }
-
         @Parameterized.Parameter(0)
         public static String url;
         @Parameterized.Parameter(1)

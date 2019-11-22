@@ -1,13 +1,11 @@
 package com.example.demo;
 
-import DemoBackend.CustomExceptions.InputFormatExeption;
-import DemoBackend.CustomObjects.BookClass;
-import DemoBackend.CustomObjects.PatchBookClass;
+import com.example.demo.Backend.CustomExceptions.InputFormatExeption;
+import com.example.demo.Backend.CustomObjects.BookClass;
+import com.example.demo.Backend.CustomObjects.PatchBookClass;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import java.util.List;
 
 public class InputValidator {
     private static final String PHONE_NUMBER_FORMAT = "^\\d{10,15}$";
@@ -97,7 +95,7 @@ public class InputValidator {
             throw new InputFormatExeption("BookClass is null");
         }
         try {
-            assureBorrowed_bys_name(book.getBorrowed_by());
+            assureBorrowed_bys_name(book.getBorrowedBy());
             assureURL(book.getUrl());
             assureQuantity(book.getQuantity());
             assurePrice(book.getPrice());
@@ -109,12 +107,19 @@ public class InputValidator {
 
     }
 
+    public static String assureStringNotNull(String str) throws InputFormatExeption {
+        if(str==null){
+            throw new InputFormatExeption("String is null");
+        }
+        else return str;
+    }
+
     public static BookClass assureBookClass(BookClass book) throws InputFormatExeption {
         if(book == null){
             throw new InputFormatExeption("BookClass is null");
         }
         try {
-            assureBorrowed_bys(book.getBorrowed_by());
+            assureBorrowed_bys(book.getBorrowedBy());
             assureURL(book.getUrl());
             assureQuantity(book.getQuantity());
             assurePrice(book.getPrice());

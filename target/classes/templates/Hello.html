@@ -1,0 +1,18 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Hello Thymeleaf</title>
+</head>
+<body>
+<h1 th:text="${message}"></h1>
+
+<form method="post" action="https://takaakidemo.herokuapp.com/sample/addBook">
+    <input type="text" id="title" value="An example book title">
+    <input type="number" id="price" value="1200">
+    <input type="submit">
+</form>
+
+
+</body>
+</html>

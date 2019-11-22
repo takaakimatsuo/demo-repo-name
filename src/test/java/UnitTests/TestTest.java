@@ -1,7 +1,7 @@
 package UnitTests;
 
 
-import DemoBackend.CustomExceptions.InputFormatExeption;
+import com.example.demo.Backend.CustomExceptions.InputFormatExeption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
