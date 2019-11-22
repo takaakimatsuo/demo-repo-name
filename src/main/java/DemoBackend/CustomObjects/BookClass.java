@@ -1,8 +1,5 @@
 package DemoBackend.CustomObjects;
 
-import DemoBackend.CustomExceptions.InputFormatExeption;
-import static com.example.demo.InputResolver.*;
-
 public class BookClass {
     private int id;
     private String title = "";
@@ -10,6 +7,26 @@ public class BookClass {
     private String url = "";
     private int quantity = 1;
     private String[] borrowed_by = {};
+
+    public BookClass(){
+
+    }
+
+    public BookClass(String title, int price, String url, int quantity, String[] borrowed_by){
+        setTitle(title);
+        setPrice(price);
+        setUrl(url);
+        setQuantity(quantity);
+        setBorrowed_by(borrowed_by);
+    }
+
+    public BookClass(String title, int price, String url, int quantity){
+        setTitle(title);
+        setPrice(price);
+        setUrl(url);
+        setQuantity(quantity);
+        setBorrowed_by(borrowed_by);
+    }
 
     public void setId(int id){
         this.id = id;

@@ -1,5 +1,8 @@
 package DemoBackend.CustomObjects;
 
+import DemoBackend.CustomENUMs.response_status;
+
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -7,21 +10,21 @@ import java.util.List;
 public class ResponseBooks {
 
 
-    private List<BookClass> books;
-    private ResponseHeader msg;
+    private List<BookClass> books = new ArrayList<BookClass>();
+    private ResponseHeader header = new ResponseHeader();
 
 
-    public ResponseBooks(List<BookClass> books,ResponseHeader msg){
+    public ResponseBooks(List<BookClass> books,ResponseHeader header){
         this.books = books;
-        this.msg = msg;
+        this.header = header;
     }
 
     public ResponseBooks(List<BookClass> books){
         this.books = books;
     }
 
-    public ResponseBooks(ResponseHeader msg){
-        this.msg = msg;
+    public ResponseBooks(ResponseHeader header){
+        this.header = header;
     }
 
     public ResponseBooks(){
@@ -35,9 +38,12 @@ public class ResponseBooks {
         books = b;
     }
     public ResponseHeader getResponseHeader(){
-        return msg;
+        return header;
     }
-    public void setResponseHeader(ResponseHeader m){
-        this.msg = m;
+    public void setResponseHeader(ResponseHeader header){
+        this.header = header;
     }
+    public void ResponseBooks_msg(String header){  this.header.setMessage(header); }
+    public void ResponseBooks_status(response_status status){  this.header.setStatus(status); }
+
 }

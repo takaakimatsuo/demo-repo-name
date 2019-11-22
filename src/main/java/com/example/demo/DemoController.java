@@ -4,93 +4,15 @@ import DemoBackend.*;
 import DemoBackend.CustomENUMs.response_status;
 import DemoBackend.CustomExceptions.InputFormatExeption;
 import DemoBackend.CustomObjects.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import javax.sound.midi.Soundbank;
 import java.sql.*;
-import static com.example.demo.InputResolver.*;
+import static com.example.demo.InputValidator.*;
 
 @RestController
 public class DemoController {
-
-
-    /*
-    @CrossOrigin
-    @GetMapping(value = "/getBook")
-    public ResponseBooks demo5(@RequestParam("id") String id){
-        ResponseBooks lb = new ResponseBooks();
-        try {
-            lb = new DemoDomain().getBook(Integer.parseInt(id));
-        }catch(SQLException e){
-            System.out.println(e);
-        }
-        return lb;
-    }*/
-
-
-    /*
-    @CrossOrigin
-    @GetMapping(value = "/getAllBooks")
-    //Return with Class!
-    public ResponseBooks searchAllBooks(){
-        ResponseBooks lb = new ResponseBooks();
-        try {
-            lb = new DemoDomain().getAllBooks();
-        }catch(SQLException e){
-            System.out.println(e);
-        }
-        return lb;
-    }*/
-
-/*
-    @CrossOrigin
-    @PutMapping(value = "/addBook")
-    public ResponseBooks demo4(@RequestBody BookClass inputs) {
-        ResponseBooks response = new ResponseBooks();
-        System.out.println("URL is "+ inputs.getUrl());
-        if(inputs.getTitle()==""){
-            System.out.println("[ERROR] Empty title input from user.");
-            response.setResponseStatus(new ResponseMsg(response_status.ERR,"User input with no title forbidden."));
-        }else if(inputs.getQuantity()<=0 || inputs.getPrice()<0){
-            response.setResponseStatus(new ResponseMsg(response_status.ERR,"Quantity must be more than 1, and Price must be more than 0."));
-        } else {
-            try {
-                 response = new DemoDomain().addBook(inputs);
-            } catch (SQLException e) {
-                response.setResponseStatus(new ResponseMsg(response_status.ERR,e.toString()));
-                System.out.println(e);
-            }
-        }
-        return response;
-    }
-
-
-    @CrossOrigin
-    @GetMapping(value = "/deleteBook")
-    public ResponseBooks demo6(@RequestParam("id") String id){
-        ResponseBooks lb = new ResponseBooks();
-        try {
-            lb = new DemoDomain().removeBook(Integer.parseInt(id));
-        }catch(SQLException e){
-            System.out.println(e);
-        }
-        return lb;
-    }
-
-
-    @CrossOrigin
-    @PatchMapping(value = "/updateBookStatus")
-    public ResponseBooks demo7(@RequestBody UpdateBookStatus upd_status){
-        ResponseBooks lb = new ResponseBooks();
-        System.out.println(upd_status.getBook_id()+","+upd_status.getPhone_number()+","+upd_status.getStatus());
-        try {
-            lb = new DemoDomain().updateBookStatus(upd_status);
-        }catch(SQLException e){
-            System.out.println(e);
-        }
-        return lb;
-    }
-
-*/
-
 
 
     @CrossOrigin
@@ -100,10 +22,8 @@ public class DemoController {
         ResponseBooks lb = new ResponseBooks();
         try {
             lb = new DemoBusinessLogic().getBook(assureInteger(book_id));
-        }catch(SQLException e){
-            System.out.println(e);
-        }catch(InputFormatExeption e){
-            System.out.println(e);
+        }catch(SQLException | InputFormatExeption e){
+            System.out.println("Controller: "+e);
         }
         return lb;
     }
@@ -123,11 +43,11 @@ public class DemoController {
 
     @CrossOrigin
     @PostMapping(value = "/books")
-    public ResponseBooks POST_books(@RequestBody BookClass inputs){
+    public ResponseBooks POST_book(@RequestBody BookClass inputs) {
         ResponseBooks response = new ResponseBooks();
         try {
-            response = new DemoBusinessLogic().addBook(assureBookClassList(inputs));
-        } catch (SQLException | InputFormatExeption e ) {
+            response = new DemoBusinessLogic().addBook(assureBookClass(inputs));
+        } catch (InputFormatExeption | SQLException e) {
             response.setResponseHeader(new ResponseHeader(response_status.ERR,e.getMessage()));
             System.out.println(e.getMessage());
         }
@@ -139,11 +59,19 @@ public class DemoController {
     @CrossOrigin
     @PutMapping(value = "/books/{id}")
     public ResponseBooks PUT_book(@PathVariable("id") String id, @RequestBody BookClass inputs){
-        ResponseBooks lb = new ResponseBooks();
-        //checkInteger(book_id)
-
-        //System.out.println("Here I am PUT[id]"+id+", "+inputs.getTitle());
-        return lb;
+        System.out.println("IM HERE!");
+        ResponseBooks response = new ResponseBooks();
+        try {
+            response = new DemoBusinessLogic().replaceBook(assureInteger(id),assureBookClass(inputs));
+        } catch ( InputFormatExeption e ) {
+            response.setResponseHeader(new ResponseHeader(response_status.ERR,e.getMessage()));
+            System.out.println(e.getMessage());
+            //throw e;
+        }catch(SQLException e){
+            response.setResponseHeader(new ResponseHeader(response_status.ERR,e.getMessage()));
+            System.out.println(e.getMessage()+", "+e.getSQLState());
+        }
+        return response;
     }
 
     @CrossOrigin
@@ -151,10 +79,10 @@ public class DemoController {
     public ResponseBooks PATCH_book(@PathVariable("id") String id, @RequestBody PatchBookClass inputs){
         ResponseBooks lb = new ResponseBooks();
         try {
-            lb = new DemoBusinessLogic().updateBookStatus(assureInteger(id),assurePatchBookClass(inputs));
-        }catch(SQLException e){
-            System.out.println(e);
-        }catch(InputFormatExeption e){
+            System.out.println(inputs.getStatus()+", by "+inputs.getBorrower());
+            lb = new DemoBusinessLogic().updateBook(assureInteger(id),assurePatchBookClass(inputs));
+        }catch(SQLException | InputFormatExeption e){
+            lb.setResponseHeader(new ResponseHeader(response_status.ERR,e.getMessage()));
             System.out.println(e);
         }
         return lb;
@@ -166,14 +94,19 @@ public class DemoController {
         ResponseBooks lb = new ResponseBooks();
         try {
             lb = new DemoBusinessLogic().removeBook(assureInteger(id));
-        }catch(SQLException e){
-            System.out.println(e);
-        }catch(InputFormatExeption e){
+        }catch(SQLException | InputFormatExeption e){
             System.out.println(e);
         }
         return lb;
     }
 
+    /*
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public String handleException(){
+        return "Test";
+    }*/
 
 }
 

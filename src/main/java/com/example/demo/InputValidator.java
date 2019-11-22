@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import java.util.List;
 
-public class InputResolver {
+public class InputValidator {
     private static final String PHONE_NUMBER_FORMAT = "^\\d{10,15}$";
     private static final String URL_FORMAT = "^https?://[a-z\\.:/\\+\\-\\#\\?\\=\\&\\;\\%\\~]+$";
     private static Pattern url_pattern = Pattern.compile(URL_FORMAT);
@@ -18,6 +18,9 @@ public class InputResolver {
     public static Integer assureInteger(String integer) throws InputFormatExeption {
         Integer result = null;
 
+        if(integer==null){
+            throw new InputFormatExeption("Integer should not be null");
+        }
         try {
             result = Integer.valueOf(integer);
 
@@ -41,16 +44,23 @@ public class InputResolver {
         }
     }
 
-    public static void assurePhoneNumbers(String[] numbers) throws InputFormatExeption{
+    public static void assureBorrowed_bys(String[] numbers) throws InputFormatExeption{
+        if(numbers == null){
+            throw new InputFormatExeption("Borrowers are null.");
+        }
         for(String phone_number: numbers){
-            Matcher m = phonenumber_pattern.matcher(phone_number);
-            if (!m.find()) {
-                throw new InputFormatExeption("Phone number is not formatted correctly.");
-            }
+            assureBorrowed_by(phone_number);
         }
     }
 
-    public static void assurePhoneNumber(String number) throws InputFormatExeption{
+    public static void assureBorrowed_bys_name(String[] names) throws InputFormatExeption{
+        if(names == null){
+            throw new InputFormatExeption("Borrowers name are null.");
+        }
+
+    }
+
+    public static void assureBorrowed_by(String number) throws InputFormatExeption{
         if(number == null){
             throw new InputFormatExeption("Phone number is null.");
         }
@@ -60,6 +70,7 @@ public class InputResolver {
         }
 
     }
+
 
     public static void assureQuantity(int quantity) throws InputFormatExeption{
         if (quantity < 0) {
@@ -80,9 +91,30 @@ public class InputResolver {
     }
 
 
-    public static BookClass assureBookClassList(BookClass book) throws InputFormatExeption {
+
+    public static BookClass assureBookClass_names(BookClass book) throws InputFormatExeption {
+        if(book == null){
+            throw new InputFormatExeption("BookClass is null");
+        }
         try {
-            assurePhoneNumbers(book.getBorrowed_by());
+            assureBorrowed_bys_name(book.getBorrowed_by());
+            assureURL(book.getUrl());
+            assureQuantity(book.getQuantity());
+            assurePrice(book.getPrice());
+            assureTitle(book.getTitle());
+        } catch (InputFormatExeption e) {
+            throw e;
+        }
+        return book;
+
+    }
+
+    public static BookClass assureBookClass(BookClass book) throws InputFormatExeption {
+        if(book == null){
+            throw new InputFormatExeption("BookClass is null");
+        }
+        try {
+            assureBorrowed_bys(book.getBorrowed_by());
             assureURL(book.getUrl());
             assureQuantity(book.getQuantity());
             assurePrice(book.getPrice());
@@ -95,8 +127,9 @@ public class InputResolver {
     }
 
     public static int assureStatus(int status) throws InputFormatExeption {
-        if(status!=0 || status!=1 || status!=2){
-            throw new InputFormatExeption("Invalid status input. Status must be set to 0 (borrow), 1 (return) or 2 (lost).");
+
+        if(status!=0 && status!=1 && status!=2){
+            throw new InputFormatExeption("Invalid status input. Status must be set to 0 (borrow), 1 (return) or 2 (lost). status = "+status);
         }
         return status;
     }
@@ -105,7 +138,7 @@ public class InputResolver {
     public static PatchBookClass assurePatchBookClass(PatchBookClass book) throws InputFormatExeption {
         try {
             assureStatus(book.getStatus());
-            assurePhoneNumber(book.getBorrower());
+            assureBorrowed_by(book.getBorrower());
         } catch (InputFormatExeption e) {
             throw e;
         }

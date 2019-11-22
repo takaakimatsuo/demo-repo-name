@@ -2,6 +2,7 @@ package DataAccess;
 
 
 import DemoBackend.CustomExceptions.BookException;
+import DemoBackend.CustomExceptions.DataNotFoundException;
 import DemoBackend.CustomObjects.BookClass;
 import DataAccess.CustomENUMs.BookStatus;
 
@@ -59,7 +60,9 @@ public final class BookDao {
                 pstmt.setString(index, (String) p);
             }else if(p.getClass() == boolean.class){
                 pstmt.setBoolean(index, (boolean) p);
-            }
+            }/*else if(p == null){
+                pstmt.setNull(index);
+            }*/
             index++;
         }
     }
@@ -78,7 +81,7 @@ public final class BookDao {
             System.out.println("[INFO] Executed query ");
             return rs;
         }catch(SQLException e){
-            System.out.println("[ERROR] Something is wrong in ExecuteQuery() : "+e);
+            System.out.println("[ERROR] System error when executing query : "+e);
             throw e;
         }finally {
             closeDB(con);
@@ -98,7 +101,7 @@ public final class BookDao {
             System.out.println("[INFO] Executed query ");
             return rs;
         }catch(SQLException e){
-            System.out.println("[ERROR] Something is wrong in ExecuteQuery() : "+e);
+            System.out.println("[ERROR] System error when executing query : "+e);
             throw e;
         }finally {
             closeDB(con);
@@ -180,7 +183,7 @@ public final class BookDao {
 
 
 
-    public void borrowBook(Integer book_id, String phone_number) throws SQLException, BookException {
+    public void updateBook_borrowed(Integer book_id, String phone_number) throws SQLException, BookException {
         if(check_BookStock_Availability(book_id)) {
             //String query = "UPDATE bookshelf SET borrowed_by = array_append(borrowed_by, '" + phone_number + "') WHERE id = " + book_id;
             String query = "UPDATE bookshelf SET borrowed_by = array_append(borrowed_by, ?) WHERE id = ?";
@@ -196,7 +199,7 @@ public final class BookDao {
 
 
 
-    public void returnBook(Integer book_id, String phone_number) throws SQLException {
+    public void updateBook_returned(Integer book_id, String phone_number) throws SQLException {
         String query = "UPDATE bookshelf SET borrowed_by = array_remove(borrowed_by, ?) WHERE id = ?";
         List<Object> param_list = new ArrayList<Object>();
         param_list.add(phone_number);
@@ -206,7 +209,7 @@ public final class BookDao {
 
 
     //Reports a book as lost. This will decrease the book's quantity by 1, and delete the entire data from the bookshelf table when the quantity becomes less than 0.
-    public void lostBook(Integer book_id, String phone_number) throws SQLException {
+    public void updateBook_lost(Integer book_id, String phone_number) throws SQLException {
         //String query = "UPDATE bookshelf SET borrowed_by = array_remove(borrowed_by, '"+phone_number+"') SET quantity = quantity-1 WHERE id = " + book_id+" RETURNING quantity";
         String query = "UPDATE bookshelf SET borrowed_by = array_remove(borrowed_by, ?), quantity = (quantity-1) WHERE id = ? RETURNING quantity";
         List<Object> param_list = new ArrayList<Object>();
@@ -222,6 +225,21 @@ public final class BookDao {
         }
     }
 
+    public int updateBook_data(Integer book_id, BookClass book) throws SQLException {
+        String query = "UPDATE bookshelf SET title = ?, price = ?, url = ?, quantity = ? where id = ? AND borrowed_by = \'{}\'";
+        //String query = "UPDATE bookshelf SET title = ?, price = ?, url = ?, quantity = ? where id = ? AND borrowed_by = \'{}\' RETURNING array_length(borrowed_by,1) as borrowers;";
+        //String query = "UPDATE bookshelf SET title = ?, price = ?, url = ?, quantity = ? WHERE id = ? AND array_length(borrowed_by,1)=0 RETURNING id";
+        List<Object> param_list = new ArrayList<Object>();
+        param_list.add(book.getTitle());
+        param_list.add(book.getPrice());
+        param_list.add(book.getUrl());
+        param_list.add(book.getQuantity());
+        param_list.add(book_id);
+        int updated = SafeExecuteUpdate(query,param_list);
+        return updated;
+
+    }
+
 
 
     public List<BookClass> insertBook(BookClass book) throws SQLException{
@@ -233,9 +251,18 @@ public final class BookDao {
         param_list.add(book.getQuantity());
         param_list.add(book.getUrl());
         System.out.println("[QUERY] " + query);
-        ResultSet rs  = SafeExecuteQuery(query,param_list);
-        List<BookClass> lb = copy_BookClass_From_ResultSet(rs);
-        return lb;
+        //List<BookClass> lb = new ArrayList<BookClass>(){};
+        try {
+            ResultSet rs = SafeExecuteQuery(query, param_list);
+            List<BookClass> lb = copyBookClass_From_ResultSet(rs);//Also takes care the case with no data found
+            return lb;
+        }catch(SQLException e){
+            System.out.println("Error code:"+e.getErrorCode());
+            System.out.println("SQL state:"+e.getSQLState());
+            System.out.println("Error message:"+e.getMessage());
+            throw e;
+        }
+
     }
 
 
@@ -249,46 +276,29 @@ public final class BookDao {
     }
 
 
-    public List<BookClass> searchAllBooks() throws SQLException{
+    public List<BookClass> getAllBooks() throws SQLException{
         String query = "SELECT id, title, price, quantity, (SELECT ARRAY( select family_name ||' '|| first_name FROM book_user u JOIN bookshelf b ON u.phone_number = ANY(b.borrowed_by) WHERE b.title = OuterQuery.title)) AS \"borrowed_by\", url FROM bookshelf AS OuterQuery ORDER BY id DESC;";
         System.out.println("[INFO] Requesting query execution");
         ResultSet rs = SafeExecuteQuery(query);
         System.out.println("[INFO] Done query execution");
-        List<BookClass> lb = copy_BookClass_From_ResultSet(rs);
+        List<BookClass> lb = copyBookClass_From_ResultSet(rs);
         return lb;
     }
 
-    public List<BookClass> searchBook(Integer id) throws SQLException{
+    public List<BookClass> getBook(Integer id) throws SQLException{
         String query = "select id, title, price, quantity, (SELECT ARRAY( select family_name ||' '|| first_name from book_user u JOIN bookshelf b ON u.phone_number = ANY(b.borrowed_by) WHERE b.title = OuterQuery.title)) AS \"borrowed_by\", url from bookshelf AS OuterQuery WHERE id = ?";
         List<Object> param_list = new ArrayList<Object>();
         param_list.add(id);
         System.out.println("[INFO] Requesting query execution");
         ResultSet rs = SafeExecuteQuery(query,param_list);
         System.out.println("[INFO] Done query execution");
-        List<BookClass> lb = copy_BookClass_From_ResultSet(rs);
-
+        List<BookClass> lb = copyBookClass_From_ResultSet(rs);
         return lb;
     }
 
 
-    //Checks whether a specific book already exists in the bookshelf table.
-    //Input: String book_title - The title of book to be searched.
-    //Output: boolean exists - True if the book with the given input exists in the bookshelf table, otherwise False.
-    public final boolean check_Book_Exists(String book_title) throws SQLException {
-        boolean exists = true;
-        String query = "SELECT count(title)>0 AS book_exists FROM bookshelf WHERE title = ? LIMIT 1";
-        List<Object> param_list = new ArrayList<Object>();
-        param_list.add(book_title);
-        ResultSet rs = SafeExecuteQuery(query,param_list);
-        if (rs.next())
-            exists = rs.getBoolean("BOOK_EXISTS");
-        return exists;
-    }
 
-
-
-
-    private static List<BookClass> copy_BookClass_From_ResultSet(ResultSet rs)throws SQLException{
+    private static List<BookClass> copyBookClass_From_ResultSet(ResultSet rs)throws SQLException{
         List<BookClass> lb = new ArrayList<>();
         if(!rs.isBeforeFirst()) {
             return lb;
@@ -317,7 +327,7 @@ public final class BookDao {
 
 
 
-    public static String[] splitStringIntoArray(String str, String splitter, String[] replacer){
+    private static String[] splitStringIntoArray(String str, String splitter, String[] replacer){
         String[] adjusted_to_array = new String[0];
         if(str==null){
             return adjusted_to_array;
