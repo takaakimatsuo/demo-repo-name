@@ -61,8 +61,13 @@ public final class DemoBusinessLogic {
         res = new ResponseBooks();
         try {
             int update = dao.deleteBook(id);
-            res.getResponseHeader().setMessage(BOOK_DELETED);;
-            res.getResponseHeader().setStatus(response_status.OK);
+            if(update == 0){
+                res.getResponseHeader().setMessage(BOOK_NOT_EXISTING);
+                res.getResponseHeader().setStatus(response_status.ERR);
+            }else {
+                res.getResponseHeader().setMessage(BOOK_DELETED);
+                res.getResponseHeader().setStatus(response_status.OK);
+            }
         }catch (SQLException e) {
             res.getResponseHeader().setMessage(e.toString());
             res.getResponseHeader().setStatus(response_status.ERR);

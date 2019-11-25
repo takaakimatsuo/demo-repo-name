@@ -218,7 +218,7 @@ function DELETE_Book_fromID(){
 
     $.ajax({
         //url: 'https://takaakidemo.herokuapp.com/sample/deleteBook?id='+id,
-        url: "http://localhost:8080/sample/books?id="+id,
+        url: "http://localhost:8080/sample/books/"+id,
         type: 'DELETE',
         timeout: 5000,
         crossDomain: true,
@@ -294,7 +294,7 @@ function PATCH_updateBookStatus(){
     $.ajax({
         type:"PATCH",
         //url: "https://takaakidemo.herokuapp.com/sample/updateBookStatus",
-        url: "http://localhost:8080/sample/books/?id="+bookid2,
+        url: "http://localhost:8080/sample/books/"+bookid2,
         data:JSON.stringify(data),
         contentType: 'application/json',
         dataType: "json",
