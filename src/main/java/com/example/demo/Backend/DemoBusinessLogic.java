@@ -1,10 +1,13 @@
 package com.example.demo.Backend;
 
+import com.example.demo.Backend.CustomExceptions.DuplicateBookException;
 import com.example.demo.DataAccess.BookDao;
 import com.example.demo.Backend.CustomENUMs.response_status;
 import com.example.demo.Backend.CustomExceptions.BookException;
 import com.example.demo.Backend.CustomObjects.*;
 import com.example.demo.DataAccess.CustomENUMs.BookStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import java.sql.*;
 import java.util.List;
@@ -15,9 +18,13 @@ import static com.example.demo.Backend.staticErrorMessages.staticMessages.*;
 @Component
 public final class DemoBusinessLogic {
 
+    //@Autowired
     private ResponseBooks res;
-    //private static ResponseHeader header = new ResponseHeader();
-    private static BookDao bookDao = new BookDao();
+
+    @Autowired
+    //@Qualifier("JdbcBookDao")
+    @Qualifier("SpringBookDao")
+    private BookDao dao;
 
     /*
     * Simply return all books stored in the bookshelf table.
@@ -27,13 +34,19 @@ public final class DemoBusinessLogic {
      public ResponseBooks getAllBooks() throws SQLException{
          res = new ResponseBooks();
         try {
-            List<BookClass> books = new BookDao().getAllBooks();
+            if(dao == null){
+                System.out.println("dao is null....");
+            }
+            List<BookClass> books = dao.getAllBooks();
+
             res.getResponseHeader().setMessage(BOOK_FOUND);
+            res.getResponseHeader().setStatus(response_status.OK);
             res.setBooks(books);
 
         }catch (SQLException e) {
             res.getResponseHeader().setMessage(e.toString());
             res.getResponseHeader().setStatus(response_status.ERR);
+            System.out.println("[ERROR] SQL failure"+e.getMessage());
             throw new SQLException("SQL query failure: ", e);
         }
         return res;
@@ -46,8 +59,9 @@ public final class DemoBusinessLogic {
     public ResponseBooks removeBook(Integer id) throws SQLException{
         res = new ResponseBooks();
         try {
-            int update = bookDao.deleteBook(id);
+            int update = dao.deleteBook(id);
             res.getResponseHeader().setMessage(BOOK_DELETED);;
+            res.getResponseHeader().setStatus(response_status.OK);
         }catch (SQLException e) {
             res.getResponseHeader().setMessage(e.toString());
             res.getResponseHeader().setStatus(response_status.ERR);
@@ -64,12 +78,17 @@ public final class DemoBusinessLogic {
     public ResponseBooks getBook(Integer id) throws SQLException{
         res = new ResponseBooks();
         try {
-            List<BookClass> books = bookDao.getBook(id);
-            if(books.size()==0)
+            List<BookClass> books = dao.getBook(id);
+            if(books.size()==0) {
                 res.getResponseHeader().setMessage(BOOK_NOT_EXISTING);
-            else
+                res.getResponseHeader().setStatus(response_status.ERR);
+            }
+            else{
                 res.getResponseHeader().setMessage(BOOK_FOUND);
+                res.getResponseHeader().setStatus(response_status.OK);
+            }
             res.setBooks(books);
+
 
         }catch (SQLException e) {
             res.getResponseHeader().setMessage(e.toString());
@@ -109,27 +128,31 @@ public final class DemoBusinessLogic {
         res = new ResponseBooks();
         System.out.println(book_id+", "+upd_status.getBorrower()+", "+upd_status.getStatus());
         int action = upd_status.getStatus();//0 = Borrow, 1 = Return, 2 = Lost.
-        BookStatus current_status = bookDao.checkBookStatus(book_id, upd_status.getBorrower());
+        BookStatus current_status = dao.checkBookStatus(book_id, upd_status.getBorrower());
 
         try{
             //Check inconsistency. e.g. User trying to return a book that has not been borrowed.
             switch(assureUserBookRelation(current_status, action)){
                 case 0:{//Borrow!
-                    bookDao.updateBook_borrowed(book_id, upd_status.getBorrower());
+                    dao.updateBook_borrowed(book_id, upd_status.getBorrower());
                     res.getResponseHeader().setMessage(BOOK_BORROWED);
+                    res.getResponseHeader().setStatus(response_status.OK);
                     break;
                 }
                 case 1:{
-                    bookDao.updateBook_returned(book_id, upd_status.getBorrower());
+                    dao.updateBook_returned(book_id, upd_status.getBorrower());
                     res.getResponseHeader().setMessage(BOOK_RETURNED);
+                    res.getResponseHeader().setStatus(response_status.OK);
                     break;
                 }
                 case 2:{;
-                    bookDao.updateBook_lost(book_id,upd_status.getBorrower());
+                    dao.updateBook_lost(book_id,upd_status.getBorrower());
                     res.getResponseHeader().setMessage(BOOK_LOST);
+                    res.getResponseHeader().setStatus(response_status.OK);
                     break;
                 } default:{
                     res.getResponseHeader().setMessage(INVALID_STATUS);
+                    res.getResponseHeader().setStatus(response_status.ERR);
                     break;
                 }
             }
@@ -144,35 +167,31 @@ public final class DemoBusinessLogic {
 
 
 
-    public ResponseBooks addBook(BookClass book) throws SQLException {
+    public ResponseBooks addBook(BookClass book) throws DuplicateBookException {
         res = new ResponseBooks();
         try {
-            List<BookClass> books = bookDao.insertBook(book);
+            List<BookClass> books = dao.insertBook(book);
             res.setBooks(books);
             res.getResponseHeader().setMessage(BOOK_INSERTED);
+            res.getResponseHeader().setStatus(response_status.OK);
             return res;
-        }catch(SQLException e){
-            if(e.getSQLState().compareTo(SQL_CODE_DUPLICATE_KEY_ERROR)==0){
-                res.getResponseHeader().setMessage(BOOK_DUPLICATE);
-                res.getResponseHeader().setStatus(response_status.ERR);
-                return res;
-            }else {
-                res.getResponseHeader().setMessage(e.toString());
-                System.out.println("[Error] "+e.toString());
-                throw e;
-            }
+        }catch(DuplicateBookException e){
+            res.getResponseHeader().setMessage(BOOK_DUPLICATE);
+            res.getResponseHeader().setStatus(response_status.ERR);
+            return res;
         }
     }
 
     public ResponseBooks replaceBook(Integer book_id, BookClass book) throws SQLException {
         res = new ResponseBooks();
          try {
-             int updated = bookDao.updateBook_data(book_id, book);
+             int updated = dao.updateBook_data(book_id, book);
              if(updated == 0){
                  res.getResponseHeader().setMessage(UPDATE_FAILED_NO_MATCH_BOOK);
                  res.getResponseHeader().setStatus(response_status.ERR);
              }else{
                  res.getResponseHeader().setMessage(UPDATE_SUCCESS_BOOK);
+                 res.getResponseHeader().setStatus(response_status.OK);
              }
          }catch(SQLException e){
              System.out.println(e.getMessage());

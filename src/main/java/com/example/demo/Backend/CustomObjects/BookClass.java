@@ -1,5 +1,8 @@
 package com.example.demo.Backend.CustomObjects;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class BookClass {
     private int id;
     private String title = "";

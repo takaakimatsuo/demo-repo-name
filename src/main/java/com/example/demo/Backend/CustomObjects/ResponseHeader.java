@@ -1,6 +1,8 @@
 package com.example.demo.Backend.CustomObjects;
 
 import com.example.demo.Backend.CustomENUMs.response_status;
+import org.springframework.stereotype.Component;
+
 
 
 public class ResponseHeader {

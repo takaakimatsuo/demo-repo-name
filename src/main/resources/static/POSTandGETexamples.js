@@ -218,8 +218,8 @@ function DELETE_Book_fromID(){
 
     $.ajax({
         //url: 'https://takaakidemo.herokuapp.com/sample/deleteBook?id='+id,
-        url: "http://localhost:8080/sample/deleteBook?id="+id,
-        type: 'GET',
+        url: "http://localhost:8080/sample/books?id="+id,
+        type: 'DELETE',
         timeout: 5000,
         crossDomain: true,
         headers: {
@@ -236,6 +236,86 @@ function DELETE_Book_fromID(){
 }
 
 
+function POST_addBook(){
+    var Title = document.getElementById("title").value;
+    var Price = document.getElementById("price").value;
+    var Quantity = document.getElementById("quantity").value;
+    var Url = document.getElementById("url").value;
+
+    var data = {
+        "title": Title,
+        "price": Price,
+        "quantity": Quantity,
+        "url": Url
+    };
+
+    // 通信実行
+    $.ajax({
+        type:"POST",
+        //url: "https://takaakidemo.herokuapp.com/sample/addBook",
+        url: "http://localhost:8080/sample/books/",
+        data:JSON.stringify(data),
+        contentType: 'application/json',
+        dataType: "json",
+        crossDomain: true,
+        headers: {
+            'Access-Control-Allow-Origin': '*'
+        }
+    }).then(
+        // 1つめは通信成功時のコールバック
+        function (data,status, xhr) {
+            //alert(JSON.stringify(data,null,"\t"));
+            document.getElementById("ADDresult").value = JSON.stringify(data,null,"\t");
+            //alert(FormatJSON(data));
+        },
+        // 2つめは通信失敗時のコールバック
+        function () {
+            alert("読み込み失敗");
+        });
+}
+
+
+
+function PATCH_updateBookStatus(){
+
+    var bookid2 = document.getElementById("bookid2").value;
+    var phone_number2 = document.getElementById("phone_number2").value;
+    var bookstatus = document.getElementById("bookstatus").value;
+
+    console.log(bookid2+","+phone_number2+","+bookstatus);
+
+    var data = {
+        "borrower": phone_number2,
+        "status": bookstatus
+    };
+
+
+    // 通信実行
+    $.ajax({
+        type:"PATCH",
+        //url: "https://takaakidemo.herokuapp.com/sample/updateBookStatus",
+        url: "http://localhost:8080/sample/books/?id="+bookid2,
+        data:JSON.stringify(data),
+        contentType: 'application/json',
+        dataType: "json",
+        crossDomain: true,
+        headers: {
+            'Access-Control-Allow-Origin': '*'
+        }
+    }).then(
+        // 1つめは通信成功時のコールバック
+        function (data,status, xhr) {
+            //alert(JSON.stringify(data,null,"\t"));
+            document.getElementById("patchBookStatus").value = JSON.stringify(data,null,"\t");
+            //alert(FormatJSON(data));
+        },
+        // 2つめは通信失敗時のコールバック
+        function () {
+            alert("読み込み失敗");
+        });
+
+
+}
 
 
 

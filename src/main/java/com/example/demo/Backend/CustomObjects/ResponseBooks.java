@@ -1,9 +1,13 @@
 package com.example.demo.Backend.CustomObjects;
 
 import com.example.demo.Backend.CustomENUMs.response_status;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 
 

@@ -22,12 +22,12 @@ public class BookDaoTest {
 
 
 
-    static BookDao bookDao = new BookDao();
+    static JdbcBookDao bookDao = new JdbcBookDao();
 
     public static void dropBookshelf() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String query = "DROP TABLE IF EXISTS bookshelf";
         List<Object> paramList = new ArrayList<Object>();
-        Method method = BookDao.class.getDeclaredMethod("SafeExecuteUpdate", String.class, List.class);
+        Method method = JdbcBookDao.class.getDeclaredMethod("SafeExecuteUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int) method.invoke(bookDao, query, paramList);
         System.out.println("[INFO] Dropped bookshelf table");
@@ -36,7 +36,7 @@ public class BookDaoTest {
     public static void dropBookUser() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String query = "DROP table IF EXISTS book_user CASCADE";
         List<Object> param_list = new ArrayList<Object>();
-        Method method = BookDao.class.getDeclaredMethod("SafeExecuteUpdate", String.class, List.class);
+        Method method = JdbcBookDao.class.getDeclaredMethod("SafeExecuteUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int) method.invoke(bookDao, query, param_list);
         System.out.println("[INFO] Dropped book_user table");
@@ -55,7 +55,7 @@ public class BookDaoTest {
                 "createdAt timestamp with time zone DEFAULT current_timestamp ,\n" +
                 "PRIMARY KEY (id));";
         List<Object> paramList = new ArrayList<Object>();
-        Method method = BookDao.class.getDeclaredMethod("SafeExecuteUpdate", String.class, List.class);
+        Method method = JdbcBookDao.class.getDeclaredMethod("SafeExecuteUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int)method.invoke(bookDao,query,paramList);
         System.out.println("[INFO] bookshelf table created.");
@@ -70,7 +70,7 @@ public class BookDaoTest {
                 "phoneNumber VARCHAR NOT NULL,\n" +
                 "PRIMARY KEY (phoneNumber));";
         List<Object> param_list = new ArrayList<Object>();
-        Method method = BookDao.class.getDeclaredMethod("SafeExecuteUpdate", String.class, List.class);
+        Method method = JdbcBookDao.class.getDeclaredMethod("SafeExecuteUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int)method.invoke(bookDao,query,param_list);
         System.out.println("[INFO] bookshelf table created.");
@@ -98,7 +98,7 @@ public class BookDaoTest {
             "1, 1200,1,\"\"",
             "\"\", 1200,10000000,\"\""
     })
-     void insertBookShelf_SUCCESS(String title, int price, int quantity, String url) throws SQLException {
+     void insertBookShelf_SUCCESS(String title, int price, int quantity, String url) throws BookException {
         BookClass test = new BookClass(title, price, url, quantity);
         bookDao.insertBook(test);
     }
@@ -137,6 +137,7 @@ public class BookDaoTest {
         assertTrue(ee.getSQLState().compareTo(SQL_CODE_DUPLICATE_KEY_ERROR)==0);
     }
 
+    /*
     @ParameterizedTest
     @CsvSource({
             "Family, Fir,00011110000",
@@ -151,8 +152,8 @@ public class BookDaoTest {
     })
     void insertBookUser_SUCCESS(String familyName, String firstName, String phoneNumber) throws SQLException {
         BookUser test = new BookUser(familyName, firstName, phoneNumber);
-        bookDao.insertBookUser(test);
-    }
+        dao.insertBookUser(test);
+    }*/
 
     @ParameterizedTest
     @CsvSource({

@@ -1,12 +1,13 @@
 package com.example.demo;
 import static com.example.demo.InputValidator.*;
 
+import com.example.demo.Backend.CustomExceptions.BookException;
 import com.example.demo.DataAccess.BookDao;
+import com.example.demo.DataAccess.JdbcBookDao;
 import com.example.demo.DataAccess.BookDaoTest;
 import com.example.demo.Backend.CustomENUMs.response_status;
 import com.example.demo.Backend.CustomExceptions.InputFormatExeption;
 import com.example.demo.Backend.CustomObjects.BookClass;
-import com.example.demo.Backend.CustomObjects.BookUser;
 import com.example.demo.Backend.CustomObjects.ResponseBooks;
 import com.example.demo.Backend.DemoBusinessLogic;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,7 +25,7 @@ import java.sql.SQLException;
 @SpringBootTest
 class DemoControllerTest {
 
-    static BookDao bookDao = new BookDao();
+    static BookDao dao = new JdbcBookDao();
 
     @BeforeAll
     static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -35,6 +36,7 @@ class DemoControllerTest {
         bt.createBookUser();
     }
 
+    /*
     @ParameterizedTest
     @CsvSource({
             "Family, Fir,00011110000",
@@ -49,8 +51,9 @@ class DemoControllerTest {
     })
     void insertBookUser_SUCCESS(String familyName, String firstName, String phoneNumber) throws SQLException {
         BookUser test = new BookUser(familyName, firstName, phoneNumber);
-        bookDao.insertBookUser(test);
-    }
+        dao.insertBookUser(test);
+    }*/
+
 
     @ParameterizedTest
     @CsvSource({
@@ -66,9 +69,9 @@ class DemoControllerTest {
             "1, 1200,1,\"\"",
             "\"\", 1200,10000000,\"\""
     })
-    void insertBookShelf_SUCCESS(String title, int price, int quantity, String url) throws SQLException {
+    void insertBookShelf_SUCCESS(String title, int price, int quantity, String url) throws BookException {
         BookClass test = new BookClass(title, price, url, quantity);
-        bookDao.insertBook(test);
+        dao.insertBook(test);
     }
 
 
