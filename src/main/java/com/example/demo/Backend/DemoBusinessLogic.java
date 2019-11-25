@@ -35,16 +35,12 @@ public final class DemoBusinessLogic {
      public ResponseBooks getAllBooks() throws SQLException{
          res = new ResponseBooks();
         try {
-            if(dao == null){
-                System.out.println("dao is null....");
-            }
             List<BookClass> books = dao.getAllBooks();
-
             res.getResponseHeader().setMessage(BOOK_FOUND);
             res.getResponseHeader().setStatus(response_status.OK);
             res.setBooks(books);
-
         }catch (SQLException e) {
+            //TODO
             res.getResponseHeader().setMessage(e.toString());
             res.getResponseHeader().setStatus(response_status.ERR);
             System.out.println("[ERROR] SQL failure"+e.getMessage());
@@ -52,8 +48,6 @@ public final class DemoBusinessLogic {
         }
         return res;
     }
-
-
 
 
 
@@ -69,6 +63,7 @@ public final class DemoBusinessLogic {
                 res.getResponseHeader().setStatus(response_status.OK);
             }
         }catch (SQLException e) {
+            //TODO
             res.getResponseHeader().setMessage(e.toString());
             res.getResponseHeader().setStatus(response_status.ERR);
             throw new SQLException("SQL query failure: ", e);
@@ -97,6 +92,7 @@ public final class DemoBusinessLogic {
 
 
         }catch (SQLException e) {
+            //TODO
             res.getResponseHeader().setMessage(e.toString());
             res.getResponseHeader().setStatus(response_status.ERR);
             throw new SQLException("SQL query failure: ", e);
@@ -162,13 +158,12 @@ public final class DemoBusinessLogic {
                 }
             }
         }catch(BookException e){
+            //TODO
             res.getResponseHeader().setStatus(response_status.ERR);
             res.getResponseHeader().setMessage(e.getMessage());
         }
         return res;
     }
-
-
 
 
 
@@ -181,6 +176,7 @@ public final class DemoBusinessLogic {
             res.getResponseHeader().setStatus(response_status.OK);
             return res;
         }catch(DuplicateBookException e){
+            //TODO
             res.getResponseHeader().setMessage(BOOK_DUPLICATE);
             res.getResponseHeader().setStatus(response_status.ERR);
             return res;
@@ -199,10 +195,11 @@ public final class DemoBusinessLogic {
                  res.getResponseHeader().setStatus(response_status.OK);
              }
          }catch(DuplicateBookException e){
-                System.out.println(e.getMessage());
-                 res.getResponseHeader().setMessage(BOOK_DUPLICATE);
-                 res.getResponseHeader().setStatus(response_status.ERR);
-                 return res;
+             //TODO
+             System.out.println(e.getMessage());
+             res.getResponseHeader().setMessage(BOOK_DUPLICATE);
+             res.getResponseHeader().setStatus(response_status.ERR);
+             return res;
          }
          return res;
     }
