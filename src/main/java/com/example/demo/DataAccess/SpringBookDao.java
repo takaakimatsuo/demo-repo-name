@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -84,67 +85,82 @@ public class SpringBookDao implements BookDao{
     }
 
 
-    //TODO
     @Override
     public BookStatus checkBookStatus(Integer bookId, String phone_number) throws SQLException {
 
-        String list = jdbcTemplate.queryForObject("select borrowedBy from bookshelf where id = ? LIMIT 1", new RowMapper<String>() {
-            public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-                String borrowedBy = null;
+        BookStatus st = BookStatus.UNKNOWN;
 
-                if(!rs.isBeforeFirst()){//SQL returned an empty output. No data matched the condition.
-                    System.out.println("[INFO] Book with id="+bookId+" doesnt exist in the table.");
-                    return borrowedBy;
-                }else{
-                    if(rs.next()) {
-                        return rs.getString("BORROWEDBY");
-                    }
-                }
-                return borrowedBy;
+        List<BookClass> customers = jdbcTemplate.query("select borrowedby from bookshelf where id = ?", new RowMapper<BookClass>() {
+            public BookClass mapRow(ResultSet rs, int rowNum) throws SQLException {
+                BookClass book = new BookClass();
+                book.setBorrowedBy( splitStringIntoArray(rs.getString("BORROWEDBY"), ",", new String[]{"\"", "}", "{"}));
+                return book;
             }
-            }, bookId);
+        },bookId);
 
-        if(list==null) {
+        if(customers.size()==0) {
             System.out.println("list =  null ");
-            return BookStatus.BOOK_NOT_EXISTING;
+            st = BookStatus.BOOK_NOT_EXISTING;
         }else{
-            System.out.println("list = " + list);
-            String[] customers = splitStringIntoArray(list, ",", new String[]{"\"", "}", "{"});
-            if (Arrays.asList(customers).contains(phone_number)) {//Book is borrowed by the user.
+            if (Arrays.asList(customers.get(0).getBorrowedBy()).contains(phone_number)) {//Book is borrowed by the user.
                 System.out.println("[INFO] User already borrowing the book.");
-                return BookStatus.BOOK_BORROWED_BY_THIS_USER;
+                st = BookStatus.BOOK_BORROWED_BY_THIS_USER;
             }else{
                 System.out.println("[INFO] User not borrowing the book yet.");
-                return BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER;
+                st =  BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER;
             }
         }
+        return st;
 
     }
 
 
 
-    //@Override
-    public boolean checkBookStockAvailability(Integer book_id) throws SQLException {
-        return false;
+    @Override
+    public boolean checkBookStockAvailability(Integer bookId) throws SQLException {
+        Boolean available = false;
+        available = jdbcTemplate.queryForObject("SELECT COALESCE(array_length(borrowedBy, 1), 0) < quantity as stock_available FROM bookshelf WHERE id = ?", new RowMapper<Boolean>() {
+            public Boolean mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return rs.getBoolean("STOCK_AVAILABLE");
+            }
+        },bookId);
+        return available;
     }
 
-    //@Override
-    public void updateBook_borrowed(Integer book_id, String phone_number) throws SQLException, BookException {
-
+    @Override
+    public void updateBook_borrowed(Integer bookId, String phoneNumber) throws SQLException, BookException {
+        if(checkBookStockAvailability(bookId)) {
+            int updated = jdbcTemplate.update("UPDATE bookshelf SET borrowedBy = array_append(borrowedBy, ?) WHERE id = ?",phoneNumber,bookId);
+        }else{
+            throw new BookException("Book stock not available");
+        }
     }
 
-    //@Override
-    public void updateBook_returned(Integer book_id, String phone_number) throws SQLException {
-
+    @Override
+    public void updateBook_returned(Integer bookId, String phoneNumber) throws SQLException {
+        int updated = jdbcTemplate.update("UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?) WHERE id = ?",phoneNumber,bookId);
     }
 
-    //@Override
-    public void updateBook_lost(Integer book_id, String phone_number) throws SQLException {
-
+    @Override
+    public void updateBook_lost(Integer bookId, String phoneNumber) throws SQLException {
+        Integer remainingQuantity = jdbcTemplate.queryForObject("UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?), quantity = (quantity-1) WHERE id = ? RETURNING quantity", new RowMapper<Integer>() {
+            public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return rs.getInt("QUANTITY");
+            }
+        },phoneNumber,bookId);
+        if(remainingQuantity <= 0){//If quantity is less than 0
+            deleteBook(bookId);//Simply remove the book from the bookshelf
+        }
     }
 
-    //@Override
-    public int updateBook_data(Integer book_id, BookClass book) throws SQLException {
-        return 0;
+    @Override
+    public int updateBook_data(Integer bookId, BookClass book) throws DuplicateBookException {
+        try {
+            int updated = jdbcTemplate.update("UPDATE bookshelf SET title = ?, price = ?, url = ?, quantity = ? where id = ? AND borrowedBy = \'{}\'", book.getTitle(), book.getPrice(), book.getUrl(), book.getQuantity(), bookId);
+            return updated;
+        }catch(DataAccessException e){
+            throw new DuplicateBookException("Book with same title already exists");
+        }
+
     }
 }

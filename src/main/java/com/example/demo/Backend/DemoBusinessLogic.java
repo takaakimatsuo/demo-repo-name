@@ -8,6 +8,7 @@ import com.example.demo.Backend.CustomObjects.*;
 import com.example.demo.DataAccess.CustomENUMs.BookStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import java.sql.*;
 import java.util.List;
@@ -100,7 +101,6 @@ public final class DemoBusinessLogic {
 
 
     private int assureUserBookRelation(BookStatus current_status, int requested_status) throws BookException {
-        res = new ResponseBooks();
         System.out.println("Current Status = "+current_status.toString());
         if(current_status == BookStatus.UNKNOWN){
             System.out.println("[Error] Unexpected output. This should not happen.");
@@ -182,7 +182,7 @@ public final class DemoBusinessLogic {
         }
     }
 
-    public ResponseBooks replaceBook(Integer book_id, BookClass book) throws SQLException {
+    public ResponseBooks replaceBook(Integer book_id, BookClass book) throws DuplicateBookException {
         res = new ResponseBooks();
          try {
              int updated = dao.updateBook_data(book_id, book);
@@ -193,15 +193,11 @@ public final class DemoBusinessLogic {
                  res.getResponseHeader().setMessage(UPDATE_SUCCESS_BOOK);
                  res.getResponseHeader().setStatus(response_status.OK);
              }
-         }catch(SQLException e){
-             System.out.println(e.getMessage());
-             if(e.getSQLState().compareTo(SQL_CODE_DUPLICATE_KEY_ERROR)==0){
+         }catch(DuplicateBookException e){
+                System.out.println(e.getMessage());
                  res.getResponseHeader().setMessage(BOOK_DUPLICATE);
                  res.getResponseHeader().setStatus(response_status.ERR);
                  return res;
-             }else {
-                 throw e;
-             }
          }
          return res;
     }

@@ -167,6 +167,7 @@ public final class JdbcBookDao implements BookDao {
             if(check.next()) {
                 String arr = check.getString("BORROWEDBY");
                 String[] customers = splitStringIntoArray(arr, ",", new String[]{"\"", "}", "{"});
+
                 if (Arrays.asList(customers).contains(phone_number)) {//Book is borrowed by the user.
                     System.out.println("[INFO] User already borrowing the book.");
                     st = BookStatus.BOOK_BORROWED_BY_THIS_USER;
@@ -243,7 +244,7 @@ public final class JdbcBookDao implements BookDao {
     }
 
     @Override
-    public int updateBook_data(Integer bookId, BookClass book) throws SQLException {
+    public int updateBook_data(Integer bookId, BookClass book) throws DuplicateBookException {
         String query = "UPDATE bookshelf SET title = ?, price = ?, url = ?, quantity = ? where id = ? AND borrowedBy = \'{}\'";
         //String query = "UPDATE bookshelf SET title = ?, price = ?, url = ?, quantity = ? where id = ? AND borrowed_by = \'{}\' RETURNING array_length(borrowed_by,1) as borrowers;";
         //String query = "UPDATE bookshelf SET title = ?, price = ?, url = ?, quantity = ? WHERE id = ? AND array_length(borrowed_by,1)=0 RETURNING id";
@@ -253,8 +254,13 @@ public final class JdbcBookDao implements BookDao {
         param_list.add(book.getUrl());
         param_list.add(book.getQuantity());
         param_list.add(bookId);
-        int updated = ExecuteUpdate(query,param_list);
-        return updated;
+        try {
+            int updated = ExecuteUpdate(query, param_list);
+            return updated;
+
+        }catch(SQLException e){
+            throw new DuplicateBookException(e.getMessage());
+        }
 
     }
 

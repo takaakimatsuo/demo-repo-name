@@ -73,10 +73,9 @@ public class DemoController {
             response.setResponseHeader(new ResponseHeader(response_status.ERR,e.getMessage()));
             System.out.println(e.getMessage());
             //throw e;
-        }catch(SQLException e){
-            //TODO
+        }catch (DuplicateBookException e) {
+            e.printStackTrace();
             response.setResponseHeader(new ResponseHeader(response_status.ERR,e.getMessage()));
-            System.out.println(e.getMessage()+", "+e.getSQLState());
         }
         return response;
     }
