@@ -2,30 +2,33 @@ package com.example.demo.Backend.CustomObjects;
 
 public class UpdateBookStatus {
 
-    private int book_id;
-    private int status;
-    private String phone_number;
+  private int bookId;
+  private int status;
+  private String phoneNumber;
 
-    public void setBook_id(int book_id){
-        this.book_id = book_id;
-    }
-    public int getBook_id(){
-        return book_id;
-    }
+  public void setBook_id(int bookId) {
+    this.bookId = bookId;
+  }
 
-    public void setStatus(int status){
-        this.status = status;
-    }
-    public int getStatus(){
-        return status;
-    }
+  public int getBook_id() {
+    return bookId;
+  }
 
-    public String getPhone_number() {
-        return phone_number;
-    }
-    public void setPhone_number(String phone_number) {
-        this.phone_number = phone_number;
-    }
+  public void setStatus(int status) {
+    this.status = status;
+  }
+
+  public int getStatus() {
+    return status;
+  }
+
+  public String getPhoneNumber() {
+    return phoneNumber;
+  }
+
+  public void setPhoneNumber(String phoneNumber) {
+    this.phoneNumber = phoneNumber;
+  }
 
 
 }
