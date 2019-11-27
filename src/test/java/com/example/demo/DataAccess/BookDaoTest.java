@@ -1,8 +1,8 @@
 package com.example.demo.DataAccess;
 
-import com.example.demo.Backend.CustomExceptions.BookException;
+import com.example.demo.Backend.CustomExceptions.DaoException;
+import com.example.demo.Backend.CustomExceptions.DbException;
 import com.example.demo.Backend.CustomObjects.BookClass;
-import com.example.demo.Backend.CustomObjects.BookUser;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static com.example.demo.Backend.staticErrorCodes.SQLErrorCodes.*;
+import static com.example.demo.Backend.staticErrorCodes.SqlErrorCodes.*;
 
 public class BookDaoTest {
 
@@ -27,7 +27,7 @@ public class BookDaoTest {
     public static void dropBookshelf() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String query = "DROP TABLE IF EXISTS bookshelf";
         List<Object> paramList = new ArrayList<Object>();
-        Method method = JdbcBookDao.class.getDeclaredMethod("SafeExecuteUpdate", String.class, List.class);
+        Method method = JdbcDao.class.getDeclaredMethod("executeUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int) method.invoke(bookDao, query, paramList);
         System.out.println("[INFO] Dropped bookshelf table");
@@ -36,7 +36,7 @@ public class BookDaoTest {
     public static void dropBookUser() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String query = "DROP table IF EXISTS book_user CASCADE";
         List<Object> param_list = new ArrayList<Object>();
-        Method method = JdbcBookDao.class.getDeclaredMethod("SafeExecuteUpdate", String.class, List.class);
+        Method method = JdbcDao.class.getDeclaredMethod("executeUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int) method.invoke(bookDao, query, param_list);
         System.out.println("[INFO] Dropped book_user table");
@@ -55,7 +55,7 @@ public class BookDaoTest {
                 "createdAt timestamp with time zone DEFAULT current_timestamp ,\n" +
                 "PRIMARY KEY (id));";
         List<Object> paramList = new ArrayList<Object>();
-        Method method = JdbcBookDao.class.getDeclaredMethod("SafeExecuteUpdate", String.class, List.class);
+        Method method = JdbcDao.class.getDeclaredMethod("executeUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int)method.invoke(bookDao,query,paramList);
         System.out.println("[INFO] bookshelf table created.");
@@ -70,7 +70,7 @@ public class BookDaoTest {
                 "phoneNumber VARCHAR NOT NULL,\n" +
                 "PRIMARY KEY (phoneNumber));";
         List<Object> param_list = new ArrayList<Object>();
-        Method method = JdbcBookDao.class.getDeclaredMethod("SafeExecuteUpdate", String.class, List.class);
+        Method method = JdbcDao.class.getDeclaredMethod("executeUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int)method.invoke(bookDao,query,param_list);
         System.out.println("[INFO] bookshelf table created.");
@@ -98,7 +98,7 @@ public class BookDaoTest {
             "1, 1200,1,\"\"",
             "\"\", 1200,10000000,\"\""
     })
-     void insertBookShelf_SUCCESS(String title, int price, int quantity, String url) throws BookException {
+     void insertBookShelf_SUCCESS(String title, int price, int quantity, String url) throws DbException, DaoException {
         BookClass test = new BookClass(title, price, url, quantity);
         bookDao.insertBook(test);
     }
@@ -164,7 +164,7 @@ public class BookDaoTest {
             "00011110004,3",
             "00011110006,7"
     })
-    void updateBook_borrowed(String phoneNumber, Integer bookId) throws SQLException, BookException {
+    void updateBook_borrowed(String phoneNumber, Integer bookId) throws DbException, DaoException {
         bookDao.updateBook_borrowed(bookId,phoneNumber);
     }
 
