@@ -1,8 +1,8 @@
-package com.example.demo.DataAccess;
+package com.example.demo.data.access;
 
-import com.example.demo.backend.custom.exceptions.DaoException;
-import com.example.demo.backend.custom.exceptions.DbException;
-import com.example.demo.backend.CustomObjects.BookClass;
+import com.example.demo.backend.custom.myexceptions.DaoException;
+import com.example.demo.backend.custom.myexceptions.DbException;
+import com.example.demo.backend.custom.objects.BookClass;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static com.example.demo.backend.staticErrorCodes.SqlErrorCodes.*;
+import static com.example.demo.backend.errorcodes.SqlErrorCodes.*;
 
 public class BookDaoTest {
 

@@ -1,8 +1,8 @@
 package com.example.demo;
 
-import com.example.demo.Backend.CustomExceptions.InputFormatExeption;
-import com.example.demo.Backend.CustomObjects.BookClass;
-import com.example.demo.Backend.CustomObjects.PatchBookClass;
+import com.example.demo.backend.custom.myexceptions.InputFormatExeption;
+import com.example.demo.backend.custom.objects.BookClass;
+import com.example.demo.backend.custom.objects.PatchBookClass;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,6 +13,13 @@ public class InputValidator {
   private static Pattern url_pattern = Pattern.compile(URL_FORMAT);
   private static Pattern phonenumber_pattern = Pattern.compile(PHONE_NUMBER_FORMAT);
 
+
+  /**
+   * Makes sure that the inputted String is Integer compatible.
+   * @param integer This is expected to be parsable to an Integer.
+   * @return Returns the value of the inputted String as an Integer.
+   * @throws InputFormatExeption An exception that gets raised when the user input doesnt satisfy the requirement.
+   */
   static Integer assureInteger(String integer) throws InputFormatExeption {
     Integer result = null;
     if (integer == null) {
@@ -28,9 +35,11 @@ public class InputValidator {
   }
 
 
-
-
-
+  /**
+   * ${TODO}
+   * @param url
+   * @throws InputFormatExeption An exception that gets raised when the user input doesnt satisfy the requirement.
+   */
   static void assureURL(String url) throws InputFormatExeption {
 
     if (url == null) {

@@ -31,13 +31,15 @@ import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NO_STOC
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NOT_EXISTING;
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_CANNOT_BE_RETURNED;
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_CANNOT_BE_LOST;
+import static com.example.demo.backend.errormessages.StaticMessages.BOOK_RETURNED;
+import static com.example.demo.backend.errormessages.StaticMessages.BOOK_LOST;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class DemoControllerTest {
+class PracticeDemoControllerTest {
 
     @Autowired
     @Qualifier("JdbcBookDao")

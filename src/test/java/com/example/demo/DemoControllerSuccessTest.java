@@ -1,7 +1,5 @@
-package com.example.demo.data.access;
-import static com.example.demo.InputValidator.*;
+package com.example.demo;
 
-import com.example.demo.DemoController;
 import com.example.demo.backend.custom.myexceptions.DaoException;
 import com.example.demo.backend.custom.myexceptions.DbException;
 import com.example.demo.backend.custom.objects.BookUser;
@@ -9,46 +7,49 @@ import com.example.demo.backend.custom.objects.PatchBookClass;
 import com.example.demo.data.access.BookDao;
 import com.example.demo.data.access.BookUserDao;
 import com.example.demo.data.access.BookDaoTest;
-import com.example.demo.backend.custom.myenums.ResponseStatus;
 import com.example.demo.backend.custom.myexceptions.InputFormatExeption;
 import com.example.demo.backend.custom.objects.BookClass;
 import com.example.demo.backend.custom.objects.ResponseBooks;
-import com.example.demo.backend.DemoBusinessLogic;
+import com.sun.org.glassfish.gmbal.Description;
+import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.rules.ExpectedException;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_BORROWED;
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NO_STOCK;
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NOT_EXISTING;
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_CANNOT_BE_RETURNED;
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_CANNOT_BE_LOST;
-
 import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
 
+
+import static com.example.demo.InputValidator.assureBookClassNames;
+import static com.example.demo.backend.errormessages.StaticMessages.BOOK_BORROWED;
+import static com.example.demo.backend.errormessages.StaticMessages.UPDATE_SUCCESS_BOOK;
+import static com.example.demo.backend.errormessages.StaticMessages.BOOK_RETURNED;
+import static com.example.demo.backend.errormessages.StaticMessages.BOOK_LOST;
+import static com.example.demo.backend.errormessages.StaticMessages.BOOK_DELETED;
+import static com.example.demo.backend.errormessages.StaticMessages.BOOK_INSERTED;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
+
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 class DemoControllerSuccessTest {
 
-  @Autowired
-  @Qualifier("JdbcBookDao")
-  BookDao bDao;
 
   @Autowired
   BookUserDao uDao;
 
   @Autowired
   DemoController controller;
+
+
 
   @BeforeAll
   static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -77,7 +78,8 @@ class DemoControllerSuccessTest {
     "Munro, Bill,00000000001",
     "Shota, Nagayama,00000000002"
   })
-  void insertBookUser_SUCCESS(String familyName, String firstName, String phoneNumber) throws DbException, DaoException {
+  @Description("ユーザの追加")
+  void test0(String familyName, String firstName, String phoneNumber) throws DbException, DaoException {
     BookUser test = new BookUser(familyName, firstName, phoneNumber);
     uDao.insertBookUser(test);
   }
@@ -92,15 +94,18 @@ class DemoControllerSuccessTest {
     "ABCDEFG, 1200,1,https://a.example.com",
     "あいうえお, 1200,1,https://a.example.com",
     "白い犬の本, 1200,1,https://a.example.com",
+    "猫の写真集, 2200,1,https://a.example.com",
     "Java SE11 Silver 参考書, 3400,1,https://a.example.com",
     "1231232, 1200,1,https://a.example.com",
     "1, 1200,1,\'\'",
     "\"\", 1200,10000000,\'\'",
     "無料の本,0,1,https://cheap.example.com"
   })
-  void insertBookShelf_SUCCESS(String title, int price, int quantity, String url) throws DbException, DaoException {
+  @Description("本の追加")
+  void test1(String title, int price, int quantity, String url) throws DbException, DaoException {
     BookClass test = new BookClass(title, price, url, quantity);
-    bDao.insertBook(test);
+    ResponseBooks books = controller.postBook(test);
+    assertEquals(BOOK_INSERTED,books.getResponseHeader().getMessage());
   }
 
 
@@ -108,21 +113,22 @@ class DemoControllerSuccessTest {
   /*An example of how to mix success and failure in a single parameterized test.*/
   @ParameterizedTest
   @CsvSource({
-    "-2120, false",/*Wrong ID*/
-    "0, false",/*Wrong ID*/
     "1, true",
     "2, true",
     "3, true",
     "4, true",
     "5, true",
+    "6, true",
+    "7, true",
     "8, true",
+    "9, true",
+    "10, true",
+    "11, true",
     "12, true",
-    "14, false",/*Not in database*/
-    "19, false",/*Not in database*/
-    "18, false",/*Not in database*/
-    ",false"/*No ID*/
+    "13, true"
   })
-  void 本の検索の成功と失敗例(String i, boolean expected) {
+  @Description("本の検索")
+  void test2(String i, boolean expected) {
     ResponseBooks books = controller.getBook(i);
     if(books.getBooks().size()>0)
       assertTrue((books.getBooks().get(0).getId() == Integer.parseInt(i)) == expected);
@@ -132,75 +138,29 @@ class DemoControllerSuccessTest {
 
 
   @Test
-  void 本の全検索＿成功() throws InputFormatExeption{
-    Class<? extends Exception> expectedException = null;//No error expected.
-    ExpectedException thrown = ExpectedException.none();
-
+  @Description("本の全検索")
+  void test3() throws InputFormatExeption{
     ResponseBooks books = controller.getBooks();
-    if (InputFormatExeption.class != null) {
-      thrown.expect(expectedException);
-    }
     for(BookClass b : books.getBooks()){
       assureBookClassNames(b);
     }
   }
 
 
-
-  @Test
-  void データが空の本の追加_失敗() throws InputFormatExeption, SQLException {
-    BookClass test = new BookClass();
-    ResponseBooks books = controller.postBook(test);
-    assertTrue(books.getResponseHeader().getStatus()== ResponseStatus.ERR);
-  }
-
-
-//
-//    /**
-//     * ${TODO}
-//     * Format not matching the requirement must raise {@link com.example.demo.backend.custom.myexceptions.InputFormatExeption InputFormatExeption}.
-//     * This is currently testing on DemoBusinessLogic directly, as the controller doesnt throw any error yet.
-//     * @param title Book title
-//     * @param price Book price
-//     * @param quantity Quantity of books
-//     * @param url URL related to the book
-//     * @throws InputFormatExeption An exception that gets raised when the user input isn't satisfying the requirement.
-//     * @throws SQLException
-//     */
-//    @ParameterizedTest
-//    @CsvSource({
-//            ", 1,1,https://a.example.com",
-//            "AA, -1,1,https://a.example.com",
-//            "BB, 1,-100,https://a.example.com",
-//            ",1,1,",
-//            ",-1,-1,"
-//    })
-//    void フォーマットが間違っている本の追加_失敗(String title, int price, int quantity, String url) throws InputFormatExeption, SQLException {
-//        Class<? extends Exception> expectedException = InputFormatExeption.class;
-//        assertThrows(expectedException,()->{
-//            BookClass test = new BookClass(title, price, url, quantity);
-//            ResponseBooks response = new ResponseBooks();
-//            response = new DemoBusinessLogic().addBook(assureBookClass(test));});
-//    }
-
-
-
   @ParameterizedTest
   @CsvSource({
-    "1,Bever, 100,2,https://a.example.com",
-    "1,googleの本, 2000,1,https://a.example.com",
-    "2,まみむめも, 2300,4,https://a.example.com",
-    "あいうえお, 1200,1,https://a.example.com",
-    "あいうえ, 1200,1,https://a.example.com",
-    "あいう, 1200,1,https://a.example.com",
-    "あい, 1200,1,https://a.example.com",
-    "Java SE11 Silver問題集, 3400,1,https://a.example.com",
-    "1231232, 1200,1,https://a.example.com",
-    "1, 1200,1,\"\"",
-    "\"\", 1200,10000000,\"\""
+    "5,Beaver book, 100,2,https://a.example.com",
+    "6,googleの本, 2000,1,https://a.example.com",
+    "10,まみむめも, 2300,4,https://a.example.com",
   })
-  void PUT_book() {
-
+  @Description("本データの変更")
+  void test4(String bookId, String title, int price, int quantity, String url) throws InputFormatExeption {
+    BookClass test = new BookClass(title, price, url, quantity);
+    ResponseBooks books = controller.putBook(bookId, test);
+    assertEquals(UPDATE_SUCCESS_BOOK, books.getResponseHeader().getMessage());
+    for(BookClass b : books.getBooks()){
+      assureBookClassNames(b);
+    }
   }
 
   @ParameterizedTest
@@ -211,73 +171,68 @@ class DemoControllerSuccessTest {
     "3, 00011110008, 0",
     "12, 00000000000, 0",
     "11, 00000000001, 0",
+    "10, 00000000001, 0",
+    "9, 00000000001, 0",
+    "8, 00000000001, 0",
+    "7, 00000000001, 0"
   })
-  void 本の貸し出し_成功(String bookId, String phoneNumber, int action) {
+  @Description("本の貸し出し")
+  void test5(String bookId, String phoneNumber, int action) {
     PatchBookClass pb = new PatchBookClass();
     pb.setBorrower(phoneNumber);
     pb.setStatus(action);
     ResponseBooks books = controller.patchBook(bookId, pb);
-    assertTrue(books.getResponseHeader().getMessage().equals(BOOK_BORROWED));
+    assertEquals(BOOK_BORROWED, books.getResponseHeader().getMessage());
   }
 
   @ParameterizedTest
   @CsvSource({
-    "1, 00011110001, 0",
-    "4, 00011110008, 0",
-    "12, 00000000001, 0",
-  })
-  void 在庫の無い本の貸し出し_失敗(String bookId, String phoneNumber, int action) {
-    PatchBookClass pb = new PatchBookClass();
-    pb.setBorrower(phoneNumber);
-    pb.setStatus(action);
-    ResponseBooks books = controller.patchBook(bookId, pb);
-    assertTrue(books.getResponseHeader().getMessage().equals(BOOK_NO_STOCK));
-  }
-
-  @ParameterizedTest
-  @CsvSource({
-    "123, 00011110008, 0",
-    "321, 00011110008, 0",
-    "123, 00000000001, 0",
-  })
-  void 存在しない本の貸し出し_失敗(String bookId, String phoneNumber, int action) {
-    PatchBookClass pb = new PatchBookClass();
-    pb.setBorrower(phoneNumber);
-    pb.setStatus(action);
-    ResponseBooks books = controller.patchBook(bookId, pb);
-    assertTrue(books.getResponseHeader().getMessage().equals(BOOK_NOT_EXISTING));
-  }
-
-  @ParameterizedTest
-  @CsvSource({
+    "1, 00011110007, 1",
     "1, 00011110008, 1",
-    "4, 00011110008, 1",
-    "12, 00000000001, 1",
+    "4, 00011110007, 1",
+    "3, 00011110008, 1",
+    "12, 00000000000, 1"
   })
-  void 借りていない本の返却_失敗(String bookId, String phoneNumber, int action) {
+  @Description("本の返却")
+  void test6(String bookId, String phoneNumber, int action) {
     PatchBookClass pb = new PatchBookClass();
     pb.setBorrower(phoneNumber);
     pb.setStatus(action);
     ResponseBooks books = controller.patchBook(bookId, pb);
-    assertTrue(books.getResponseHeader().getMessage().equals(BOOK_CANNOT_BE_RETURNED));
+    assertEquals(BOOK_RETURNED, books.getResponseHeader().getMessage());
   }
 
   @ParameterizedTest
   @CsvSource({
-    "1, 00011110002, 2",
-    "4, 00011110008, 2",
-    "12, 00000000001, 2",
+    "11, 00000000001, 2",
+    "10, 00000000001, 2",
+    "9, 00000000001, 2",
+    "8, 00000000001, 2",
+    "7, 00000000001, 2"
   })
-  void 借りていない本の紛失報告_失敗(String bookId, String phoneNumber, int action) {
+  @Description("本の紛失")
+  void test7(String bookId, String phoneNumber, int action) {
     PatchBookClass pb = new PatchBookClass();
     pb.setBorrower(phoneNumber);
     pb.setStatus(action);
     ResponseBooks books = controller.patchBook(bookId, pb);
-    assertTrue(books.getResponseHeader().getMessage().equals(BOOK_CANNOT_BE_LOST));
+    assertEquals(BOOK_LOST, books.getResponseHeader().getMessage());
   }
 
 
-  @Test
-  void DELETE_book() {
+  @ParameterizedTest
+  @CsvSource({
+    "1",
+    "2",
+    "3"
+  })
+  @Description("本の削除")
+  void test8(String bookId) {
+    ResponseBooks books = controller.deleteBook(bookId);
+    assertEquals(BOOK_DELETED, books.getResponseHeader().getMessage());
   }
+
+
+
+
 }

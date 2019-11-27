@@ -15,7 +15,7 @@ import java.util.Arrays;
 import static com.example.demo.InputValidator.*;
 
 @RunWith(Enclosed.class)
-public class InputResolverTest {
+public class PracticeInputResolverTest {
 
     @RunWith(Parameterized.class)
     public static class Test_URL {

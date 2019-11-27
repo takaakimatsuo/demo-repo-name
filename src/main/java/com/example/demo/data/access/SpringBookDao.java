@@ -1,17 +1,19 @@
-package com.example.demo.DataAccess;
+package com.example.demo.data.access;
 
-import static com.example.demo.backend.staticErrorMessages.StaticMessages.*;
+import static com.example.demo.backend.errormessages.StaticMessages.BOOK_DUPLICATE;
+import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NOT_EXISTING;
+import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NO_STOCK;
+import static com.example.demo.backend.errormessages.StaticMessages.UPDATE_FAILED_BOOK;
 
-import com.example.demo.backend.custom.exceptions.*;
-import com.example.demo.backend.CustomObjects.BookClass;
-import com.example.demo.backend.CustomObjects.ExceptionCodes;
-import com.example.demo.DataAccess.CustomENUMs.BookStatus;
+import com.example.demo.backend.custom.myexceptions.DaoException;
+import com.example.demo.backend.custom.objects.BookClass;
+import com.example.demo.backend.custom.myenums.ExceptionCodes;
+import com.example.demo.data.access.custom.enums.BookStatus;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
-
-import com.example.demo.backend.custom.exceptions.DaoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -46,17 +48,24 @@ public class SpringBookDao implements BookDao {
       });
     } catch (DataAccessException e) {
       if (e.getRootCause() instanceof SQLException) {
-         SQLException sqlEx = (SQLException) e.getRootCause();
-          throw createDaoException(sqlEx,ExceptionCodes.SYSTEM_ERROR);
+        SQLException sqlEx = (SQLException) e.getRootCause();
+        throw createDaoException(sqlEx);
       } else {
         throw new DaoException(e.getMessage(), e.getCause(),ExceptionCodes.SYSTEM_ERROR);
       }
     }
   }
 
-  private DaoException createDaoException(SQLException e, ExceptionCodes ee) {
-    return new DaoException(e.getMessage(),e.getCause(), ee);
+
+  /**
+   * Generates a DaoException from the SQLExcetion
+   * @param sqlException Raw SQLException
+   * @return DaoException
+   */
+  public DaoException createDaoException(SQLException sqlException) {
+    return new DaoException(sqlException.getMessage(),sqlException.getCause(), ExceptionCodes.SYSTEM_ERROR);
   }
+
 
   @Override
   public List<BookClass> getBook(Integer bookId) throws DaoException {
@@ -75,9 +84,9 @@ public class SpringBookDao implements BookDao {
     } catch (DataAccessException e) {
       if (e.getRootCause() instanceof SQLException) {
         SQLException sqlEx = (SQLException) e.getRootCause();
-        throw createDaoException(sqlEx,ExceptionCodes.SYSTEM_ERROR);
+        throw createDaoException(sqlEx);
       } else {
-        throw new DaoException(e.getMessage(), e.getCause());
+        throw new DaoException(e.getMessage(), e.getCause(),ExceptionCodes.SYSTEM_ERROR);
       }
     }
   }
@@ -164,39 +173,49 @@ public class SpringBookDao implements BookDao {
   }
 
   @Override
-  public void updateBook_borrowed(Integer bookId, String phoneNumber) throws DaoException {
+  public int updateBook_borrowed(Integer bookId, String phoneNumber) throws DaoException {
     if (checkBookStockAvailability(bookId)) {
-      jdbcTemplate.update("UPDATE bookshelf SET borrowedBy = array_append(borrowedBy, ?) WHERE id = ?", phoneNumber, bookId);
+      return jdbcTemplate.update("UPDATE bookshelf SET borrowedBy = array_append(borrowedBy, ?) WHERE id = ?", phoneNumber, bookId);
     } else {
       throw new DaoException(BOOK_NO_STOCK);
     }
   }
 
   @Override
-  public void updateBook_returned(Integer bookId, String phoneNumber) throws DaoException {
+  public int updateBook_returned(Integer bookId, String phoneNumber) throws DaoException {
     try {
-      jdbcTemplate.update("UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?) WHERE id = ?", phoneNumber, bookId);
+      return jdbcTemplate.update("UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?) WHERE id = ?", phoneNumber, bookId);
     } catch (DataAccessException e) {
       throw new DaoException(UPDATE_FAILED_BOOK + "? : " + e.getLocalizedMessage());
     }
   }
 
   @Override
-  public void updateBook_lost(Integer bookId, String phoneNumber) throws DaoException {
+  public int updateBook_lost(Integer bookId, String phoneNumber) throws DaoException {
     try {
-      Integer remainingQuantity = jdbcTemplate.queryForObject("UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?), quantity = (quantity-1) WHERE id = ? RETURNING quantity", new RowMapper<Integer>() {
-        public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return rs.getInt("QUANTITY");
-        }
-        }, phoneNumber, bookId);
-      if (remainingQuantity <= 0) {
-        //If quantity is less than 0
-        deleteBook(bookId);//Simply remove the book from the bookshelf
-      }
+      return jdbcTemplate.update("UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?), quantity = (quantity-1) WHERE id = ?", phoneNumber, bookId);
     } catch (DataAccessException e) {
       throw new DaoException(UPDATE_FAILED_BOOK + "? : " + e.getLocalizedMessage());
     }
   }
+
+//
+//  @Override
+//  public void updateBook_lost(Integer bookId, String phoneNumber) throws DaoException {
+//    try {
+//      Integer remainingQuantity = jdbcTemplate.queryForObject("UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?), quantity = (quantity-1) WHERE id = ? RETURNING quantity", new RowMapper<Integer>() {
+//        public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
+//          return rs.getInt("QUANTITY");
+//        }
+//        }, phoneNumber, bookId);
+//      if (remainingQuantity <= 0) {
+//        //If quantity is less than 0
+//        deleteBook(bookId);//Simply remove the book from the bookshelf
+//      }
+//    } catch (DataAccessException e) {
+//      throw new DaoException(UPDATE_FAILED_BOOK + "? : " + e.getLocalizedMessage());
+//    }
+//  }
 
   @Override
   public int updateBook_data(Integer bookId, BookClass book) throws DaoException {
