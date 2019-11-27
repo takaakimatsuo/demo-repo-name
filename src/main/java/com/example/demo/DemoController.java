@@ -27,7 +27,7 @@ public class DemoController {
     ResponseBooks response = new ResponseBooks();
     try {
       response = dbl.getBook(assureInteger(bookId));
-    } catch (SQLException | InputFormatExeption e) {
+    } catch (DaoException | InputFormatExeption | DbException e) {
       //TODO
       System.out.println("Controller: " + e);
     }
@@ -103,7 +103,7 @@ public class DemoController {
     ResponseBooks response = new ResponseBooks();
     try {
       response = dbl.removeBook(assureInteger(id));
-    } catch (SQLException | InputFormatExeption e) {
+    } catch (DaoException | InputFormatExeption | DbException e) {
       //TODO
       System.out.println(e);
     }

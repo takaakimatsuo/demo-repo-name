@@ -22,13 +22,13 @@ import org.springframework.stereotype.Component;
 public final class DemoBusinessLogic {
   private ResponseBooks res;
   @Autowired
-  @Qualifier("JdbcBookDao") //Based on general JDBC.
+  @Qualifier("JdbcBookDao") //Based on standard JDBC.
   //@Qualifier("SpringBookDao") // Based on Spring JDBCtemplate.
   private BookDao dao;
 
   /* Simply return all books stored in the bookshelf table.
   *  @param: None
-  *  @return: ResponseBooks res - A list of BookClass objects with the ResponseHeader class.
+  *  @return: ResponseBooks res - A list of BookClass objects, with the ResponseHeader class.
   */
   public ResponseBooks getAllBooks() throws DaoException, DbException {
     res = new ResponseBooks();
@@ -50,9 +50,9 @@ public final class DemoBusinessLogic {
 
   /* Remove specified book from the bookshelf table.
    *  @param: Integer bookId - Identifier of a book.
-   *  @return: ResponseBooks res - An empty list of BookClass objects with the ResponseHeader class.
+   *  @return: ResponseBooks res - An empty list of BookClass objects, with the ResponseHeader class.
    */
-  public ResponseBooks removeBook(Integer bookId) throws SQLException {
+  public ResponseBooks removeBook(Integer bookId) throws DaoException, DbException {
     res = new ResponseBooks();
     try {
       int update = dao.deleteBook(bookId);
@@ -77,7 +77,7 @@ public final class DemoBusinessLogic {
    *  @param: Integer bookId - Identifier of a book.
    *  @return: ResponseBooks res - An list containing a single BookClass object, with a ResponseHeader class.
    */
-  public ResponseBooks getBook(Integer bookId) throws SQLException {
+  public ResponseBooks getBook(Integer bookId) throws DaoException, DbException {
     res = new ResponseBooks();
     try {
       List<BookClass> books = dao.getBook(bookId);

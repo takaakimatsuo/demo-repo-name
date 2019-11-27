@@ -49,17 +49,21 @@ public class SpringBookDao implements BookDao {
 
   @Override
   public List<BookClass> getBook(Integer bookId) throws DaoException {
-    return jdbcTemplate.query("select * from bookshelf where id = ?", new RowMapper<BookClass>() {
-      public BookClass mapRow(ResultSet rs, int rowNum) throws SQLException {
-        BookClass book = new BookClass();
-        book.setId(rs.getInt("ID"));
-        book.setTitle(rs.getString("TITLE"));
-        book.setPrice(rs.getInt("PRICE"));
-        book.setQuantity(rs.getInt("QUANTITY"));
-        book.setUrl(rs.getString("URL"));
-        return book;
-      }
-      },bookId);
+    try {
+      return jdbcTemplate.query("select * from bookshelf where id = ?", new RowMapper<BookClass>() {
+        public BookClass mapRow(ResultSet rs, int rowNum) throws SQLException {
+          BookClass book = new BookClass();
+          book.setId(rs.getInt("ID"));
+          book.setTitle(rs.getString("TITLE"));
+          book.setPrice(rs.getInt("PRICE"));
+          book.setQuantity(rs.getInt("QUANTITY"));
+          book.setUrl(rs.getString("URL"));
+          return book;
+        }
+      }, bookId);
+    } catch (DataAccessException e) {
+      throw new DaoException(e.getLocalizedMessage());
+    }
   }
 
   @Override
@@ -79,8 +83,7 @@ public class SpringBookDao implements BookDao {
           }
           }, book.getTitle(), book.getPrice(), book.getQuantity(), book.getUrl());
     } catch (DataAccessException e) {
-      //TOD
-      throw new DaoException(BOOK_DUPLICATE);
+      throw new DaoException(BOOK_DUPLICATE + "? : " + e.getLocalizedMessage());
     }
     return list;
   }
@@ -133,7 +136,7 @@ public class SpringBookDao implements BookDao {
         }
         }, bookId);
     } catch (DataAccessException e) {
-      throw new DaoException(BOOK_NOT_EXISTING);
+      throw new DaoException(BOOK_NOT_EXISTING + "? : " + e.getLocalizedMessage());
     }
     return available;
   }
@@ -152,7 +155,7 @@ public class SpringBookDao implements BookDao {
     try {
       jdbcTemplate.update("UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?) WHERE id = ?", phoneNumber, bookId);
     } catch (DataAccessException e) {
-      throw new DaoException(UPDATE_FAILED_BOOK);
+      throw new DaoException(UPDATE_FAILED_BOOK + "? : " + e.getLocalizedMessage());
     }
   }
 
@@ -169,7 +172,7 @@ public class SpringBookDao implements BookDao {
         deleteBook(bookId);//Simply remove the book from the bookshelf
       }
     } catch (DataAccessException e) {
-      throw new DaoException(UPDATE_FAILED_BOOK);
+      throw new DaoException(UPDATE_FAILED_BOOK + "? : " + e.getLocalizedMessage());
     }
   }
 
@@ -178,7 +181,7 @@ public class SpringBookDao implements BookDao {
     try {
       return jdbcTemplate.update("UPDATE bookshelf SET title = ?, price = ?, url = ?, quantity = ? where id = ? AND borrowedBy = \'{}\'", book.getTitle(), book.getPrice(), book.getUrl(), book.getQuantity(), bookId);
     } catch (DataAccessException e) {
-      throw new DaoException(BOOK_DUPLICATE);
+      throw new DaoException(BOOK_DUPLICATE + "? : " + e.getLocalizedMessage());
     }
   }
 }
