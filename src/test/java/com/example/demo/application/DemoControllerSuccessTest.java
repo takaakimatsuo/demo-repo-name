@@ -12,7 +12,6 @@ import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.runners.MethodSorters;
@@ -35,9 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class DemoControllerSuccessTest {
+class DemoControllerSuccessTest {
 
 
 

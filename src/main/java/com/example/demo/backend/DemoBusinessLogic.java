@@ -84,20 +84,13 @@ public final class DemoBusinessLogic {
    */
   public ResponseBooks removeBook(Integer bookId) throws DaoException, DbException {
     res = new ResponseBooks();
-    try {
-      int update = dao.deleteBook(bookId);
-      if (update == 0) {
-        res.getResponseHeader().setMessage(BOOK_NOT_EXISTING);
-        res.getResponseHeader().setStatus(ServiceStatus.ERR);
-      } else {
-        res.getResponseHeader().setMessage(BOOK_DELETED);
-        res.getResponseHeader().setStatus(ServiceStatus.OK);
-      }
-    } catch (DaoException | DbException e) {
-      //TODO
-      res.getResponseHeader().setMessage(e.toString());
+    int update = dao.deleteBook(bookId);
+    if (update == 0) {
+      res.getResponseHeader().setMessage(BOOK_NOT_EXISTING);
       res.getResponseHeader().setStatus(ServiceStatus.ERR);
-      //throw new SQLException("SQL query failure: ", e);
+    } else {
+      res.getResponseHeader().setMessage(BOOK_DELETED);
+      res.getResponseHeader().setStatus(ServiceStatus.OK);
     }
     return res;
   }
