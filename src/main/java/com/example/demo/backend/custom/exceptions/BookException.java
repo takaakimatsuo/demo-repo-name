@@ -1,6 +1,6 @@
-package com.example.demo.backend.custom.myexceptions;
+package com.example.demo.backend.custom.exceptions;
 
-import com.example.demo.backend.custom.myenums.ExceptionCodes;
+import com.example.demo.backend.custom.enums.ExceptionCodes;
 
 public class BookException extends Exception {
   private Integer errorCodes;

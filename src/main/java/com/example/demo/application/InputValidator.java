@@ -1,6 +1,6 @@
 package com.example.demo.application;
 
-import com.example.demo.backend.custom.myexceptions.InputFormatExeption;
+import com.example.demo.backend.custom.exceptions.InputFormatExeption;
 import com.example.demo.backend.custom.Dto.BookClass;
 import com.example.demo.backend.custom.Dto.BookUser;
 import com.example.demo.backend.custom.Dto.PatchBookClass;
@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
 public class InputValidator {
   private static final String PHONE_NUMBER_FORMAT = "^\\d{10,15}$";
   private static final String URL_FORMAT = "^https?://[a-z\\.:/\\+\\-\\#\\?\\=\\&\\;\\%\\~]+$";
-  private static Pattern url_pattern = Pattern.compile(URL_FORMAT);
-  private static Pattern phonenumber_pattern = Pattern.compile(PHONE_NUMBER_FORMAT);
+  private static Pattern URL_PATTERN = Pattern.compile(URL_FORMAT);
+  private static Pattern PHONENUMBER_PATTERN = Pattern.compile(PHONE_NUMBER_FORMAT);
 
 
   /**
@@ -55,21 +55,21 @@ public class InputValidator {
    * @param url
    * @throws InputFormatExeption An exception that gets raised when the user input doesnt satisfy the requirement.
    */
-  static void assureURL(String url) throws InputFormatExeption {
+  public static void assureURL(String url) throws InputFormatExeption {
 
     if (url == null) {
       throw new InputFormatExeption("URL is null.");
     }
     if (!url.isEmpty()) {
       //URL can be left empty
-      Matcher m = url_pattern.matcher(url);
+      Matcher m = URL_PATTERN.matcher(url);
       if (!m.find()) {
         throw new InputFormatExeption("URL is not formatted correctly.");
       }
     }
   }
 
-  private static void assureAllBorrowedBy(String[] phoneNumbers) throws InputFormatExeption {
+  public static void assureAllBorrowedBy(String[] phoneNumbers) throws InputFormatExeption {
     if (phoneNumbers == null) {
       throw new InputFormatExeption("Borrowers are null.");
     }
@@ -84,11 +84,11 @@ public class InputValidator {
     }
   }
 
-  static void assureBorrowed_by(String number) throws InputFormatExeption {
+  public static void assureBorrowed_by(String number) throws InputFormatExeption {
     if (number == null) {
       throw new InputFormatExeption("Phone number is null.");
     }
-    Matcher m = phonenumber_pattern.matcher(number);
+    Matcher m = PHONENUMBER_PATTERN.matcher(number);
     if (!m.find()) {
       throw new InputFormatExeption("Phone number is not formatted correctly.");
     }
@@ -114,7 +114,7 @@ public class InputValidator {
   }
 
 
-  static BookClass assureBookClassNames(BookClass book) throws InputFormatExeption {
+  public static BookClass assureBookClassNames(BookClass book) throws InputFormatExeption {
     if (book == null) {
       throw new InputFormatExeption("BookClass is null");
     }
@@ -135,7 +135,7 @@ public class InputValidator {
     }
   }
 
-  static BookClass assureBookClass(BookClass book) throws InputFormatExeption {
+  public static BookClass assureBookClass(BookClass book) throws InputFormatExeption {
     if (book == null) {
       throw new InputFormatExeption("BookClass is null");
     }

@@ -1,8 +1,8 @@
 package com.example.demo.data.access;
 
-import com.example.demo.backend.custom.myenums.ExceptionCodes;
-import com.example.demo.backend.custom.myexceptions.DaoException;
-import com.example.demo.backend.custom.myexceptions.DbException;
+import com.example.demo.backend.custom.enums.ExceptionCodes;
+import com.example.demo.backend.custom.exceptions.DaoException;
+import com.example.demo.backend.custom.exceptions.DbException;
 import com.example.demo.backend.custom.Dto.BookClass;
 import com.example.demo.data.access.custom.enums.BookStatus;
 import java.sql.ResultSet;

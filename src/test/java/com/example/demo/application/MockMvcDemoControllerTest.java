@@ -1,8 +1,7 @@
-package com.example.demo;
+package com.example.demo.application;
 
-import com.example.demo.application.DemoController;
-import com.example.demo.backend.custom.myexceptions.DaoException;
-import com.example.demo.backend.custom.myexceptions.DbException;
+import com.example.demo.backend.custom.exceptions.DaoException;
+import com.example.demo.backend.custom.exceptions.DbException;
 import com.example.demo.data.access.BookDaoTest;
 import org.junit.Before;
 import org.junit.jupiter.api.BeforeAll;

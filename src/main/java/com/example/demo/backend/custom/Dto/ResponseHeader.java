@@ -1,6 +1,6 @@
 package com.example.demo.backend.custom.Dto;
 
-import com.example.demo.backend.custom.myenums.ServiceStatus;
+import com.example.demo.backend.custom.enums.ServiceStatus;
 
 
 public class ResponseHeader {

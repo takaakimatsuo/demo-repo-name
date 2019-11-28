@@ -1,12 +1,11 @@
-package com.example.demo;
+package com.example.demo.application;
 
-import com.example.demo.application.DemoController;
-import com.example.demo.backend.custom.myexceptions.DaoException;
-import com.example.demo.backend.custom.myexceptions.DbException;
+import com.example.demo.backend.custom.exceptions.DaoException;
+import com.example.demo.backend.custom.exceptions.DbException;
 import com.example.demo.backend.custom.Dto.BookUser;
 import com.example.demo.backend.custom.Dto.PatchBookClass;
 import com.example.demo.data.access.BookDaoTest;
-import com.example.demo.backend.custom.myexceptions.InputFormatExeption;
+import com.example.demo.backend.custom.exceptions.InputFormatExeption;
 import com.example.demo.backend.custom.Dto.BookClass;
 import com.example.demo.backend.custom.Dto.ResponseBooks;
 import org.junit.FixMethodOrder;

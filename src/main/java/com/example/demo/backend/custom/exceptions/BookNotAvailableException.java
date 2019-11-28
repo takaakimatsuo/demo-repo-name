@@ -1,4 +1,4 @@
-package com.example.demo.backend.custom.myexceptions;
+package com.example.demo.backend.custom.exceptions;
 
 public class BookNotAvailableException extends BookException {
   public BookNotAvailableException(String errorMessage) {

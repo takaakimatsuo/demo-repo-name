@@ -5,9 +5,9 @@ import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NOT_EXI
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NO_STOCK;
 import static com.example.demo.backend.errormessages.StaticMessages.UPDATE_FAILED_BOOK;
 
-import com.example.demo.backend.custom.myexceptions.DaoException;
+import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.backend.custom.Dto.BookClass;
-import com.example.demo.backend.custom.myenums.ExceptionCodes;
+import com.example.demo.backend.custom.enums.ExceptionCodes;
 import com.example.demo.data.access.custom.enums.BookStatus;
 
 import java.sql.ResultSet;

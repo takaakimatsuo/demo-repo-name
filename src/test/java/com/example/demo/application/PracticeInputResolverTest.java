@@ -1,7 +1,7 @@
-package com.example.demo;
+package com.example.demo.application;
 
 
-import com.example.demo.backend.custom.myexceptions.InputFormatExeption;
+import com.example.demo.backend.custom.exceptions.InputFormatExeption;
 import com.example.demo.backend.custom.Dto.BookClass;
 import org.junit.Rule;
 import org.junit.Test;

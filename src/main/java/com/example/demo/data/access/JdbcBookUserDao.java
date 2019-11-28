@@ -1,7 +1,7 @@
 package com.example.demo.data.access;
 
-import com.example.demo.backend.custom.myexceptions.DaoException;
-import com.example.demo.backend.custom.myexceptions.DbException;
+import com.example.demo.backend.custom.exceptions.DaoException;
+import com.example.demo.backend.custom.exceptions.DbException;
 import com.example.demo.backend.custom.Dto.BookUser;
 import org.springframework.stereotype.Component;
 

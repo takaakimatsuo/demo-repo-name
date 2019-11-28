@@ -19,11 +19,11 @@ import static com.example.demo.backend.errormessages.StaticMessages.UNEXPECTED;
 import static com.example.demo.backend.errormessages.StaticMessages.UPDATE_FAILED_NO_MATCH_BOOK;
 import static com.example.demo.backend.errormessages.StaticMessages.UPDATE_SUCCESS_BOOK;
 
-import com.example.demo.backend.custom.myenums.ServiceStatus;
-import com.example.demo.backend.custom.myexceptions.BookException;
-import com.example.demo.backend.custom.myexceptions.DaoException;
-import com.example.demo.backend.custom.myexceptions.DbException;
-import com.example.demo.backend.custom.myexceptions.DuplicateBookException;
+import com.example.demo.backend.custom.enums.ServiceStatus;
+import com.example.demo.backend.custom.exceptions.BookException;
+import com.example.demo.backend.custom.exceptions.DaoException;
+import com.example.demo.backend.custom.exceptions.DbException;
+import com.example.demo.backend.custom.exceptions.DuplicateBookException;
 import com.example.demo.backend.custom.Dto.*;
 import com.example.demo.data.access.BookDao;
 import com.example.demo.data.access.JdbcBookUserDao;
