@@ -10,9 +10,9 @@ import com.example.demo.data.access.BookDaoTest;
 import com.example.demo.backend.custom.myexceptions.InputFormatExeption;
 import com.example.demo.backend.custom.objects.BookClass;
 import com.example.demo.backend.custom.objects.ResponseBooks;
-import com.sun.org.glassfish.gmbal.Description;
 import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -78,7 +78,7 @@ class DemoControllerSuccessTest {
     "Munro, Bill,00000000001",
     "Shota, Nagayama,00000000002"
   })
-  @Description("ユーザの追加")
+  @DisplayName("ユーザの追加")
   void test0(String familyName, String firstName, String phoneNumber) throws DbException, DaoException {
     BookUser test = new BookUser(familyName, firstName, phoneNumber);
     uDao.insertBookUser(test);
@@ -101,7 +101,7 @@ class DemoControllerSuccessTest {
     "\"\", 1200,10000000,\'\'",
     "無料の本,0,1,https://cheap.example.com"
   })
-  @Description("本の追加")
+  @DisplayName("本の追加")
   void test1(String title, int price, int quantity, String url) throws DbException, DaoException {
     BookClass test = new BookClass(title, price, url, quantity);
     ResponseBooks books = controller.postBook(test);
@@ -127,7 +127,7 @@ class DemoControllerSuccessTest {
     "12, true",
     "13, true"
   })
-  @Description("本の検索")
+  @DisplayName("本の検索")
   void test2(String i, boolean expected) throws InputFormatExeption, DbException {
     ResponseBooks books = controller.getBook(i);
     if(books.getBooks().size()>0)
@@ -138,7 +138,7 @@ class DemoControllerSuccessTest {
 
 
   @Test
-  @Description("本の全検索")
+  @DisplayName("本の全検索")
   void test3() throws InputFormatExeption, DbException{
     ResponseBooks books = controller.getBooks();
     for(BookClass b : books.getBooks()){
@@ -153,7 +153,7 @@ class DemoControllerSuccessTest {
     "6,googleの本, 2000,1,https://a.example.com",
     "10,まみむめも, 2300,4,https://a.example.com",
   })
-  @Description("本データの変更")
+  @DisplayName("本データの変更")
   void test4(String bookId, String title, int price, int quantity, String url) throws InputFormatExeption {
     BookClass test = new BookClass(title, price, url, quantity);
     ResponseBooks books = controller.putBook(bookId, test);
@@ -176,7 +176,7 @@ class DemoControllerSuccessTest {
     "8, 00000000001, 0",
     "7, 00000000001, 0"
   })
-  @Description("本の貸し出し")
+  @DisplayName("本の貸し出し")
   void test5(String bookId, String phoneNumber, int action) {
     PatchBookClass pb = new PatchBookClass();
     pb.setBorrower(phoneNumber);
@@ -193,7 +193,7 @@ class DemoControllerSuccessTest {
     "3, 00011110008, 1",
     "12, 00000000000, 1"
   })
-  @Description("本の返却")
+  @DisplayName("本の返却")
   void test6(String bookId, String phoneNumber, int action) {
     PatchBookClass pb = new PatchBookClass();
     pb.setBorrower(phoneNumber);
@@ -210,7 +210,7 @@ class DemoControllerSuccessTest {
     "8, 00000000001, 2",
     "7, 00000000001, 2"
   })
-  @Description("本の紛失")
+  @DisplayName("本の紛失")
   void test7(String bookId, String phoneNumber, int action) {
     PatchBookClass pb = new PatchBookClass();
     pb.setBorrower(phoneNumber);
@@ -226,7 +226,7 @@ class DemoControllerSuccessTest {
     "2",
     "3"
   })
-  @Description("本の削除")
+  @DisplayName("本の削除")
   void test8(String bookId) {
     ResponseBooks books = controller.deleteBook(bookId);
     assertEquals(BOOK_DELETED, books.getResponseHeader().getMessage());
