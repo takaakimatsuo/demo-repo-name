@@ -1,15 +1,14 @@
 package com.example.demo;
 
+import com.example.demo.application.DemoController;
 import com.example.demo.backend.custom.myexceptions.DaoException;
 import com.example.demo.backend.custom.myexceptions.DbException;
-import com.example.demo.backend.custom.objects.BookUser;
-import com.example.demo.backend.custom.objects.PatchBookClass;
-import com.example.demo.data.access.BookDao;
-import com.example.demo.data.access.BookUserDao;
+import com.example.demo.backend.custom.Dto.BookUser;
+import com.example.demo.backend.custom.Dto.PatchBookClass;
 import com.example.demo.data.access.BookDaoTest;
 import com.example.demo.backend.custom.myexceptions.InputFormatExeption;
-import com.example.demo.backend.custom.objects.BookClass;
-import com.example.demo.backend.custom.objects.ResponseBooks;
+import com.example.demo.backend.custom.Dto.BookClass;
+import com.example.demo.backend.custom.Dto.ResponseBooks;
 import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -19,13 +18,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.lang.reflect.InvocationTargetException;
 
 
-import static com.example.demo.InputValidator.assureBookClassNames;
+import static com.example.demo.application.InputValidator.assureBookClassNames;
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_BORROWED;
 import static com.example.demo.backend.errormessages.StaticMessages.UPDATE_SUCCESS_BOOK;
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_RETURNED;
@@ -40,11 +38,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class DemoControllerSuccessTest {
+public class DemoControllerSuccessTest {
 
 
-  @Autowired
-  BookUserDao uDao;
 
   @Autowired
   DemoController controller;
@@ -52,12 +48,12 @@ class DemoControllerSuccessTest {
 
 
   @BeforeAll
-  static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    BookDaoTest bt = new BookDaoTest();
-    bt.dropBookshelf();
-    bt.dropBookUser();
-    bt.createBookshelf();
-    bt.createBookUser();
+  static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DbException, DaoException {
+    BookDaoTest.dropBookshelf();
+    BookDaoTest.dropBookUser();
+    BookDaoTest.createBookshelf();
+    BookDaoTest.createBookUser();
+    //BookDaoTest.fillInBookUser();
   }
 
 
@@ -79,9 +75,9 @@ class DemoControllerSuccessTest {
     "Shota, Nagayama,00000000002"
   })
   @DisplayName("ユーザの追加")
-  void test0(String familyName, String firstName, String phoneNumber) throws DbException, DaoException {
+  void test0(String familyName, String firstName, String phoneNumber) throws DbException, DaoException, InputFormatExeption {
     BookUser test = new BookUser(familyName, firstName, phoneNumber);
-    uDao.insertBookUser(test);
+    controller.postUser(test);
   }
 
 
@@ -102,7 +98,7 @@ class DemoControllerSuccessTest {
     "無料の本,0,1,https://cheap.example.com"
   })
   @DisplayName("本の追加")
-  void test1(String title, int price, int quantity, String url) throws DbException, DaoException {
+  void test1(String title, int price, int quantity, String url) throws DbException, DaoException, InputFormatExeption {
     BookClass test = new BookClass(title, price, url, quantity);
     ResponseBooks books = controller.postBook(test);
     assertEquals(BOOK_INSERTED,books.getResponseHeader().getMessage());
@@ -128,7 +124,7 @@ class DemoControllerSuccessTest {
     "13, true"
   })
   @DisplayName("本の検索")
-  void test2(String i, boolean expected) throws InputFormatExeption, DbException {
+  void test2(String i, boolean expected) throws InputFormatExeption, DbException, DaoException {
     ResponseBooks books = controller.getBook(i);
     if(books.getBooks().size()>0)
       assertTrue((books.getBooks().get(0).getId() == Integer.parseInt(i)) == expected);

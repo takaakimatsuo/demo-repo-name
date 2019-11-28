@@ -2,7 +2,7 @@ package com.example.demo.data.access;
 
 import com.example.demo.backend.custom.myexceptions.DaoException;
 import com.example.demo.backend.custom.myexceptions.DbException;
-import com.example.demo.backend.custom.objects.BookClass;
+import com.example.demo.backend.custom.Dto.BookClass;
 import com.example.demo.data.access.custom.enums.BookStatus;
 import java.util.List;
 
@@ -12,7 +12,7 @@ public interface BookDao {
 
   /**
    * Tries to get all book data from the database.
-   * @return Returns a list of {@link com.example.demo.backend.custom.objects.BookClass BookClass} objects, with a {@link com.example.demo.backend.custom.objects.ResponseHeader ResponseHeader}.
+   * @return Returns a list of {@link com.example.demo.backend.custom.Dto.BookClass BookClass} objects, with a {@link com.example.demo.backend.custom.Dto.ResponseHeader ResponseHeader}.
    *         The list will be kept empty if no results were found.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
    * @throws DbException An exception that gets raised when the database connection/disconnection fails.
@@ -21,9 +21,9 @@ public interface BookDao {
 
 
   /**
-   * Tries to get a book data stored in the database, in a form of {@link com.example.demo.backend.custom.objects.BookClass BookClass} object, specified with a bookId.
+   * Tries to get a book data stored in the database, in a form of {@link com.example.demo.backend.custom.Dto.BookClass BookClass} object, specified with a bookId.
    * @param bookId  Unique identifier of the book data in the database.
-   * @return Returns a list of {@link com.example.demo.backend.custom.objects.BookClass BookClass} objects, with a {@link com.example.demo.backend.custom.objects.ResponseHeader ResponseHeader}.
+   * @return Returns a list of {@link com.example.demo.backend.custom.Dto.BookClass BookClass} objects, with a {@link com.example.demo.backend.custom.Dto.ResponseHeader ResponseHeader}.
    *         The list will be kept empty if no results were found.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
    * @throws DbException An exception that gets raised when the database connection/disconnection fails.
@@ -32,8 +32,8 @@ public interface BookDao {
 
   /**
    * Tries to insert a new book data to the database.
-   * @param book A {@link com.example.demo.backend.custom.objects.BookClass BookClass} object to be inserted to the database.
-   * @return Returns a list of {@link com.example.demo.backend.custom.objects.BookClass BookClass} objects, with a {@link com.example.demo.backend.custom.objects.ResponseHeader ResponseHeader}.
+   * @param book A {@link com.example.demo.backend.custom.Dto.BookClass BookClass} object to be inserted to the database.
+   * @return Returns a list of {@link com.example.demo.backend.custom.Dto.BookClass BookClass} objects, with a {@link com.example.demo.backend.custom.Dto.ResponseHeader ResponseHeader}.
    * The list will hold the data of inserted book.
    * Otherwise it is empty.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
@@ -44,7 +44,7 @@ public interface BookDao {
   /**
    * Tries to delete a book data from the database.
    * @param bookId Unique identifier for the book stored in the database.
-   * @return Returns an empty list of {@link com.example.demo.backend.custom.objects.BookClass BookClass} objects, with a {@link com.example.demo.backend.custom.objects.ResponseHeader ResponseHeader}.
+   * @return Returns an empty list of {@link com.example.demo.backend.custom.Dto.BookClass BookClass} objects, with a {@link com.example.demo.backend.custom.Dto.ResponseHeader ResponseHeader}.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
    * @throws DbException An exception that gets raised when the database connection/disconnection fails.
    */
@@ -106,7 +106,7 @@ public interface BookDao {
   /**
    * Replaces a book data to another one in the database.
    * @param bookId Unique identifier for the book stored in the database. The data with this id will be replaced with the second parameter.
-   * @param book  A new {@link com.example.demo.backend.custom.objects.BookClass BookClass} data to be replaced with another in the database.
+   * @param book  A new {@link com.example.demo.backend.custom.Dto.BookClass BookClass} data to be replaced with another in the database.
    * @return Returns the number of updated rows.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
    * @throws DbException An exception that gets raised when the database connection/disconnection fails.

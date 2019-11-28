@@ -1,4 +1,4 @@
-package com.example.demo.backend.custom.myinterface;
+package com.example.demo.backend.custom.myenums.myinterface;
 
 public interface ExceptionCodeConstant {
 

@@ -1,17 +1,18 @@
 package com.example.demo;
-import static com.example.demo.InputValidator.*;
+import static com.example.demo.application.InputValidator.*;
 
+import com.example.demo.application.DemoController;
 import com.example.demo.backend.custom.myexceptions.DaoException;
 import com.example.demo.backend.custom.myexceptions.DbException;
-import com.example.demo.backend.custom.objects.BookUser;
-import com.example.demo.backend.custom.objects.PatchBookClass;
+import com.example.demo.backend.custom.Dto.BookUser;
+import com.example.demo.backend.custom.Dto.PatchBookClass;
 import com.example.demo.data.access.BookDao;
-import com.example.demo.data.access.BookUserDao;
+import com.example.demo.data.access.JdbcBookUserDao;
 import com.example.demo.data.access.BookDaoTest;
 import com.example.demo.backend.custom.myenums.ServiceStatus;
 import com.example.demo.backend.custom.myexceptions.InputFormatExeption;
-import com.example.demo.backend.custom.objects.BookClass;
-import com.example.demo.backend.custom.objects.ResponseBooks;
+import com.example.demo.backend.custom.Dto.BookClass;
+import com.example.demo.backend.custom.Dto.ResponseBooks;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +44,7 @@ class PracticeDemoControllerTest {
     BookDao bDao;
 
     @Autowired
-    BookUserDao uDao;
+    JdbcBookUserDao uDao;
 
     @Autowired
     DemoController controller;
@@ -120,7 +121,7 @@ class PracticeDemoControllerTest {
             "18, false",/*Not in database*/
             ",false"/*No ID*/
     })
-    void 本の検索の成功と失敗例(String i, boolean expected) throws InputFormatExeption, DbException {
+    void 本の検索の成功と失敗例(String i, boolean expected) throws InputFormatExeption, DbException, DaoException {
         ResponseBooks books = controller.getBook(i);
         if(books.getBooks().size()>0)
             assertTrue((books.getBooks().get(0).getId() == Integer.parseInt(i)) == expected);
@@ -146,7 +147,7 @@ class PracticeDemoControllerTest {
 
 
     @Test
-    void データが空の本の追加_失敗() throws InputFormatExeption, SQLException {
+    void データが空の本の追加_失敗() throws InputFormatExeption, SQLException, DbException, DaoException {
         BookClass test = new BookClass();
         ResponseBooks books = controller.postBook(test);
         assertTrue(books.getResponseHeader().getStatus()== ServiceStatus.ERR);

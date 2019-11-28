@@ -11,14 +11,14 @@ import java.util.List;
 import static com.example.demo.backend.errormessages.StaticMessages.DB_FAILED_CONNECTION;
 import static com.example.demo.backend.errormessages.StaticMessages.DB_FAILED_DISCONNECTION;
 
-public interface JdbcDao {
+public abstract class JdbcDao {
 
   /**
    * Tries to connect to the database.
    * @return Connection object
    * @throws DbException AN exception that raises when connecting/disconnecting from the database.
    */
-  default Connection connectToDB() throws DbException {
+  Connection connectToDB() throws DbException {
     String url = "jdbc:postgresql://ec2-174-129-253-169.compute-1.amazonaws.com/d9vsaknll1319";
     String user = "lfoagdwpzckmuq";
     //String user = "wrongUserOnPurpose";
@@ -39,7 +39,7 @@ public interface JdbcDao {
    * @param con Connection object.
    * @throws DbException AN exception that raises when connecting/disconnecting from the database.
    */
-  default void closeDB(Connection con) throws DbException {
+  void closeDB(Connection con) throws DbException {
     try {
       if (con != null) {
         System.out.println("[INFO] Closed DB connection.");
@@ -63,7 +63,7 @@ public interface JdbcDao {
    * @param params A list of parameters to be inserted to the statement.
    * @throws DaoException An exception that raises when executing an SQL query.
    */
-  default void parameterMapper(PreparedStatement pstmt, List<Object> params) throws DaoException {
+  void parameterMapper(PreparedStatement pstmt, List<Object> params) throws DaoException {
     try {
       int index = 1;
       for (final Object p : params) {
@@ -92,7 +92,7 @@ public interface JdbcDao {
    * @throws DaoException An exception that raises when executing an SQL query.
    * @throws DbException AN exception that raises when connecting/disconnecting from the database.
    */
-  default ResultSet executeQuery(String query, List<Object> params) throws DaoException, DbException {
+  ResultSet executeQuery(String query, List<Object> params) throws DaoException, DbException {
     Connection con = null;
     try {
       con = connectToDB();
@@ -107,7 +107,7 @@ public interface JdbcDao {
       System.out.println("[ERROR] e.getMessage = " + e.getMessage());
       System.out.println("[ERROR] e.getSQLstate = " + e.getSQLState());
       System.out.println("[ERROR] e.getCause = " + e.getCause());
-      throw new DaoException(e.getMessage() + "," + e.getSQLState(),e.getCause(), ExceptionCodes.SYSTEM_ERROR);
+      throw new DaoException(e.getMessage() + "," + e.getSQLState(),e.getCause(),e.getSQLState(),ExceptionCodes.SYSTEM_ERROR);
     } finally {
       closeDB(con);
     }
@@ -124,7 +124,7 @@ public interface JdbcDao {
    * @throws DaoException An exception that raises when executing an SQL query.
    * @throws DbException AN exception that raises when connecting/disconnecting from the database.
    */
-  default int executeUpdate(String query, List<Object> params) throws DaoException, DbException {
+  int executeUpdate(String query, List<Object> params) throws DaoException, DbException {
     Connection con = null;
     try {
       con = connectToDB();
@@ -139,7 +139,7 @@ public interface JdbcDao {
       System.out.println("[ERROR] e.getMessage = " + e.getMessage());
       System.out.println("[ERROR] e.getSQLstate = " + e.getSQLState());
       System.out.println("[ERROR] e.getCause = " + e.getCause());
-      throw new DaoException(e.getMessage() + "," + e.getSQLState(),e.getCause(), ExceptionCodes.SYSTEM_ERROR);
+      throw new DaoException(e.getMessage() + "," + e.getSQLState(),e.getCause(), e.getSQLState(), ExceptionCodes.SYSTEM_ERROR);
     } finally {
       //Close DB connection.
       closeDB(con);
@@ -156,7 +156,7 @@ public interface JdbcDao {
    * @throws DaoException An exception that raises when executing an SQL query.
    * @throws DbException AN exception that raises when connecting/disconnecting from the database.
    */
-  default ResultSet executeQuery(String query) throws DaoException, DbException {
+   ResultSet executeQuery(String query) throws DaoException, DbException {
     Connection con = null;
     try {
       con = connectToDB();
@@ -170,7 +170,7 @@ public interface JdbcDao {
       System.out.println("[ERROR] e.getMessage = " + e.getMessage());
       System.out.println("[ERROR] e.getSQLstate = " + e.getSQLState());
       System.out.println("[ERROR] e.getCause = " + e.getCause());
-      throw new DaoException(e.getMessage() + "," + e.getSQLState(),e.getCause(), ExceptionCodes.SYSTEM_ERROR);
+      throw new DaoException(e.getMessage() + "," + e.getSQLState(),e.getCause(), e.getSQLState(), ExceptionCodes.SYSTEM_ERROR);
     } finally {
       closeDB(con);
     }

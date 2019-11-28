@@ -14,6 +14,7 @@ public class StaticMessages {
   public static String UPDATE_FAILED_BOOK  = "Updating database failed.";
   public static String BOOK_NOT_EXISTING = "Book does not exist.";
   public static String BOOK_FOUND = "Book found.";
+  public static String BOOK_NOT_FOUND = "No book found.";
   public static String BOOK_CANNOT_BE_DOUBLE_BORROWED = "Book already borrowed by the same user.";
   public static String BOOK_CANNOT_BE_RETURNED = "Trying to return a book that has not been borrowed by the user.";
   public static String BOOK_CANNOT_BE_LOST  = "Trying to report a book as lost, which has not been borrowed by the user.";

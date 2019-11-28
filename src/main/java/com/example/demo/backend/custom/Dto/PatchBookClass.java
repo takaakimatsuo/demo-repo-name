@@ -1,4 +1,4 @@
-package com.example.demo.backend.custom.objects;
+package com.example.demo.backend.custom.Dto;
 
 public class PatchBookClass {
   private String borrower;

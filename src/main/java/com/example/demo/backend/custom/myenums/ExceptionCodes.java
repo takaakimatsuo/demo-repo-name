@@ -1,6 +1,6 @@
 package com.example.demo.backend.custom.myenums;
 
-import com.example.demo.backend.custom.myinterface.ExceptionCodeConstant;
+import com.example.demo.backend.custom.myenums.myinterface.ExceptionCodeConstant;
 
 public enum ExceptionCodes implements ExceptionCodeConstant {
 

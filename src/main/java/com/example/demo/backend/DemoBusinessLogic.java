@@ -1,5 +1,6 @@
 package com.example.demo.backend;
 
+import static com.example.demo.backend.errorcodes.SqlErrorCodes.SQL_CODE_DUPLICATE_KEY_ERROR;
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_BORROWED;
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_CANNOT_BE_DOUBLE_BORROWED;
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_CANNOT_BE_LOST;
@@ -10,6 +11,8 @@ import static com.example.demo.backend.errormessages.StaticMessages.BOOK_FOUND;
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_INSERTED;
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_LOST;
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NOT_EXISTING;
+import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NOT_FOUND;
+import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NO_STOCK;
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_RETURNED;
 import static com.example.demo.backend.errormessages.StaticMessages.INVALID_STATUS;
 import static com.example.demo.backend.errormessages.StaticMessages.UNEXPECTED;
@@ -21,10 +24,9 @@ import com.example.demo.backend.custom.myexceptions.BookException;
 import com.example.demo.backend.custom.myexceptions.DaoException;
 import com.example.demo.backend.custom.myexceptions.DbException;
 import com.example.demo.backend.custom.myexceptions.DuplicateBookException;
-import com.example.demo.backend.custom.objects.BookClass;
-import com.example.demo.backend.custom.objects.PatchBookClass;
-import com.example.demo.backend.custom.objects.ResponseBooks;
+import com.example.demo.backend.custom.Dto.*;
 import com.example.demo.data.access.BookDao;
+import com.example.demo.data.access.JdbcBookUserDao;
 import com.example.demo.data.access.custom.enums.BookStatus;
 
 import java.util.List;
@@ -37,10 +39,15 @@ import org.springframework.stereotype.Component;
 @Component
 public final class DemoBusinessLogic {
   private ResponseBooks res;
+  private ResponseUsers ures;
   @Autowired
   @Qualifier("JdbcBookDao") //Based on standard JDBC.
   //@Qualifier("SpringBookDao") // Based on Spring JDBCtemplate.
   private BookDao dao;
+
+
+  @Autowired
+  private JdbcBookUserDao udao;
 
   /**
    * Logic for searching all books stored in the bookshelf table.
@@ -52,21 +59,18 @@ public final class DemoBusinessLogic {
     res = new ResponseBooks();
     try {
       List<BookClass> books = dao.getAllBooks();
-      res.getResponseHeader().setMessage(BOOK_FOUND);
-      res.getResponseHeader().setStatus(ServiceStatus.OK);
+      if (books.isEmpty()) {
+        res.getResponseHeader().setMessage(BOOK_NOT_FOUND);
+        res.getResponseHeader().setStatus(ServiceStatus.OK);
+      } else {
+        res.getResponseHeader().setMessage(BOOK_FOUND);
+        res.getResponseHeader().setStatus(ServiceStatus.OK);
+      }
       res.setBooks(books);
-    } catch (DaoException e) {
-      //TODO
-      res.getResponseHeader().setMessage(e.toString());
-      res.getResponseHeader().setStatus(ServiceStatus.ERR);
-      System.out.println("[ERROR] SQL failure" + e.getMessage());
-      //throw new DaoException("SQL query failure: ", e);
-      //throw e;
-    } catch (DbException e) {
-      System.out.println("DbException!");
+      return res;
+    } catch (DbException | DaoException e) {
       throw e;
     }
-    return res;
   }
 
   /**
@@ -101,7 +105,7 @@ public final class DemoBusinessLogic {
   /**
    * Logic for searching a specific book stored in the bookshelf table using its id.
    *  @param bookId Identifier of a book.
-   *  @return A list containing a single BookClass object, with a ResponseHeader class.
+   *  @return Returns a list containing a single BookClass object, with a ResponseHeader class.
    *  The list will be kept empty if no matching data has been found.
    *  @throws DaoException An exception that raises when executing an SQL query fails.
    *  @throws DbException An exception that raises when the database connection/disconnection fails.
@@ -119,10 +123,7 @@ public final class DemoBusinessLogic {
       }
       res.setBooks(books);
     } catch (DaoException | DbException e) {
-      //TODO
-      res.getResponseHeader().setMessage(e.toString());
-      res.getResponseHeader().setStatus(ServiceStatus.ERR);
-      //throw new SQLException("SQL query failure: ", e);
+      throw e;
     }
     return res;
   }
@@ -174,7 +175,11 @@ public final class DemoBusinessLogic {
       switch (validateUserBookRelation(currentStatus, action)) {
         case 0: {
           //Borrow!
-          dao.updateBook_borrowed(bookId, updStatus.getBorrower());
+          if (dao.checkBookStockAvailability(bookId)) {
+            dao.updateBook_borrowed(bookId, updStatus.getBorrower());
+          } else {
+          throw new BookException(BOOK_NO_STOCK);
+        }
           res.getResponseHeader().setMessage(BOOK_BORROWED);
           res.getResponseHeader().setStatus(ServiceStatus.OK);
           break;
@@ -209,7 +214,13 @@ public final class DemoBusinessLogic {
   }
 
 
-
+  /**
+   * Logic for adding a new book data to the database.
+   * @param book {@link com.example.demo.backend.custom.Dto.BookClass BookClass} to be added.
+   * @return Returns a list containing a single BookClass object that has been inserted, with a ResponseHeader class.
+   * @throws DaoException An exception that gets raised when executing an SQL query fails.
+   * @throws DbException An exception that gets raised when the database connection/disconnection fails.
+   */
   public ResponseBooks addBook(BookClass book) throws DaoException, DbException {
     res = new ResponseBooks();
     try {
@@ -220,9 +231,14 @@ public final class DemoBusinessLogic {
       return res;
     } catch (DaoException | DbException e) {
       //TODO
-      res.getResponseHeader().setMessage(BOOK_DUPLICATE);
-      res.getResponseHeader().setStatus(ServiceStatus.ERR);
-      return res;
+      if (e instanceof  DaoException) {
+        if (((DaoException) e).getSqlCode().equals(SQL_CODE_DUPLICATE_KEY_ERROR)) {
+          res.getResponseHeader().setMessage(BOOK_DUPLICATE);
+          res.getResponseHeader().setStatus(ServiceStatus.ERR);
+          return res;
+        }
+      }
+      throw e;
     }
   }
 
@@ -246,6 +262,38 @@ public final class DemoBusinessLogic {
     }
     return res;
   }
+
+
+
+
+
+
+
+
+  public ResponseUsers addUser(BookUser user) throws DaoException, DbException {
+    ures = new ResponseUsers();
+    try {
+      List<BookUser> users = udao.insertBookUser(user);
+      ures.setUsers(users);
+      ures.getResponseHeader().setMessage(BOOK_INSERTED);
+      ures.getResponseHeader().setStatus(ServiceStatus.OK);
+      return ures;
+    } catch (DaoException | DbException e) {
+      //TODO
+      if (e instanceof  DaoException) {
+        if (((DaoException) e).getSqlCode().equals(SQL_CODE_DUPLICATE_KEY_ERROR)) {
+          ures.getResponseHeader().setMessage(BOOK_DUPLICATE);
+          ures.getResponseHeader().setStatus(ServiceStatus.ERR);
+          return ures;
+        }
+      }
+      throw e;
+    }
+  }
+
+
+
+
 
 
 }

@@ -1,11 +1,9 @@
 package com.example.demo.data.access;
 
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NO_STOCK;
-
 import com.example.demo.backend.custom.myenums.ExceptionCodes;
 import com.example.demo.backend.custom.myexceptions.DaoException;
 import com.example.demo.backend.custom.myexceptions.DbException;
-import com.example.demo.backend.custom.objects.BookClass;
+import com.example.demo.backend.custom.Dto.BookClass;
 import com.example.demo.data.access.custom.enums.BookStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component("JdbcBookDao")
-public final class JdbcBookDao implements JdbcDao, BookDao {
+public final class JdbcBookDao extends JdbcDao implements BookDao {
 
 
   /**
@@ -86,15 +84,11 @@ public final class JdbcBookDao implements JdbcDao, BookDao {
 
   @Override
   public int updateBook_borrowed(Integer bookId, String phoneNumber) throws DaoException, DbException {
-    if (checkBookStockAvailability(bookId)) {
-      String query = "UPDATE bookshelf SET borrowedBy = array_append(borrowedBy, ?) WHERE id = ?";
-      List<Object> paramList = new ArrayList<Object>();
-      paramList.add(phoneNumber);
-      paramList.add(bookId);
-      return executeUpdate(query, paramList);
-    } else {
-      throw new DaoException(BOOK_NO_STOCK);
-    }
+    String query = "UPDATE bookshelf SET borrowedBy = array_append(borrowedBy, ?) WHERE id = ?";
+    List<Object> paramList = new ArrayList<Object>();
+    paramList.add(phoneNumber);
+    paramList.add(bookId);
+    return executeUpdate(query, paramList);
   }
 
 

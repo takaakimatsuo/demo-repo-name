@@ -2,7 +2,7 @@ package com.example.demo;
 
 
 import com.example.demo.backend.custom.myexceptions.InputFormatExeption;
-import com.example.demo.backend.custom.objects.BookClass;
+import com.example.demo.backend.custom.Dto.BookClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -12,7 +12,7 @@ import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
 
-import static com.example.demo.InputValidator.*;
+import static com.example.demo.application.InputValidator.*;
 
 @RunWith(Enclosed.class)
 public class PracticeInputResolverTest {

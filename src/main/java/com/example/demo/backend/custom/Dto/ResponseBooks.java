@@ -1,4 +1,4 @@
-package com.example.demo.backend.custom.objects;
+package com.example.demo.backend.custom.Dto;
 
 import com.example.demo.backend.custom.myenums.ServiceStatus;
 

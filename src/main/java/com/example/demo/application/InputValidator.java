@@ -1,10 +1,10 @@
-package com.example.demo;
+package com.example.demo.application;
 
 import com.example.demo.backend.custom.myexceptions.InputFormatExeption;
-import com.example.demo.backend.custom.objects.BookClass;
-import com.example.demo.backend.custom.objects.PatchBookClass;
+import com.example.demo.backend.custom.Dto.BookClass;
+import com.example.demo.backend.custom.Dto.BookUser;
+import com.example.demo.backend.custom.Dto.PatchBookClass;
 
-import java.text.NumberFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -145,6 +145,15 @@ public class InputValidator {
     assurePrice(book.getPrice());
     assureTitle(book.getTitle());
     return book;
+  }
+
+
+  static BookUser assureBookUser(BookUser user) throws InputFormatExeption {
+    if (user == null) {
+      throw new InputFormatExeption("UserClass is null");
+    }
+    assureBorrowed_by(user.getPhoneNumber());
+    return user;
   }
 
   private static int assureStatus(int status) throws InputFormatExeption {
