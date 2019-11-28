@@ -128,7 +128,7 @@ class DemoControllerSuccessTest {
     "13, true"
   })
   @Description("本の検索")
-  void test2(String i, boolean expected) {
+  void test2(String i, boolean expected) throws InputFormatExeption, DbException {
     ResponseBooks books = controller.getBook(i);
     if(books.getBooks().size()>0)
       assertTrue((books.getBooks().get(0).getId() == Integer.parseInt(i)) == expected);
@@ -139,7 +139,7 @@ class DemoControllerSuccessTest {
 
   @Test
   @Description("本の全検索")
-  void test3() throws InputFormatExeption{
+  void test3() throws InputFormatExeption, DbException{
     ResponseBooks books = controller.getBooks();
     for(BookClass b : books.getBooks()){
       assureBookClassNames(b);

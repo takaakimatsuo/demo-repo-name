@@ -8,11 +8,10 @@ import com.example.demo.backend.custom.objects.PatchBookClass;
 import com.example.demo.data.access.BookDao;
 import com.example.demo.data.access.BookUserDao;
 import com.example.demo.data.access.BookDaoTest;
-import com.example.demo.backend.custom.myenums.ResponseStatus;
+import com.example.demo.backend.custom.myenums.ServiceStatus;
 import com.example.demo.backend.custom.myexceptions.InputFormatExeption;
 import com.example.demo.backend.custom.objects.BookClass;
 import com.example.demo.backend.custom.objects.ResponseBooks;
-import com.example.demo.backend.DemoBusinessLogic;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,8 +30,6 @@ import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NO_STOC
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NOT_EXISTING;
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_CANNOT_BE_RETURNED;
 import static com.example.demo.backend.errormessages.StaticMessages.BOOK_CANNOT_BE_LOST;
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_RETURNED;
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_LOST;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
@@ -123,7 +120,7 @@ class PracticeDemoControllerTest {
             "18, false",/*Not in database*/
             ",false"/*No ID*/
     })
-    void 本の検索の成功と失敗例(String i, boolean expected) {
+    void 本の検索の成功と失敗例(String i, boolean expected) throws InputFormatExeption, DbException {
         ResponseBooks books = controller.getBook(i);
         if(books.getBooks().size()>0)
             assertTrue((books.getBooks().get(0).getId() == Integer.parseInt(i)) == expected);
@@ -133,7 +130,7 @@ class PracticeDemoControllerTest {
 
 
     @Test
-    void 本の全検索＿成功() throws InputFormatExeption{
+    void 本の全検索＿成功() throws InputFormatExeption, DbException{
         Class<? extends Exception> expectedException = null;//No error expected.
         ExpectedException thrown = ExpectedException.none();
 
@@ -152,7 +149,7 @@ class PracticeDemoControllerTest {
     void データが空の本の追加_失敗() throws InputFormatExeption, SQLException {
         BookClass test = new BookClass();
         ResponseBooks books = controller.postBook(test);
-        assertTrue(books.getResponseHeader().getStatus()== ResponseStatus.ERR);
+        assertTrue(books.getResponseHeader().getStatus()== ServiceStatus.ERR);
     }
 
 

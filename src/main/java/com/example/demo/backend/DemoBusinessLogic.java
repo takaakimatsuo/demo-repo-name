@@ -16,7 +16,7 @@ import static com.example.demo.backend.errormessages.StaticMessages.UNEXPECTED;
 import static com.example.demo.backend.errormessages.StaticMessages.UPDATE_FAILED_NO_MATCH_BOOK;
 import static com.example.demo.backend.errormessages.StaticMessages.UPDATE_SUCCESS_BOOK;
 
-import com.example.demo.backend.custom.myenums.ResponseStatus;
+import com.example.demo.backend.custom.myenums.ServiceStatus;
 import com.example.demo.backend.custom.myexceptions.BookException;
 import com.example.demo.backend.custom.myexceptions.DaoException;
 import com.example.demo.backend.custom.myexceptions.DbException;
@@ -38,8 +38,8 @@ import org.springframework.stereotype.Component;
 public final class DemoBusinessLogic {
   private ResponseBooks res;
   @Autowired
-  //@Qualifier("JdbcBookDao") //Based on standard JDBC.
-  @Qualifier("SpringBookDao") // Based on Spring JDBCtemplate.
+  @Qualifier("JdbcBookDao") //Based on standard JDBC.
+  //@Qualifier("SpringBookDao") // Based on Spring JDBCtemplate.
   private BookDao dao;
 
   /**
@@ -53,14 +53,17 @@ public final class DemoBusinessLogic {
     try {
       List<BookClass> books = dao.getAllBooks();
       res.getResponseHeader().setMessage(BOOK_FOUND);
-      res.getResponseHeader().setStatus(ResponseStatus.OK);
+      res.getResponseHeader().setStatus(ServiceStatus.OK);
       res.setBooks(books);
-    } catch (DaoException | DbException e) {
+    } catch (DaoException e) {
       //TODO
-      //res.getResponseHeader().setMessage(e.toString());
-      //res.getResponseHeader().setStatus(ResponseStatus.ERR);
-      //System.out.println("[ERROR] SQL failure" + e.getMessage());
+      res.getResponseHeader().setMessage(e.toString());
+      res.getResponseHeader().setStatus(ServiceStatus.ERR);
+      System.out.println("[ERROR] SQL failure" + e.getMessage());
       //throw new DaoException("SQL query failure: ", e);
+      //throw e;
+    } catch (DbException e) {
+      System.out.println("DbException!");
       throw e;
     }
     return res;
@@ -81,15 +84,15 @@ public final class DemoBusinessLogic {
       int update = dao.deleteBook(bookId);
       if (update == 0) {
         res.getResponseHeader().setMessage(BOOK_NOT_EXISTING);
-        res.getResponseHeader().setStatus(ResponseStatus.ERR);
+        res.getResponseHeader().setStatus(ServiceStatus.ERR);
       } else {
         res.getResponseHeader().setMessage(BOOK_DELETED);
-        res.getResponseHeader().setStatus(ResponseStatus.OK);
+        res.getResponseHeader().setStatus(ServiceStatus.OK);
       }
     } catch (DaoException | DbException e) {
       //TODO
       res.getResponseHeader().setMessage(e.toString());
-      res.getResponseHeader().setStatus(ResponseStatus.ERR);
+      res.getResponseHeader().setStatus(ServiceStatus.ERR);
       //throw new SQLException("SQL query failure: ", e);
     }
     return res;
@@ -109,16 +112,16 @@ public final class DemoBusinessLogic {
       List<BookClass> books = dao.getBook(bookId);
       if (books.size() == 0) {
         res.getResponseHeader().setMessage(BOOK_NOT_EXISTING);
-        res.getResponseHeader().setStatus(ResponseStatus.ERR);
+        res.getResponseHeader().setStatus(ServiceStatus.ERR);
       } else {
         res.getResponseHeader().setMessage(BOOK_FOUND);
-        res.getResponseHeader().setStatus(ResponseStatus.OK);
+        res.getResponseHeader().setStatus(ServiceStatus.OK);
       }
       res.setBooks(books);
     } catch (DaoException | DbException e) {
       //TODO
       res.getResponseHeader().setMessage(e.toString());
-      res.getResponseHeader().setStatus(ResponseStatus.ERR);
+      res.getResponseHeader().setStatus(ServiceStatus.ERR);
       //throw new SQLException("SQL query failure: ", e);
     }
     return res;
@@ -173,13 +176,13 @@ public final class DemoBusinessLogic {
           //Borrow!
           dao.updateBook_borrowed(bookId, updStatus.getBorrower());
           res.getResponseHeader().setMessage(BOOK_BORROWED);
-          res.getResponseHeader().setStatus(ResponseStatus.OK);
+          res.getResponseHeader().setStatus(ServiceStatus.OK);
           break;
         }
         case 1: {
           dao.updateBook_returned(bookId, updStatus.getBorrower());
           res.getResponseHeader().setMessage(BOOK_RETURNED);
-          res.getResponseHeader().setStatus(ResponseStatus.OK);
+          res.getResponseHeader().setStatus(ServiceStatus.OK);
           break;
         }
         case 2: {
@@ -189,17 +192,17 @@ public final class DemoBusinessLogic {
             dao.deleteBook(bookId);//Simply remove the book from the bookshelf
           }
           res.getResponseHeader().setMessage(BOOK_LOST);
-          res.getResponseHeader().setStatus(ResponseStatus.OK);
+          res.getResponseHeader().setStatus(ServiceStatus.OK);
           break;
         } default: {
           res.getResponseHeader().setMessage(INVALID_STATUS);
-          res.getResponseHeader().setStatus(ResponseStatus.ERR);
+          res.getResponseHeader().setStatus(ServiceStatus.ERR);
           break;
         }
       }
     } catch (BookException | DbException | DaoException e) {
       //TODO
-      res.getResponseHeader().setStatus(ResponseStatus.ERR);
+      res.getResponseHeader().setStatus(ServiceStatus.ERR);
       res.getResponseHeader().setMessage(e.getMessage());
     }
     return res;
@@ -213,12 +216,12 @@ public final class DemoBusinessLogic {
       List<BookClass> books = dao.insertBook(book);
       res.setBooks(books);
       res.getResponseHeader().setMessage(BOOK_INSERTED);
-      res.getResponseHeader().setStatus(ResponseStatus.OK);
+      res.getResponseHeader().setStatus(ServiceStatus.OK);
       return res;
     } catch (DaoException | DbException e) {
       //TODO
       res.getResponseHeader().setMessage(BOOK_DUPLICATE);
-      res.getResponseHeader().setStatus(ResponseStatus.ERR);
+      res.getResponseHeader().setStatus(ServiceStatus.ERR);
       return res;
     }
   }
@@ -229,16 +232,16 @@ public final class DemoBusinessLogic {
       int updated = dao.updateBook_data(bookId, book);
       if (updated == 0) {
         res.getResponseHeader().setMessage(UPDATE_FAILED_NO_MATCH_BOOK);
-        res.getResponseHeader().setStatus(ResponseStatus.ERR);
+        res.getResponseHeader().setStatus(ServiceStatus.ERR);
       } else {
         res.getResponseHeader().setMessage(UPDATE_SUCCESS_BOOK);
-        res.getResponseHeader().setStatus(ResponseStatus.OK);
+        res.getResponseHeader().setStatus(ServiceStatus.OK);
       }
     } catch (DaoException | DbException e) {
       //TODO
       System.out.println(e.getMessage());
       res.getResponseHeader().setMessage(BOOK_DUPLICATE);
-      res.getResponseHeader().setStatus(ResponseStatus.ERR);
+      res.getResponseHeader().setStatus(ServiceStatus.ERR);
       return res;
     }
     return res;

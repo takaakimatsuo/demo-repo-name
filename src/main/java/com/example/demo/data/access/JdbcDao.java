@@ -21,6 +21,7 @@ public interface JdbcDao {
   default Connection connectToDB() throws DbException {
     String url = "jdbc:postgresql://ec2-174-129-253-169.compute-1.amazonaws.com/d9vsaknll1319";
     String user = "lfoagdwpzckmuq";
+    //String user = "wrongUserOnPurpose";
     String password = "7cf9b7a5b57780ee7f45c96cac75808dd2cc2ba77b123cf0948cfb290ad1d93c";
 
     try {

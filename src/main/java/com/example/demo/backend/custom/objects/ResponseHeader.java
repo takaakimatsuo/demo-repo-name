@@ -1,27 +1,27 @@
 package com.example.demo.backend.custom.objects;
 
-import com.example.demo.backend.custom.myenums.ResponseStatus;
+import com.example.demo.backend.custom.myenums.ServiceStatus;
 
 
 public class ResponseHeader {
-  private ResponseStatus status;
+  private ServiceStatus status;
   private String message;
 
-  public ResponseHeader(ResponseStatus rs, String msg) {
+  public ResponseHeader(ServiceStatus rs, String msg) {
     this.status = rs;
     this.message = msg;
   }
 
   ResponseHeader() {
-    this.status = ResponseStatus.OK;
+    this.status = ServiceStatus.OK;
     this.message = "Blank message";
   }
 
-  public ResponseStatus getStatus() {
+  public ServiceStatus getStatus() {
     return status;
   }
 
-  public void setStatus(ResponseStatus rs) {
+  public void setStatus(ServiceStatus rs) {
     this.status = rs;
   }
 

@@ -1,6 +1,6 @@
 package com.example.demo.backend.custom.objects;
 
-import com.example.demo.backend.custom.myenums.ResponseStatus;
+import com.example.demo.backend.custom.myenums.ServiceStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,7 @@ public class ResponseBooks {
     this.header.setMessage(header);
   }
 
-  public void ResponseBooksStatus(ResponseStatus status) {
+  public void ResponseBooksStatus(ServiceStatus status) {
     this.header.setStatus(status);
   }
 

@@ -4,6 +4,7 @@ import com.example.demo.backend.custom.myexceptions.InputFormatExeption;
 import com.example.demo.backend.custom.objects.BookClass;
 import com.example.demo.backend.custom.objects.PatchBookClass;
 
+import java.text.NumberFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,12 +28,26 @@ public class InputValidator {
     }
     try {
       result = Integer.valueOf(integer);
-    } catch (IllegalStateException e) {
-      String argument =  "Integer ="  + integer;
-      throw new InputFormatExeption("Invalid book_id inputted, argument:" + argument);
+    } catch (IllegalStateException | NumberFormatException e) {
+      throw new InputFormatExeption("Invalid id inputted in the path-parameter. id:" + integer);
     }
     return result;
   }
+
+
+  static Integer assurePositive(Integer integer) throws InputFormatExeption {
+
+    if (integer == null) {
+      throw new InputFormatExeption("Integer should not be null");
+    }
+
+    if (integer < 0) {
+      throw new InputFormatExeption("Invalid id inputted in the path-parameter. Id must be positive. id:" + integer);
+    }
+
+    return integer;
+  }
+
 
 
   /**
