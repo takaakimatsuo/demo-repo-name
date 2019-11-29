@@ -1,5 +1,6 @@
 package com.example.demo.backend;
 
+import com.example.demo.backend.custom.exceptions.BookException;
 import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.backend.custom.exceptions.DbException;
 import com.example.demo.backend.custom.Dto.BookClass;
@@ -18,7 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.lang.reflect.InvocationTargetException;
 
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_DUPLICATE;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_DUPLICATE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -58,7 +59,7 @@ class DemoBusinessLogicTest {
     "無料の本,0,1,https://cheap.example.com"
   })
   @DisplayName("本の重複追加: addBook(BookClass book)")
-  void test1(String title, int price, int quantity, String url) throws DbException, DaoException {
+  void test1(String title, int price, int quantity, String url) throws DbException, DaoException, BookException {
     BookClass test = new BookClass(title, price, url, quantity);
     ResponseBooks books = dbl.addBook(test);
     assertEquals(BOOK_DUPLICATE,books.getResponseHeader().getMessage());

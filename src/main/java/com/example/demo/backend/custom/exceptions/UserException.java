@@ -1,9 +1,11 @@
 package com.example.demo.backend.custom.exceptions;
 
-public class BookException extends Exception {
+
+public class UserException extends Exception {
+
   private Integer errorCodes;
 
-  public BookException(String errorMessage) {
+  public UserException(String errorMessage) {
     super(errorMessage);
   }
 

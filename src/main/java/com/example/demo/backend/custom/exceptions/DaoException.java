@@ -1,11 +1,8 @@
 package com.example.demo.backend.custom.exceptions;
 
-import com.example.demo.backend.custom.enums.ExceptionCodes;
-
 public class DaoException extends Exception {
 
-  private Integer errorCodes;
-  private String sqlCode;
+  private String sqlCode = "";
 
   public DaoException(String errorMessage) {
     super(errorMessage);
@@ -16,23 +13,17 @@ public class DaoException extends Exception {
   }
 
 
-  public DaoException(String errorMessage, Throwable cause, ExceptionCodes errorCode) {
+  public DaoException(String errorMessage, Throwable cause, String sqlCode) {
     super(errorMessage, cause);
-    this.errorCodes = errorCode.getId();
-  }
-
-  public DaoException(String errorMessage, Throwable cause, String sqlCode, ExceptionCodes errorCode) {
-    super(errorMessage, cause);
-    this.errorCodes = errorCode.getId();
     this.sqlCode = sqlCode;
-  }
-
-  public Integer getErrorCode() {
-    return errorCodes;
   }
 
   public String getSqlCode() {
     return sqlCode;
+  }
+
+  public void setSqlCode(String sqlCode) {
+    this.sqlCode = sqlCode;
   }
 
 }

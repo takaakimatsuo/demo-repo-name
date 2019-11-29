@@ -1,11 +1,9 @@
 package com.example.demo.application;
 
-import com.example.demo.backend.custom.exceptions.DaoException;
-import com.example.demo.backend.custom.exceptions.DbException;
+import com.example.demo.backend.custom.exceptions.*;
 import com.example.demo.backend.custom.Dto.BookUser;
 import com.example.demo.backend.custom.Dto.PatchBookClass;
 import com.example.demo.data.access.BookDaoTest;
-import com.example.demo.backend.custom.exceptions.InputFormatExeption;
 import com.example.demo.backend.custom.Dto.BookClass;
 import com.example.demo.backend.custom.Dto.ResponseBooks;
 import org.junit.FixMethodOrder;
@@ -17,19 +15,19 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 import java.lang.reflect.InvocationTargetException;
 
 
 import static com.example.demo.application.InputValidator.assureBookClassNames;
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_BORROWED;
-import static com.example.demo.backend.errormessages.StaticMessages.UPDATE_SUCCESS_BOOK;
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_RETURNED;
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_LOST;
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_DELETED;
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_INSERTED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_BORROWED;
+import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_SUCCESS_BOOK;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_RETURNED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_LOST;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_DELETED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_INSERTED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 
 
@@ -72,7 +70,7 @@ class DemoControllerSuccessTest {
     "Shota, Nagayama,00000000002"
   })
   @DisplayName("ユーザの追加")
-  void test0(String familyName, String firstName, String phoneNumber) throws DbException, DaoException, InputFormatExeption {
+  void test0(String familyName, String firstName, String phoneNumber) throws DbException, DaoException, InputFormatException, UserException {
     BookUser test = new BookUser(familyName, firstName, phoneNumber);
     controller.postUser(test);
   }
@@ -95,7 +93,7 @@ class DemoControllerSuccessTest {
     "無料の本,0,1,https://cheap.example.com"
   })
   @DisplayName("本の追加")
-  void test1(String title, int price, int quantity, String url) throws DbException, DaoException, InputFormatExeption {
+  void test1(String title, int price, int quantity, String url) throws DbException, DaoException, InputFormatException, BookException {
     BookClass test = new BookClass(title, price, url, quantity);
     ResponseBooks books = controller.postBook(test);
     assertEquals(BOOK_INSERTED,books.getResponseHeader().getMessage());
@@ -121,18 +119,18 @@ class DemoControllerSuccessTest {
     "13, true"
   })
   @DisplayName("本の検索")
-  void test2(String i, boolean expected) throws InputFormatExeption, DbException, DaoException {
+  void test2(String i, boolean expected) throws InputFormatException, DbException, DaoException, BookException {
     ResponseBooks books = controller.getBook(i);
     if(books.getBooks().size()>0)
-      assertTrue((books.getBooks().get(0).getId() == Integer.parseInt(i)) == expected);
+      assertEquals((books.getBooks().get(0).getId() == Integer.parseInt(i)), expected);
     else
-      assertTrue(false == expected);
+      assertEquals(false, expected);
   }
 
 
   @Test
   @DisplayName("本の全検索")
-  void test3() throws InputFormatExeption, DbException{
+  void test3() throws InputFormatException, DbException, DaoException {
     ResponseBooks books = controller.getBooks();
     for(BookClass b : books.getBooks()){
       assureBookClassNames(b);
@@ -147,7 +145,7 @@ class DemoControllerSuccessTest {
     "10,まみむめも, 2300,4,https://a.example.com",
   })
   @DisplayName("本データの変更")
-  void test4(String bookId, String title, int price, int quantity, String url) throws InputFormatExeption {
+  void test4(String bookId, String title, int price, int quantity, String url) throws InputFormatException, DaoException, BookException, DbException {
     BookClass test = new BookClass(title, price, url, quantity);
     ResponseBooks books = controller.putBook(bookId, test);
     assertEquals(UPDATE_SUCCESS_BOOK, books.getResponseHeader().getMessage());
@@ -170,7 +168,7 @@ class DemoControllerSuccessTest {
     "7, 00000000001, 0"
   })
   @DisplayName("本の貸し出し")
-  void test5(String bookId, String phoneNumber, int action) {
+  void test5(String bookId, String phoneNumber, int action) throws DaoException, BookException, InputFormatException, DbException {
     PatchBookClass pb = new PatchBookClass();
     pb.setBorrower(phoneNumber);
     pb.setStatus(action);
@@ -187,7 +185,7 @@ class DemoControllerSuccessTest {
     "12, 00000000000, 1"
   })
   @DisplayName("本の返却")
-  void test6(String bookId, String phoneNumber, int action) {
+  void test6(String bookId, String phoneNumber, int action) throws DaoException, BookException, InputFormatException, DbException {
     PatchBookClass pb = new PatchBookClass();
     pb.setBorrower(phoneNumber);
     pb.setStatus(action);
@@ -204,7 +202,7 @@ class DemoControllerSuccessTest {
     "7, 00000000001, 2"
   })
   @DisplayName("本の紛失")
-  void test7(String bookId, String phoneNumber, int action) {
+  void test7(String bookId, String phoneNumber, int action) throws DaoException, BookException, InputFormatException, DbException {
     PatchBookClass pb = new PatchBookClass();
     pb.setBorrower(phoneNumber);
     pb.setStatus(action);
@@ -220,7 +218,7 @@ class DemoControllerSuccessTest {
     "3"
   })
   @DisplayName("本の削除")
-  void test8(String bookId) {
+  void test8(String bookId) throws DaoException, InputFormatException, DbException {
     ResponseBooks books = controller.deleteBook(bookId);
     assertEquals(BOOK_DELETED, books.getResponseHeader().getMessage());
   }

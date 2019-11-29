@@ -1,9 +1,8 @@
 package com.example.demo.data.access;
 
-import com.example.demo.backend.custom.enums.ExceptionCodes;
+import com.example.demo.backend.custom.Dto.BookClass;
 import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.backend.custom.exceptions.DbException;
-import com.example.demo.backend.custom.Dto.BookClass;
 import com.example.demo.data.access.custom.enums.BookStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,17 +14,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component("JdbcBookDao")
-public final class JdbcBookDao extends JdbcDao implements BookDao {
-
-
-  /**
-   * Generates a DaoException from the SQLException.
-   * @param sqlException Raw SQLException
-   * @return DaoException Generated exception.
-   */
-  public DaoException createDaoException(SQLException sqlException) {
-    return new DaoException(sqlException.getMessage(),sqlException.getCause(), ExceptionCodes.SYSTEM_ERROR);
-  }
+public class JdbcBookDao extends JdbcDao implements BookDao {
 
 
   @Override
@@ -79,9 +68,6 @@ public final class JdbcBookDao extends JdbcDao implements BookDao {
     return available;
   }
 
-
-
-
   @Override
   public int updateBook_borrowed(Integer bookId, String phoneNumber) throws DaoException, DbException {
     String query = "UPDATE bookshelf SET borrowedBy = array_append(borrowedBy, ?) WHERE id = ?";
@@ -90,9 +76,6 @@ public final class JdbcBookDao extends JdbcDao implements BookDao {
     paramList.add(bookId);
     return executeUpdate(query, paramList);
   }
-
-
-
 
   @Override
   public int updateBook_returned(Integer bookId, String phoneNumber) throws DaoException, DbException {
@@ -103,6 +86,7 @@ public final class JdbcBookDao extends JdbcDao implements BookDao {
     return executeUpdate(query, paramList);
   }
 
+  @Override
   public int updateBook_lost(Integer bookId, String phoneNumber) throws DbException, DaoException {
     String query = "UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?), quantity = (quantity-1) WHERE id = ?";
     List<Object> paramList = new ArrayList<Object>();
@@ -110,28 +94,6 @@ public final class JdbcBookDao extends JdbcDao implements BookDao {
     paramList.add(bookId);
     return executeUpdate(query, paramList);
   }
-
-
-//
-//  @Override
-//  //Reports a book as lost. This will decrease the book's quantity by 1, and delete the entire data from the bookshelf table when the quantity becomes less than 0.
-//  public void updateBook_lost(Integer bookId, String phoneNumber) throws DbException, DaoException {
-//    try {
-//      String query = "UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?), quantity = (quantity-1) WHERE id = ? RETURNING quantity";
-//      List<Object> paramList = new ArrayList<Object>();
-//      paramList.add(phoneNumber);
-//      paramList.add(bookId);
-//      ResultSet rs = executeQuery(query, paramList);
-//      if (rs.next()) {
-//        int quantity = rs.getInt("QUANTITY");
-//        if (quantity <= 0) {
-//          deleteBook(bookId);//Simply remove the book from the bookshelf
-//        }
-//      }
-//    } catch (SQLException e) {
-//      throw new DaoException(e.getMessage());
-//    }
-//  }
 
   @Override
   public int updateBook_data(Integer bookId, BookClass book) throws DaoException, DbException {
@@ -144,8 +106,6 @@ public final class JdbcBookDao extends JdbcDao implements BookDao {
     paramList.add(bookId);
     return executeUpdate(query, paramList);
   }
-
-
 
   @Override
   public List<BookClass> insertBook(BookClass book) throws DaoException, DbException {
@@ -181,6 +141,7 @@ public final class JdbcBookDao extends JdbcDao implements BookDao {
   }
 
 
+  @Override
   public List<BookClass> getBook(Integer bookId) throws DaoException, DbException {
     String query = "select id, title, price, quantity, (SELECT ARRAY( select familyName ||' '|| firstName from book_user u JOIN bookshelf b ON u.phoneNumber = ANY(b.borrowedBy) WHERE b.title = OuterQuery.title)) AS \"borrowedBy\", url from bookshelf AS OuterQuery WHERE id = ?";
     List<Object> paramList = new ArrayList<Object>();
@@ -212,38 +173,8 @@ public final class JdbcBookDao extends JdbcDao implements BookDao {
       }
       return lb;
     } catch (SQLException e) {
-      throw new DaoException(e.getMessage());
+      throw new DaoException(e.getMessage(),e.getCause(),e.getSQLState());
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-//
-//
-//
-//    private static String[] splitStringIntoArray(String str, String splitter, String[] replacer){
-//        String[] adjusted_to_array = new String[0];
-//        if(str==null){
-//            return adjusted_to_array;
-//        }
-//        for(final String rep: replacer) {
-//            str = str.replace(rep, "");
-//        }
-//        if(str.split(splitter)[0].compareTo("")!=0){
-//            adjusted_to_array=str.split(splitter);
-//        }
-//        return adjusted_to_array;
-//    }
-
-
-
 
 }

@@ -1,13 +1,11 @@
 package com.example.demo.data.access;
 
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_DUPLICATE;
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NOT_EXISTING;
-import static com.example.demo.backend.errormessages.StaticMessages.BOOK_NO_STOCK;
-import static com.example.demo.backend.errormessages.StaticMessages.UPDATE_FAILED_BOOK;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_DUPLICATE;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NO_STOCK;
+import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_FAILED_BOOK;
 
-import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.backend.custom.Dto.BookClass;
-import com.example.demo.backend.custom.enums.ExceptionCodes;
+import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.data.access.custom.enums.BookStatus;
 
 import java.sql.ResultSet;
@@ -51,7 +49,7 @@ public class SpringBookDao implements BookDao {
         SQLException sqlEx = (SQLException) e.getRootCause();
         throw createDaoException(sqlEx);
       } else {
-        throw new DaoException(e.getMessage(), e.getCause(),ExceptionCodes.SYSTEM_ERROR);
+        throw new DaoException(e.getMessage(), e.getCause());
       }
     }
   }
@@ -59,11 +57,15 @@ public class SpringBookDao implements BookDao {
 
   /**
    * Generates a DaoException from the SQLExcetion
-   * @param sqlException Raw SQLException
+   * @param sqlExc Raw SQLException
    * @return DaoException
    */
-  public DaoException createDaoException(SQLException sqlException) {
-    return new DaoException(sqlException.getMessage(),sqlException.getCause(), ExceptionCodes.SYSTEM_ERROR);
+  public DaoException createDaoException(SQLException sqlExc) {
+    return new DaoException(sqlExc.getMessage(),sqlExc.getCause(),sqlExc.getSQLState());
+  }
+
+  public DaoException createDaoException(DaoException e) {
+    return new DaoException(e.getMessage(),e.getCause());
   }
 
 
@@ -86,7 +88,7 @@ public class SpringBookDao implements BookDao {
         SQLException sqlEx = (SQLException) e.getRootCause();
         throw createDaoException(sqlEx);
       } else {
-        throw new DaoException(e.getMessage(), e.getCause(),ExceptionCodes.SYSTEM_ERROR);
+        throw new DaoException(e.getMessage(), e.getCause());
       }
     }
   }
@@ -108,7 +110,11 @@ public class SpringBookDao implements BookDao {
           }
           }, book.getTitle(), book.getPrice(), book.getQuantity(), book.getUrl());
     } catch (DataAccessException e) {
-      throw new DaoException(BOOK_DUPLICATE + "? : " + e.getLocalizedMessage());
+      if(e.getRootCause() instanceof SQLException) {
+        SQLException sqlEx = (SQLException) e.getRootCause();
+        throw new DaoException(e.getMessage(),sqlEx.getCause(), sqlEx.getSQLState());
+      }
+      throw e;
     }
     return list;
   }
@@ -153,21 +159,15 @@ public class SpringBookDao implements BookDao {
 
   @Override
   public boolean checkBookStockAvailability(Integer bookId) throws DaoException {
-    boolean available = false;
+    Boolean available = false;
     try {
       available = jdbcTemplate.queryForObject("SELECT COALESCE(array_length(borrowedBy, 1), 0) < quantity as stock_available FROM bookshelf WHERE id = ?", new RowMapper<Boolean>() {
-        public Boolean mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return rs.getBoolean("STOCK_AVAILABLE");
-        }
+          public Boolean mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return rs.getBoolean("STOCK_AVAILABLE");
+          }
         }, bookId);
     } catch (DataAccessException e) {
-     /* if (e.getRootCause() instanceof SQLException) {
-        SQLException sqlEx = (SQLException) e.getRootCause();
-        int sqlErrorCode = sqlEx.getErrorCode();
-        // do further things from here on...
-      } else {*/
-        throw new DaoException(BOOK_NOT_EXISTING + "? : " + e.getLocalizedMessage());
-      //}
+      throw new DaoException(e.getMessage());
     }
     return available;
   }
@@ -198,24 +198,6 @@ public class SpringBookDao implements BookDao {
       throw new DaoException(UPDATE_FAILED_BOOK + "? : " + e.getLocalizedMessage());
     }
   }
-
-//
-//  @Override
-//  public void updateBook_lost(Integer bookId, String phoneNumber) throws DaoException {
-//    try {
-//      Integer remainingQuantity = jdbcTemplate.queryForObject("UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?), quantity = (quantity-1) WHERE id = ? RETURNING quantity", new RowMapper<Integer>() {
-//        public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
-//          return rs.getInt("QUANTITY");
-//        }
-//        }, phoneNumber, bookId);
-//      if (remainingQuantity <= 0) {
-//        //If quantity is less than 0
-//        deleteBook(bookId);//Simply remove the book from the bookshelf
-//      }
-//    } catch (DataAccessException e) {
-//      throw new DaoException(UPDATE_FAILED_BOOK + "? : " + e.getLocalizedMessage());
-//    }
-//  }
 
   @Override
   public int updateBook_data(Integer bookId, BookClass book) throws DaoException {

@@ -1,6 +1,6 @@
-package com.example.demo.backend.errormessages;
+package com.example.demo.backend.messages;
 
-public class StaticMessages {
+public class StaticBookMessages {
 
   public static String UNEXPECTED = "Unexpected output. This should generally not happen.";
   public static String INVALID_STATUS = "Invalid status input.";

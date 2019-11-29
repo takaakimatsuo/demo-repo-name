@@ -1,6 +1,6 @@
 package com.example.demo.data.access;
 
-import com.example.demo.backend.custom.enums.ExceptionCodes;
+
 import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.backend.custom.exceptions.DbException;
 
@@ -8,8 +8,8 @@ import com.example.demo.backend.custom.exceptions.DbException;
 import java.sql.*;
 import java.util.List;
 
-import static com.example.demo.backend.errormessages.StaticMessages.DB_FAILED_CONNECTION;
-import static com.example.demo.backend.errormessages.StaticMessages.DB_FAILED_DISCONNECTION;
+import static com.example.demo.backend.messages.StaticBookMessages.DB_FAILED_CONNECTION;
+import static com.example.demo.backend.messages.StaticBookMessages.DB_FAILED_DISCONNECTION;
 
 public abstract class JdbcDao {
 
@@ -77,7 +77,7 @@ public abstract class JdbcDao {
         index++;
       }
     } catch (SQLException e) {
-      throw new DaoException(e.getMessage(),e.getCause(), ExceptionCodes.SYSTEM_ERROR);
+      throw new DaoException(e.getMessage(),e.getCause(), e.getSQLState());
     }
   }
 
@@ -107,7 +107,7 @@ public abstract class JdbcDao {
       System.out.println("[ERROR] e.getMessage = " + e.getMessage());
       System.out.println("[ERROR] e.getSQLstate = " + e.getSQLState());
       System.out.println("[ERROR] e.getCause = " + e.getCause());
-      throw new DaoException(e.getMessage() + "," + e.getSQLState(),e.getCause(),e.getSQLState(),ExceptionCodes.SYSTEM_ERROR);
+      throw new DaoException(e.getMessage(),e.getCause(),e.getSQLState());
     } finally {
       closeDB(con);
     }
@@ -139,13 +139,12 @@ public abstract class JdbcDao {
       System.out.println("[ERROR] e.getMessage = " + e.getMessage());
       System.out.println("[ERROR] e.getSQLstate = " + e.getSQLState());
       System.out.println("[ERROR] e.getCause = " + e.getCause());
-      throw new DaoException(e.getMessage() + "," + e.getSQLState(),e.getCause(), e.getSQLState(), ExceptionCodes.SYSTEM_ERROR);
+      throw new DaoException(e.getMessage(),e.getCause(), e.getSQLState());
     } finally {
       //Close DB connection.
       closeDB(con);
     }
   }
-
 
 
   /**
@@ -156,7 +155,7 @@ public abstract class JdbcDao {
    * @throws DaoException An exception that raises when executing an SQL query.
    * @throws DbException AN exception that raises when connecting/disconnecting from the database.
    */
-   ResultSet executeQuery(String query) throws DaoException, DbException {
+  ResultSet executeQuery(String query) throws DaoException, DbException {
     Connection con = null;
     try {
       con = connectToDB();
@@ -170,7 +169,7 @@ public abstract class JdbcDao {
       System.out.println("[ERROR] e.getMessage = " + e.getMessage());
       System.out.println("[ERROR] e.getSQLstate = " + e.getSQLState());
       System.out.println("[ERROR] e.getCause = " + e.getCause());
-      throw new DaoException(e.getMessage() + "," + e.getSQLState(),e.getCause(), e.getSQLState(), ExceptionCodes.SYSTEM_ERROR);
+      throw new DaoException(e.getMessage(),e.getCause(), e.getSQLState());
     } finally {
       closeDB(con);
     }
