@@ -8,12 +8,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import static com.example.demo.application.messages.StaticInputErrorMessages.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static com.example.demo.application.InputValidator.*;

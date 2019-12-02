@@ -137,6 +137,7 @@ class MockMvcDemoControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$.books").exists());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
+
       assertEquals(response.getResponseHeader().getMessage(), BOOK_FOUND);
     }
 

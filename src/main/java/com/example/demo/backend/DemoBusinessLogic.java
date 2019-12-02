@@ -64,6 +64,7 @@ public final class DemoBusinessLogic {
    * @return Returns a list of BookClass objects, with the ResponseHeader class.
    * @throws DaoException An exception that raises when executing an SQL query fails.
    * @throws DbException An exception that raises when the database connection/disconnection fails.
+   * @throws BookException An exception that gets raised mainly due to logic error.
   */
   public ResponseBooks getAllBooks() throws DaoException, DbException {
     res = new ResponseBooks();
@@ -86,9 +87,10 @@ public final class DemoBusinessLogic {
    *  This method does not check whether the book exists in the database beforehand,
    *  but executes the query anyway and checks how many rows in the database has been updated afterwards.
    *  @param bookId Identifier of a book, not {@code null}
-   *  @return An empty list of BookClass objects, with the ResponseHeader class.
+   *  @return Returns an empty list of BookClass objects, with the ResponseHeader class.
    *  @throws DaoException An exception that raises when executing an SQL query fails.
    *  @throws DbException An exception that raises when the database connection/disconnection fails.
+   *  @throws BookException An exception that gets raised mainly due to logic error.
    */
   public ResponseBooks removeBook(Integer bookId) throws DaoException, DbException, BookException {
     res = new ResponseBooks();
@@ -108,6 +110,7 @@ public final class DemoBusinessLogic {
    *  The list will be kept empty if no matching data has been found.
    *  @throws DaoException An exception that raises when executing an SQL query fails.
    *  @throws DbException An exception that raises when the database connection/disconnection fails.
+   *  @throws BookException An exception that gets raised mainly due to logic error.
    */
   public ResponseBooks getBook(Integer bookId) throws DaoException, DbException, BookException {
     res = new ResponseBooks();
@@ -160,6 +163,7 @@ public final class DemoBusinessLogic {
    * @return An empty list of BookClass objects, with a ResponseHeader class.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
    * @throws DbException An exception that gets raised when the database connection/disconnection fails.
+   * @throws BookException An exception that gets raised mainly due to logic error.
    */
   public ResponseBooks updateBook(Integer bookId, PatchBookClass updStatus) throws DaoException, DbException, BookException {
     res = new ResponseBooks();
@@ -204,9 +208,10 @@ public final class DemoBusinessLogic {
   /**
    * Logic for adding a new book data to the database.
    * @param book {@link com.example.demo.backend.custom.Dto.BookClass BookClass} to be added.
-   * @return Returns a list containing a single BookClass object that has been inserted, with a ResponseHeader class.
+   * @return Returns an empty list of BookClass objects, with the ResponseHeader class.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
    * @throws DbException An exception that gets raised when the database connection/disconnection fails.
+   * @throws BookException An exception that gets raised mainly due to logic error.
    */
   public ResponseBooks addBook(BookClass book) throws DaoException, DbException, BookException {
     res = new ResponseBooks();

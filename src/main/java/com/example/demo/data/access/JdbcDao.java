@@ -3,9 +3,11 @@ package com.example.demo.data.access;
 
 import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.backend.custom.exceptions.DbException;
-
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import static com.example.demo.backend.messages.StaticBookMessages.DB_FAILED_CONNECTION;
@@ -100,7 +102,7 @@ public abstract class JdbcDao {
       parameterMapper(pstmt, params);
       System.out.println("[INFO] Trying to safely execute query " + pstmt.toString());
       ResultSet rs = pstmt.executeQuery();
-      System.out.println("[INFO] Executed query ");
+      System.out.println("[INFO] Executed query: Outcome was" + rs);
       return rs;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -162,7 +164,7 @@ public abstract class JdbcDao {
       PreparedStatement pstmt = con.prepareStatement(query);
       System.out.println("[INFO] Trying to safely execute query " + pstmt.toString());
       ResultSet rs = pstmt.executeQuery();
-      System.out.println("[INFO] Executed query ");
+      System.out.println("[INFO] Executed query : Outcome was" + rs);
       return rs;
     } catch (SQLException e) {
       e.printStackTrace();

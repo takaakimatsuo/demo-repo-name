@@ -33,9 +33,7 @@ public interface BookDao {
   /**
    * Tries to insert a new book data to the database.
    * @param book A {@link com.example.demo.backend.custom.Dto.BookClass BookClass} object to be inserted to the database.
-   * @return Returns a list of {@link com.example.demo.backend.custom.Dto.BookClass BookClass} objects, with a {@link com.example.demo.backend.custom.Dto.ResponseHeader ResponseHeader}.
-   * The list will hold the data of inserted book.
-   * Otherwise it is empty.
+   * @return Returns an empty list of {@link com.example.demo.backend.custom.Dto.BookClass BookClass} objects, with a {@link com.example.demo.backend.custom.Dto.ResponseHeader ResponseHeader}.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
    * @throws DbException An exception that gets raised when the database connection/disconnection fails.
    */

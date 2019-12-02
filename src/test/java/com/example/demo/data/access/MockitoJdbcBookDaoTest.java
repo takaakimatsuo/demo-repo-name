@@ -9,9 +9,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
-import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -32,6 +31,11 @@ class JdbcBookDaoTest {
   @Mock
   private PreparedStatement pstmt = mock(PreparedStatement.class);
 
+  @Mock
+  ResultSet mockResultSet = mock(ResultSet.class);
+
+  @Mock
+  Connection mockConnection = mock(Connection.class);
 
   @InjectMocks
   private static JdbcBookDao dao = mock(JdbcBookDao.class);
@@ -77,7 +81,22 @@ class JdbcBookDaoTest {
   @Nested
   class getAllBooks {
     @Test
-    void getAllBooks1() {
+    @DisplayName("SQL実行の失敗")
+    void getAllBooks1() throws DbException, DaoException{
+      DaoException expected = new DaoException("This is fake");
+
+      reset(dao);
+      when(dao.getAllBooks()).thenCallRealMethod();
+      when(dao.connectToDB()).thenCallRealMethod();
+      when(dao.executeQuery(anyString(), anyList())).thenThrow(expected);
+
+      Throwable e = assertThrows(expected.getClass(), () -> {
+        dao.getBook(0);
+        verify(dao, times(1)).getAllBooks();
+        verify(dao, times(1)).connectToDB();
+        verify(dao, times(1)).executeQuery(anyString(),anyList());
+        verify(dao, times(1)).closeDB(isA(Connection.class));
+      });
     }
   }
 
@@ -86,7 +105,7 @@ class JdbcBookDaoTest {
   class getBook {
     @DisplayName("SQL実行の失敗")
     @Test
-    public void getBook1() throws SQLException, DbException, DaoException {
+    public void getBook1() throws DbException, DaoException {
       DaoException expected = new DaoException("This is fake");
 
       reset(dao);
@@ -125,7 +144,33 @@ class JdbcBookDaoTest {
         verify(dao, times(1)).closeDB(isA(Connection.class));
       });
     }
+
+    @Ignore
+    @DisplayName("正しい本へのアクセス")
+    @Test
+    public void getBook3() throws SQLException, DbException, DaoException {
+
+
+      reset(dao);
+      when(dao.connectToDB()).thenCallRealMethod();
+      when(dao.getBook(anyInt())).thenCallRealMethod();
+      when(mockResultSet.getString("ID")).thenReturn("1");
+      when(mockResultSet.getString("TITLE")).thenReturn("MOCK");
+      when(mockResultSet.getString("QUANTITY")).thenReturn("1");
+      when(mockResultSet.getString("PRICE")).thenReturn("1");
+      when(mockResultSet.getString("URL")).thenReturn("https://mock.com");
+      when(mockResultSet.getString("BORROWEDBY")).thenReturn("{\"08011110000\",\"08011110001\"}");
+      when(dao.executeQuery(anyString(),anyList())).thenReturn(mockResultSet);
+
+      dao.getBook(1);
+      verify(dao, times(1)).getBook(anyInt());
+      verify(dao, times(1)).executeQuery(anyString(),anyList());
+      //verify(dao, times(1)).connectToDB(); //Mocked, thus skipped
+      //verify(dao, times(1)).closeDB(isA(Connection.class)); //Mocked, thus skipped
+    }
   }
+
+
 
 
 }
