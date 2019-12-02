@@ -196,9 +196,8 @@ class MockitoDemoBusinessLogicTest {
       Throwable expected = new DaoException("This is fake");
       when(dao.deleteBook(id)).thenThrow(expected);
 
-      verify(dao, times(0)).deleteBook(anyInt());
       Throwable actual = assertThrows(expected.getClass(), () -> {dbl.removeBook(id);});
-
+      verify(dao, times(1)).deleteBook(anyInt());
     }
 
     /**
@@ -215,9 +214,8 @@ class MockitoDemoBusinessLogicTest {
       Throwable fakeOutput = new DbException("This is fake");
       when(dao.deleteBook(id)).thenThrow(fakeOutput);
 
-      verify(dao, times(0)).deleteBook(anyInt());
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.removeBook(id);});
-
+      verify(dao, times(1)).deleteBook(anyInt());
     }
   }
 
@@ -244,8 +242,8 @@ class MockitoDemoBusinessLogicTest {
 
       when(dao.getBook(id)).thenReturn(new ArrayList<>());
 
-
       Throwable e = assertThrows(expected.getClass(), () -> {dbl.getBook(id);});
+      verify(dao, times(1)).getBook(anyInt());
       System.out.println("Thrown exception was: " + e.getClass());
     }
 
@@ -270,6 +268,7 @@ class MockitoDemoBusinessLogicTest {
 
       ResponseBooks actual = dbl.getBook(id);
 
+      verify(dao, times(1)).getBook(anyInt());
       Assert.assertEquals(expected.getResponseHeader().getMessage(),actual.getResponseHeader().getMessage());
     }
 
@@ -288,7 +287,7 @@ class MockitoDemoBusinessLogicTest {
       when(dao.getBook(id)).thenThrow(fakeOutput);
 
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.getBook(id);});
-      System.out.println("Thrown exception was: " + e.getClass());
+      verify(dao, times(1)).getBook(anyInt());
     }
 
     /**
@@ -306,7 +305,7 @@ class MockitoDemoBusinessLogicTest {
       when(dao.getBook(id)).thenThrow(fakeOutput);
 
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.getBook(id);});
-      System.out.println("Thrown exception was: " + e.getClass());
+      verify(dao, times(1)).getBook(anyInt());
     }
   }
 
@@ -329,6 +328,7 @@ class MockitoDemoBusinessLogicTest {
       when(dao.insertBook(book)).thenReturn(1);
 
       ResponseBooks actual = dbl.addBook(book);
+      verify(dao, times(1)).insertBook(isA(BookClass.class));
       assertEquals(actual.getResponseHeader().getMessage(),BOOK_INSERTED);
     }
 
@@ -353,7 +353,7 @@ class MockitoDemoBusinessLogicTest {
       BookException expected = new BookException("This is fake");
 
       Throwable e = assertThrows(expected.getClass(), () -> {dbl.addBook(book);});
-      System.out.println("Thrown exception was: " + e.getClass());
+      verify(dao, times(1)).insertBook(isA(BookClass.class));
     }
 
 
@@ -374,7 +374,7 @@ class MockitoDemoBusinessLogicTest {
       when(dao.insertBook(book)).thenThrow(fakeOutput);
 
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.addBook(book);});
-      System.out.println("Thrown exception was: " + e.getClass());
+      verify(dao, times(1)).insertBook(isA(BookClass.class));
     }
 
     /**
@@ -394,7 +394,7 @@ class MockitoDemoBusinessLogicTest {
       when(dao.insertBook(book)).thenThrow(fakeOutput);
 
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.addBook(book);});
-      System.out.println("Thrown exception was: " + e.getClass());
+      verify(dao, times(1)).insertBook(isA(BookClass.class));
     }
 
   }
@@ -419,6 +419,7 @@ class MockitoDemoBusinessLogicTest {
       BookClass book = new BookClass("newTitle",1000,"https://fake.com",10);
       when(dao.updateBook_data(bookId,book)).thenReturn(1);
       ResponseBooks actual = dbl.replaceBook(bookId,book);
+      verify(dao, times(1)).updateBook_data(anyInt(),isA(BookClass.class));
       assertEquals(actual.getResponseHeader().getMessage(), UPDATE_SUCCESS_BOOK);
     }
 
@@ -436,7 +437,7 @@ class MockitoDemoBusinessLogicTest {
       BookException expected = new BookException(BOOK_DUPLICATE);
 
       Throwable e = assertThrows(expected.getClass(), () -> {dbl.replaceBook(bookId,book);});
-      System.out.println("Thrown exception was: " + e.getClass());
+      verify(dao, times(1)).updateBook_data(anyInt(),isA(BookClass.class));
       assertEquals(e.getMessage(),expected.getMessage());
     }
 
@@ -451,7 +452,7 @@ class MockitoDemoBusinessLogicTest {
       BookException expected = new BookException(BOOK_NOT_EXISTING);
 
       Throwable e = assertThrows(expected.getClass(), () -> {dbl.replaceBook(bookId,book);});
-      System.out.println("Thrown exception was: " + e.getClass());
+      verify(dao, times(1)).updateBook_data(anyInt(),isA(BookClass.class));
     }
 
     @DisplayName("本データの置き換えでDb例外")
@@ -465,7 +466,7 @@ class MockitoDemoBusinessLogicTest {
       when(dao.updateBook_data(bookId,book)).thenThrow(fakeOutput);
 
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.replaceBook(bookId,book);});
-      System.out.println("Thrown exception was: " + e.getClass());
+      verify(dao, times(1)).updateBook_data(anyInt(),isA(BookClass.class));
     }
 
     @DisplayName("本データの置き換えでDao例外")
@@ -479,7 +480,7 @@ class MockitoDemoBusinessLogicTest {
       when(dao.updateBook_data(bookId,book)).thenThrow(fakeOutput);
 
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.replaceBook(bookId,book);});
-      System.out.println("Thrown exception was: " + e.getClass());
+      verify(dao, times(1)).updateBook_data(anyInt(),isA(BookClass.class));
     }
 
   }
@@ -512,6 +513,9 @@ class MockitoDemoBusinessLogicTest {
       when(dao.checkBookStockAvailability(bookId)).thenReturn(true);
 
       ResponseBooks actual = dbl.updateBook(bookId,book);
+      verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
+      verify(dao, times(1)).checkBookStockAvailability(anyInt());
+      verify(dao, times(1)).updateBook_borrowed(anyInt(), anyString());
       assertEquals(actual.getResponseHeader().getMessage(), BOOK_BORROWED);
     }
 
@@ -537,6 +541,7 @@ class MockitoDemoBusinessLogicTest {
 
       BookException expected = new BookException(BOOK_CANNOT_BE_DOUBLE_BORROWED);
       Throwable actual = assertThrows(expected.getClass(),()->{dbl.updateBook(bookId,book);});
+      verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
       assertEquals(expected.getMessage(), actual.getMessage());
     }
 
@@ -562,6 +567,8 @@ class MockitoDemoBusinessLogicTest {
 
       BookException expected = new BookException(BOOK_NO_STOCK);
       Throwable actual = assertThrows(expected.getClass(),()->{dbl.updateBook(bookId,book);});
+      verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
+      verify(dao, times(1)).checkBookStockAvailability(anyInt());
       assertEquals(expected.getMessage(), actual.getMessage());
     }
 
@@ -586,6 +593,7 @@ class MockitoDemoBusinessLogicTest {
 
       BookException expected = new BookException(BOOK_NOT_EXISTING);
       Throwable actual = assertThrows(expected.getClass(),()->{dbl.updateBook(bookId,book);});
+      verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
       assertEquals(expected.getMessage(), actual.getMessage());
     }
   }
@@ -611,8 +619,9 @@ class MockitoDemoBusinessLogicTest {
       Integer bookId = 1;
       when(dao.checkBookStatus(bookId,borrower)).thenReturn(BookStatus.BOOK_BORROWED_BY_THIS_USER);
 
-
       ResponseBooks actual = dbl.updateBook(bookId, book);
+      verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
+      verify(dao, times(1)).updateBook_returned(anyInt(),anyString());
       assertEquals(actual.getResponseHeader().getMessage(), BOOK_RETURNED);
     }
 
@@ -636,6 +645,8 @@ class MockitoDemoBusinessLogicTest {
 
       BookException expected = new BookException(BOOK_CANNOT_BE_RETURNED);
       Throwable actual = assertThrows(expected.getClass(),()->{dbl.updateBook(bookId,book);});
+      verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
+      verify(dao, times(0)).updateBook_returned(anyInt(),anyString());
       assertEquals(expected.getMessage(), actual.getMessage());
 
     }
@@ -667,6 +678,8 @@ class MockitoDemoBusinessLogicTest {
 
       BookException expected = new BookException(BOOK_CANNOT_BE_LOST);
       Throwable actual = assertThrows(expected.getClass(),()->{dbl.updateBook(bookId,book);});
+      verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
+      verify(dao, times(0)).updateBook_lost(anyInt(),anyString());
       assertEquals(expected.getMessage(), actual.getMessage());
     }
 
@@ -691,6 +704,9 @@ class MockitoDemoBusinessLogicTest {
       fakeList.add(new BookClass("title", 1000,"https://fake.com",0));
       when(dao.getBook(bookId)).thenReturn(fakeList);
       ResponseBooks actual = dbl.updateBook(bookId, book);
+      verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
+      verify(dao, times(1)).updateBook_lost(anyInt(),anyString());
+      verify(dao, times(1)).deleteBook(anyInt());
       assertEquals(BOOK_LOST_AND_DELETED, actual.getResponseHeader().getMessage());
     }
   }
