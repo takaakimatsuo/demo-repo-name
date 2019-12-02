@@ -107,5 +107,7 @@
     <orderEntry type="library" name="Maven: com.zaxxer:HikariCP:3.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-jdbc:5.2.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-tx:5.2.1.RELEASE" level="project" />
+    <orderEntry type="library" name="org.powermock.examples:powermock-examples-apachemina:1.4.6" level="project" />
+    <orderEntry type="library" name="org.powermock.examples:powermock-examples-apachemina:1.4.61" level="project" />
   </component>
 </module>

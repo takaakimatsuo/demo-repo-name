@@ -4,6 +4,15 @@ public class PatchBookClass {
   private String borrower;
   private int status;
 
+  public PatchBookClass(){
+
+  }
+
+  public PatchBookClass(String borrower, int status) {
+    this.borrower = borrower;
+    this.status = status;
+  }
+
   public void setBorrower(String borrower) {
     this.borrower = borrower;
   }

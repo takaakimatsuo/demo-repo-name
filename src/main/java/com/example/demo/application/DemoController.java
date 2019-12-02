@@ -148,11 +148,11 @@ public class DemoController {
    */
   @CrossOrigin
   @DeleteMapping(value = "/books/{id}")
-  public ResponseBooks deleteBook(@PathVariable("id") String bookId) throws DaoException, InputFormatException, DbException {
+  public ResponseBooks deleteBook(@PathVariable("id") String bookId) throws DaoException, InputFormatException, DbException, BookException {
     ResponseBooks response;
     try {
       response = dbl.removeBook(assurePositive(assureInteger(bookId)));
-    } catch (DaoException | InputFormatException | DbException e) {
+    } catch (DaoException | InputFormatException | DbException | BookException e) {
       throw e;
     }
     return response;

@@ -110,7 +110,7 @@ public class BookDaoTest {
             {"1231232", "1200","1","https://a.example.com"},
             {"1", "1200","1","\'\'"},
             {"\"\"", "1200","10000000","\'\'"},
-            {"無料の本","0","1","https://cheap.example.com"}};
+            {"無料の本","12","1","https://cheap.example.com"}};
 
         for(String[] book: books){
             BookClass test = new BookClass(book[0],Integer.parseInt(book[1]),book[3],Integer.parseInt(book[2]));

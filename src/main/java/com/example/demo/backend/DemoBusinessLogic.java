@@ -1,5 +1,6 @@
 package com.example.demo.backend;
 
+
 import static com.example.demo.backend.errorcodes.SqlErrorCodes.SQL_CODE_DUPLICATE_KEY_ERROR;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_BORROWED;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_CANNOT_BE_DOUBLE_BORROWED;
@@ -10,15 +11,16 @@ import static com.example.demo.backend.messages.StaticBookMessages.BOOK_DUPLICAT
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_FOUND;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_INSERTED;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_LOST;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_LOST_AND_DELETED;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NOT_EXISTING;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NOT_FOUND;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NO_STOCK;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_RETURNED;
 import static com.example.demo.backend.messages.StaticBookMessages.UNEXPECTED;
+import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_FAILED_BOOK;
 import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_SUCCESS_BOOK;
 import static com.example.demo.backend.messages.StaticUserMessages.USER_DUPLICATE;
 import static com.example.demo.backend.messages.StaticUserMessages.USER_INSERTED;
-
 
 import com.example.demo.backend.custom.Dto.BookClass;
 import com.example.demo.backend.custom.Dto.BookUser;
@@ -36,6 +38,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+
+
+
 
 
 
@@ -84,11 +90,11 @@ public final class DemoBusinessLogic {
    *  @throws DaoException An exception that raises when executing an SQL query fails.
    *  @throws DbException An exception that raises when the database connection/disconnection fails.
    */
-  public ResponseBooks removeBook(Integer bookId) throws DaoException, DbException {
+  public ResponseBooks removeBook(Integer bookId) throws DaoException, DbException, BookException {
     res = new ResponseBooks();
     int update = dao.deleteBook(bookId);
     if (update == 0) {
-      res.getResponseHeader().setMessage(BOOK_NOT_EXISTING);
+      throw new BookException(BOOK_NOT_EXISTING);
     } else {
       res.getResponseHeader().setMessage(BOOK_DELETED);
     }
@@ -184,8 +190,10 @@ public final class DemoBusinessLogic {
         List<BookClass> book = dao.getBook(bookId);
         if (book.get(0).getQuantity() <= 0) {
           dao.deleteBook(bookId);//Simply remove the book from the bookshelf
+          res.getResponseHeader().setMessage(BOOK_LOST_AND_DELETED);
+        }else {
+          res.getResponseHeader().setMessage(BOOK_LOST);
         }
-        res.getResponseHeader().setMessage(BOOK_LOST);
         break;
       }
     }
@@ -203,10 +211,14 @@ public final class DemoBusinessLogic {
   public ResponseBooks addBook(BookClass book) throws DaoException, DbException, BookException {
     res = new ResponseBooks();
     try {
-      List<BookClass> books = dao.insertBook(book);
-      res.setBooks(books);
-      res.getResponseHeader().setMessage(BOOK_INSERTED);
-      return res;
+      int updated = dao.insertBook(book);
+      if (updated == 0) {
+        throw new BookException(UPDATE_FAILED_BOOK);
+      } else {
+        res.getResponseHeader().setMessage(BOOK_INSERTED);
+        return res;
+      }
+
     } catch (DaoException | DbException e) {
       if (e instanceof DaoException && ((DaoException) e).getSqlCode().equals(SQL_CODE_DUPLICATE_KEY_ERROR)) {
         throw new BookException(BOOK_DUPLICATE);

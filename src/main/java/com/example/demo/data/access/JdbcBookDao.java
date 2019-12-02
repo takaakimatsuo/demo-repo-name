@@ -108,15 +108,15 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
   }
 
   @Override
-  public List<BookClass> insertBook(BookClass book) throws DaoException, DbException {
-    String query = "INSERT INTO bookshelf(title,price,quantity,url) values(?, ?, ?, ?) RETURNING *";
+  public int insertBook(BookClass book) throws DaoException, DbException {
+    String query = "INSERT INTO bookshelf(title,price,quantity,url) values(?, ?, ?, ?)";
     List<Object> paramList = new ArrayList<Object>();
     paramList.add(book.getTitle());
     paramList.add(book.getPrice());
     paramList.add(book.getQuantity());
     paramList.add(book.getUrl());
-    ResultSet rs = executeQuery(query, paramList);
-    return mapRow(rs);//Also takes care the case with no data found
+    int updated = executeUpdate(query, paramList);
+    return updated;//Also takes care the case with no data found
   }
 
 

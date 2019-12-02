@@ -27,5 +27,9 @@ public class ResponseBooks {
     return header;
   }
 
+  public void setResponseHeader(ResponseHeader header) {
+    this.header = header;
+  }
+
 
 }

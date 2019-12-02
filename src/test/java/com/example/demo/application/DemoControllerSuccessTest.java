@@ -1,8 +1,12 @@
 package com.example.demo.application;
 
-import com.example.demo.backend.custom.exceptions.*;
 import com.example.demo.backend.custom.Dto.BookUser;
 import com.example.demo.backend.custom.Dto.PatchBookClass;
+import com.example.demo.backend.custom.exceptions.BookException;
+import com.example.demo.backend.custom.exceptions.DaoException;
+import com.example.demo.backend.custom.exceptions.DbException;
+import com.example.demo.backend.custom.exceptions.InputFormatException;
+import com.example.demo.backend.custom.exceptions.UserException;
 import com.example.demo.data.access.BookDaoTest;
 import com.example.demo.backend.custom.Dto.BookClass;
 import com.example.demo.backend.custom.Dto.ResponseBooks;
@@ -15,7 +19,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import java.lang.reflect.InvocationTargetException;
 
 
@@ -218,7 +221,7 @@ class DemoControllerSuccessTest {
     "3"
   })
   @DisplayName("本の削除")
-  void test8(String bookId) throws DaoException, InputFormatException, DbException {
+  void test8(String bookId) throws DaoException, InputFormatException, DbException, BookException {
     ResponseBooks books = controller.deleteBook(bookId);
     assertEquals(BOOK_DELETED, books.getResponseHeader().getMessage());
   }

@@ -39,7 +39,7 @@ public interface BookDao {
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
    * @throws DbException An exception that gets raised when the database connection/disconnection fails.
    */
-  List<BookClass> insertBook(BookClass book) throws DaoException, DbException;
+  int insertBook(BookClass book) throws DaoException, DbException;
 
   /**
    * Tries to delete a book data from the database.
