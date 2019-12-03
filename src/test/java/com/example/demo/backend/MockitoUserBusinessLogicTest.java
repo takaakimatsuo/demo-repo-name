@@ -68,7 +68,6 @@ public class MockitoUserBusinessLogicTest {
       when(udao.insertBookUser(user)).thenThrow(fakeOutput);
 
       Throwable e = assertThrows(expected.getClass(), () -> {dbl.addUser(user);});
-      System.out.println("Thrown exception was: " + e.getClass());
 
     }
 
@@ -84,7 +83,6 @@ public class MockitoUserBusinessLogicTest {
       DbException fakeOutput = new DbException("This is fake");
       when(udao.insertBookUser(user)).thenThrow(fakeOutput);
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.addUser(user);});
-      System.out.println("Thrown exception was: " + e.getClass());
 
     }
 

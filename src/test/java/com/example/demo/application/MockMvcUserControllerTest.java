@@ -63,7 +63,6 @@ public class MockMvcUserControllerTest {
   ResponseUsers acquireBodyAsResponseUsers(ResultActions result) throws UnsupportedEncodingException, JsonProcessingException {
     MvcResult output = result.andReturn();
     String contentAsString = output.getResponse().getContentAsString();
-    System.out.println("contentAsString = " + contentAsString);
     return objectMapper.readValue(contentAsString, ResponseUsers.class);
   }
 

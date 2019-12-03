@@ -89,7 +89,6 @@ class MockMvcBookControllerTest {
   ResponseBooks acquireBodyAsResponseBooks(ResultActions result) throws UnsupportedEncodingException, JsonProcessingException {
     MvcResult output = result.andReturn();
     String contentAsString = output.getResponse().getContentAsString();
-    System.out.println("contentAsString = " + contentAsString);
     return objectMapper.readValue(contentAsString, ResponseBooks.class);
   }
 
@@ -171,7 +170,6 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      System.out.println(response.getResponseHeader().getMessage());
       assertEquals(response.getResponseHeader().getMessage(), BOOK_INSERTED);
     }
 

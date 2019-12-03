@@ -1,11 +1,13 @@
 package com.example.demo.data.access;
 
+
+import static com.example.demo.DemoApplication.logger;
+
 import com.example.demo.backend.BookBusinessLogic;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.DbException;
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.backend.custom.Dto.User;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -25,7 +27,7 @@ public class BookDaoTest {
         Method method = JdbcDao.class.getDeclaredMethod("executeUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int) method.invoke(bookDao, query, paramList);
-        System.out.println("[INFO] Dropped bookshelf table");
+        logger.info("Dropped bookshelf table");
     }
 
     public static void dropBookUser() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -34,7 +36,7 @@ public class BookDaoTest {
         Method method = JdbcDao.class.getDeclaredMethod("executeUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int) method.invoke(bookDao, query, param_list);
-        System.out.println("[INFO] Dropped book_user table");
+        logger.info("Dropped book_user table");
     }
 
     public static void createBookshelf() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -53,7 +55,7 @@ public class BookDaoTest {
         Method method = JdbcDao.class.getDeclaredMethod("executeUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int)method.invoke(bookDao,query,paramList);
-        System.out.println("[INFO] bookshelf table created.");
+        logger.info(" bookshelf table created.");
     }
 
     public static void createBookUser() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -68,7 +70,7 @@ public class BookDaoTest {
         Method method = JdbcDao.class.getDeclaredMethod("executeUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int)method.invoke(bookDao,query,param_list);
-        System.out.println("[INFO] bookshelf table created.");
+        logger.info("Bookshelf table created.");
     }
 
     public static void fillInBookUser() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DbException, DaoException {

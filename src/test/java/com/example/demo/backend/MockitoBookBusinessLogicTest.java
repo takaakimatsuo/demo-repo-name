@@ -7,8 +7,8 @@ import com.example.demo.backend.custom.Dto.ResponseBooks;
 import com.example.demo.common.exceptions.BookException;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.DbException;
+import com.example.demo.data.access.JdbcBookDao;
 import com.example.demo.data.access.JdbcDao;
-import com.example.demo.data.access.SpringBookDao;
 import com.example.demo.data.access.custom.enums.BookStatus;
 import org.junit.Assert;
 import org.junit.jupiter.api.DisplayName;
@@ -53,8 +53,8 @@ class MockitoBookBusinessLogicTest {
 
 
   @Mock
-  //JdbcBookDao dao;
-  SpringBookDao dao;
+  JdbcBookDao dao;
+  //SpringBookDao dao;
 
 
   @Mock
