@@ -1,39 +1,40 @@
 package com.example.demo.backend;
 
-
+import static com.example.demo.DemoApplication.logger;
 import static com.example.demo.backend.errorcodes.SqlErrorCodes.SQL_CODE_DUPLICATE_KEY_ERROR;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_BORROWED;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_CANNOT_BE_DOUBLE_BORROWED;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_CANNOT_BE_LOST;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_CANNOT_BE_RETURNED;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_DELETED;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_DUPLICATE;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_FOUND;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_INSERTED;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_LOST;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_LOST_AND_DELETED;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NOT_EXISTING;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NOT_EXISTING_OR_IS_BORROWED;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NOT_FOUND;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NO_STOCK;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_RETURNED;
-import static com.example.demo.backend.messages.StaticBookMessages.UNEXPECTED;
-import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_FAILED_BOOK;
-import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_SUCCESS_BOOK;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_BORROWED;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_CANNOT_BE_DOUBLE_BORROWED;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_CANNOT_BE_LOST;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_CANNOT_BE_RETURNED;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_DELETED;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_DUPLICATE;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_FOUND;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_INSERTED;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_LOST;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_LOST_AND_DELETED;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_NOT_EXISTING;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_NOT_EXISTING_OR_IS_BORROWED;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_NOT_FOUND;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_NO_STOCK;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_RETURNED;
+import static com.example.demo.common.messages.StaticBookMessages.UNEXPECTED;
+import static com.example.demo.common.messages.StaticBookMessages.UPDATE_FAILED_BOOK;
+import static com.example.demo.common.messages.StaticBookMessages.UPDATE_SUCCESS_BOOK;
 
-
+import com.example.demo.common.enums.BookMessages;
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.backend.custom.Dto.PatchBook;
 import com.example.demo.backend.custom.Dto.ResponseBooks;
-import com.example.demo.backend.custom.exceptions.BookException;
-import com.example.demo.backend.custom.exceptions.DaoException;
-import com.example.demo.backend.custom.exceptions.DbException;
+import com.example.demo.common.exceptions.BookException;
+import com.example.demo.common.exceptions.DaoException;
+import com.example.demo.common.exceptions.DbException;
 import com.example.demo.data.access.BookDao;
 import com.example.demo.data.access.custom.enums.BookStatus;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
 
 
 
@@ -118,21 +119,20 @@ public final class BookBusinessLogic {
    * @throws BookException if query logic fails.
    */
   private int validateUserBookRelation(BookStatus currentStatus, int requestedStatus) throws BookException {
-    System.out.println("Current Status = " + currentStatus.toString());
     if (currentStatus == BookStatus.UNKNOWN) {
-      System.out.println("[Error] Unexpected output. This should not happen.");
+      logger.error("Unexpected output in validateUserBookRelation() in BookBusinessLogic. This should not happen.");
       throw new BookException(UNEXPECTED);
     } else if (currentStatus == BookStatus.BOOK_NOT_EXISTING) {
-      System.out.println("[Error] Book does not exist.");
+      logger.info("Book does not exist.");
       throw new BookException(BOOK_NOT_EXISTING);
     } else if (currentStatus == BookStatus.BOOK_BORROWED_BY_THIS_USER && requestedStatus == 0) {
-      System.out.println("[Error] Book already borrowed by the same user.");
+      logger.info("Book already borrowed by the same user.");
       throw new BookException(BOOK_CANNOT_BE_DOUBLE_BORROWED);
     } else if (currentStatus == BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER && requestedStatus == 1) {
-      System.out.println("[Error] Trying to return a book that has not been borrowed by the user.");
+      logger.info("Trying to return a book that has not been borrowed by the user.");
       throw new BookException(BOOK_CANNOT_BE_RETURNED);
     } else if (currentStatus == BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER && requestedStatus == 2) {
-      System.out.println("[Error] Trying to report a book as lost, which has not been borrowed by the user.");
+      logger.info("Trying to report a book as lost, which has not been borrowed by the user.");
       throw new BookException(BOOK_CANNOT_BE_LOST);
     }
     return requestedStatus;

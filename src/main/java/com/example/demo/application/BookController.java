@@ -10,9 +10,9 @@ import com.example.demo.backend.BookBusinessLogic;
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.backend.custom.Dto.PatchBook;
 import com.example.demo.backend.custom.Dto.ResponseBooks;
-import com.example.demo.backend.custom.exceptions.BookException;
-import com.example.demo.backend.custom.exceptions.DaoException;
-import com.example.demo.backend.custom.exceptions.InputFormatException;
+import com.example.demo.common.exceptions.BookException;
+import com.example.demo.common.exceptions.DaoException;
+import com.example.demo.common.exceptions.InputFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.demo.common.enums.BookMessages;
 
 @RestController
 public class BookController {
@@ -62,7 +63,6 @@ public class BookController {
    * @return A list of searched {@link com.example.demo.backend.custom.Dto.Book Book} objects,
    * with a ResponseHeader class, not {@code null}.
    * @throws DaoException if query execution fails.
-   * @throws InputFormatException if user input is wrong.
    * @throws BookException if logic fails.
    */
   @CrossOrigin

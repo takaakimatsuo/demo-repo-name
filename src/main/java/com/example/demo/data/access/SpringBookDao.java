@@ -1,11 +1,11 @@
 package com.example.demo.data.access;
 
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_DUPLICATE;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NO_STOCK;
-import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_FAILED_BOOK;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_DUPLICATE;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_NO_STOCK;
+import static com.example.demo.common.messages.StaticBookMessages.UPDATE_FAILED_BOOK;
 
 import com.example.demo.backend.custom.Dto.Book;
-import com.example.demo.backend.custom.exceptions.DaoException;
+import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.data.access.custom.enums.BookStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,10 +23,7 @@ public class SpringBookDao implements BookDao {
   @Autowired
   private JdbcTemplate jdbcTemplate;
 
-  /**
-  * Get all books stored in the bookshelf table.
-  * @return  List<BookClass> list - A list of BookClass objects with the ResponseHeader class.
-  */
+
   @Override
   public List<Book> getAllBooks() throws DaoException {
     try {
@@ -51,11 +48,7 @@ public class SpringBookDao implements BookDao {
     }
   }
 
-  /**
-   * Generates a DaoException from the SQLExcetion
-   * @param sqlExc Raw SQLException
-   * @return DaoException
-   */
+
   public DaoException createDaoException(SQLException sqlExc) {
     return new DaoException(sqlExc.getMessage(),sqlExc.getCause(),sqlExc.getSQLState());
   }

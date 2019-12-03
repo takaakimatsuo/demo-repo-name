@@ -1,7 +1,7 @@
 package com.example.demo.data.access;
 
 import com.example.demo.backend.custom.Dto.Book;
-import com.example.demo.backend.custom.exceptions.DaoException;
+import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.data.access.custom.enums.BookStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
+import static com.example.demo.DemoApplication.logger;
 
 
 @Component("JdbcBookDao")
@@ -26,7 +27,7 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
       ResultSet check = executeQuery(query, paramList);//Execute query.
       if (!check.isBeforeFirst()) {
         //SQL returned an empty output. No data matched the condition.
-        System.out.println("[INFO] Book with id=" + bookId + " doesnt exist in the table.");
+        logger.info("Book with id = {} doesnt exist in the table.",bookId);
         st = BookStatus.BOOK_NOT_EXISTING;
       } else {
         if (check.next()) {
@@ -35,17 +36,17 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
 
           if (Arrays.asList(customers).contains(phoneNumber)) {
             //Book is borrowed by the user.
-            System.out.println("[INFO] User already borrowing the book.");
+            logger.info("User already borrowing the book.");
             st = BookStatus.BOOK_BORROWED_BY_THIS_USER;
           } else {
-            System.out.println("[INFO] User not borrowing the book yet.");
+            logger.info("User not borrowing the book yet.");
             st = BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER;
           }
         }
       }
       return st;
     } catch (SQLException e) {
-      throw new DaoException(e.getMessage() + ", SQL state:" + e.getSQLState());
+      throw new DaoException(e.getMessage(),e.getCause(),e.getSQLState());
     }
   }
 
@@ -61,8 +62,8 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
         available = check.getBoolean("STOCK_AVAILABLE");
       }
     } catch (SQLException e) {
-      e.printStackTrace();
-      throw new DaoException(e.getMessage());
+      logger.error("Error in checkBookStockAvailability(): ",e);
+      throw new DaoException(e.getMessage(),e.getCause(),e.getSQLState());
     }
     return available;
   }
@@ -133,9 +134,9 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
   @Override
   public List<Book> getAllBooks() throws DaoException {
     String query = "SELECT id, title, price, quantity, (SELECT ARRAY( select familyName ||' '|| firstName FROM book_user u JOIN bookshelf b ON u.phoneNumber = ANY(b.borrowedBy) WHERE b.title = OuterQuery.title)) AS \"borrowedBy\", url FROM bookshelf AS OuterQuery ORDER BY id DESC;";
-    System.out.println("[INFO] Requesting query execution");
+    logger.info("Requesting query execution");
     ResultSet rs = executeQuery(query);
-    System.out.println("[INFO] Done query execution");
+    logger.info("Done query execution");
     return mapRow(rs);
   }
 
@@ -145,9 +146,9 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
     String query = "select id, title, price, quantity, (SELECT ARRAY( select familyName ||' '|| firstName from book_user u JOIN bookshelf b ON u.phoneNumber = ANY(b.borrowedBy) WHERE b.title = OuterQuery.title)) AS \"borrowedBy\", url from bookshelf AS OuterQuery WHERE id = ?";
     List<Object> paramList = new ArrayList<Object>();
     paramList.add(bookId);
-    System.out.println("[INFO] Requesting query execution");
+    logger.info("Requesting query execution");
     ResultSet rs = executeQuery(query, paramList);
-    System.out.println("[INFO] Done query execution");
+    logger.info("Done query execution");
     return mapRow(rs);
   }
 

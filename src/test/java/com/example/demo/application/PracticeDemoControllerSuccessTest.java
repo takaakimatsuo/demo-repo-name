@@ -2,11 +2,11 @@
 //
 //import com.example.demo.backend.custom.Dto.BookUser;
 //import com.example.demo.backend.custom.Dto.PatchBookClass;
-//import com.example.demo.backend.custom.exceptions.BookException;
-//import com.example.demo.backend.custom.exceptions.DaoException;
-//import com.example.demo.backend.custom.exceptions.DbException;
-//import com.example.demo.backend.custom.exceptions.InputFormatException;
-//import com.example.demo.backend.custom.exceptions.UserException;
+//import com.example.demo.common.exceptions.BookException;
+//import com.example.demo.common.exceptions.DaoException;
+//import com.example.demo.common.exceptions.DbException;
+//import com.example.demo.common.exceptions.InputFormatException;
+//import com.example.demo.common.exceptions.UserException;
 //import com.example.demo.data.access.BookDaoTest;
 //import com.example.demo.backend.custom.Dto.BookClass;
 //import com.example.demo.backend.custom.Dto.ResponseBooks;

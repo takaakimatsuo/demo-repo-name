@@ -1,8 +1,8 @@
 package com.example.demo.application;
 
 import com.example.demo.backend.custom.Dto.ResponseUsers;
-import com.example.demo.backend.custom.exceptions.DaoException;
-import com.example.demo.backend.custom.exceptions.DbException;
+import com.example.demo.common.exceptions.DaoException;
+import com.example.demo.common.exceptions.DbException;
 import com.example.demo.data.access.BookDaoTest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,8 +23,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 
-import static com.example.demo.application.messages.StaticInputErrorMessages.INVALID_PHONENUMBER;
-import static com.example.demo.backend.messages.StaticUserMessages.USER_INSERTED;
+import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_PHONENUMBER;
+import static com.example.demo.common.messages.StaticUserMessages.USER_INSERTED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;

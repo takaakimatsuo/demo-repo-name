@@ -1,4 +1,4 @@
-package com.example.demo.backend.custom.exceptions;
+package com.example.demo.common.exceptions;
 
 public class InputFormatException extends Exception {
   public InputFormatException(String errorMessage) {

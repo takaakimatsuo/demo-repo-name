@@ -1,25 +1,25 @@
 package com.example.demo.application;
 
-import static com.example.demo.application.messages.StaticInputErrorMessages.BOOK_CLASS_NULL;
-import static com.example.demo.application.messages.StaticInputErrorMessages.BORROWER_NULL;
-import static com.example.demo.application.messages.StaticInputErrorMessages.EMPTY_TITLE;
-import static com.example.demo.application.messages.StaticInputErrorMessages.INTEGER_NULL;
-import static com.example.demo.application.messages.StaticInputErrorMessages.INVALID_ID;
-import static com.example.demo.application.messages.StaticInputErrorMessages.INVALID_PHONENUMBER;
-import static com.example.demo.application.messages.StaticInputErrorMessages.INVALID_STATUS;
-import static com.example.demo.application.messages.StaticInputErrorMessages.INVALID_URL;
-import static com.example.demo.application.messages.StaticInputErrorMessages.NEGATIVE_PRICE;
-import static com.example.demo.application.messages.StaticInputErrorMessages.NEGATIVE_QUANTITY;
-import static com.example.demo.application.messages.StaticInputErrorMessages.PATCHBOOK_CLASS_NULL;
-import static com.example.demo.application.messages.StaticInputErrorMessages.PHONENUMBER_NULL;
-import static com.example.demo.application.messages.StaticInputErrorMessages.URL_NULL;
-import static com.example.demo.application.messages.StaticInputErrorMessages.USER_CLASS_NULL;
-import static com.example.demo.application.messages.StaticInputErrorMessages.ZERO_QUANTITY;
+import static com.example.demo.common.messages.StaticInputErrorMessages.BOOK_CLASS_NULL;
+import static com.example.demo.common.messages.StaticInputErrorMessages.BORROWER_NULL;
+import static com.example.demo.common.messages.StaticInputErrorMessages.EMPTY_TITLE;
+import static com.example.demo.common.messages.StaticInputErrorMessages.INTEGER_NULL;
+import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_ID;
+import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_PHONENUMBER;
+import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_STATUS;
+import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_URL;
+import static com.example.demo.common.messages.StaticInputErrorMessages.NEGATIVE_PRICE;
+import static com.example.demo.common.messages.StaticInputErrorMessages.NEGATIVE_QUANTITY;
+import static com.example.demo.common.messages.StaticInputErrorMessages.PATCHBOOK_CLASS_NULL;
+import static com.example.demo.common.messages.StaticInputErrorMessages.PHONENUMBER_NULL;
+import static com.example.demo.common.messages.StaticInputErrorMessages.URL_NULL;
+import static com.example.demo.common.messages.StaticInputErrorMessages.USER_CLASS_NULL;
+import static com.example.demo.common.messages.StaticInputErrorMessages.ZERO_QUANTITY;
 
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.backend.custom.Dto.User;
 import com.example.demo.backend.custom.Dto.PatchBook;
-import com.example.demo.backend.custom.exceptions.InputFormatException;
+import com.example.demo.common.exceptions.InputFormatException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,9 +33,9 @@ public class InputValidator {
 
   /**
    * Makes sure that the inputted String is Integer compatible.
-   * @param integer This is expected to be parsable to an Integer.
-   * @return Returns the value of the inputted String as an Integer.
-   * @throws InputFormatException An exception that gets raised when the user input doesnt satisfy the requirement.
+   * @param integer An arbitrary number as String.
+   * @return the value of the inputted String as an Integer.
+   * @throws InputFormatException if input is not acceptable.
    */
   static Integer assureInteger(String integer) throws InputFormatException {
     Integer result = null;
@@ -51,6 +51,12 @@ public class InputValidator {
   }
 
 
+  /**
+   * Makes sure that the inputted Integer is positive.
+   * @param integer An arbitrary number as Integer.
+   * @return the number.
+   * @throws InputFormatException if input is not acceptable.
+   */
   static Integer assurePositive(Integer integer) throws InputFormatException {
 
     if (integer == null) {
@@ -67,9 +73,9 @@ public class InputValidator {
 
 
   /**
-   * ${TODO}
-   * @param url
-   * @throws InputFormatException An exception that gets raised when the user input doesnt satisfy the requirement.
+   * Validates the URL format.
+   * @param url URL as a String to be checked.
+   * @throws InputFormatException if input is not acceptable.
    */
   public static void assureURL(String url) throws InputFormatException {
 
@@ -85,32 +91,52 @@ public class InputValidator {
     }
   }
 
+  /**
+   * Validates a list of phone numbers.
+   * @param phoneNumbers A String list of phone numbers.
+   * @throws InputFormatException if input is not acceptable.
+   */
   public static void assureAllBorrowedBy(String[] phoneNumbers) throws InputFormatException {
     if (phoneNumbers == null) {
       throw new InputFormatException(BORROWER_NULL);
     }
     for (String phoneNumber: phoneNumbers) {
-      assureBorrowed_by(phoneNumber);
+      assureBorrowedBy(phoneNumber);
     }
   }
 
-  private static void assureBorrowed_bys_name(String[] names) throws InputFormatException {
+  /**
+   * Validates that names aren't null.
+   * @param names A String list of names.
+   * @throws InputFormatException if input is not acceptable.
+   */
+  private static void assureBorrowedByNames(String[] names) throws InputFormatException {
     if (names == null) {
       throw new InputFormatException(BORROWER_NULL);
     }
   }
 
-  public static void assureBorrowed_by(String number) throws InputFormatException {
-    if (number == null) {
+  /**
+   * Validates a of phone numbers.
+   * @param phoneNumber A String list of phone numbers.
+   * @throws InputFormatException if input is not acceptable.
+   */
+  public static void assureBorrowedBy(String phoneNumber) throws InputFormatException {
+    if (phoneNumber == null) {
       throw new InputFormatException(PHONENUMBER_NULL);
     }
-    Matcher m = PHONENUMBER_PATTERN.matcher(number);
+    Matcher m = PHONENUMBER_PATTERN.matcher(phoneNumber);
     if (!m.find()) {
       throw new InputFormatException(INVALID_PHONENUMBER);
     }
   }
 
 
+  /**
+   * Validates the quantity.
+   * @param quantity An arbitrary int.
+   * @throws InputFormatException if input is not acceptable.
+   */
   private static void assureQuantity(int quantity) throws InputFormatException {
     if (quantity == 0) {
       throw new InputFormatException(ZERO_QUANTITY);
@@ -120,12 +146,22 @@ public class InputValidator {
     }
   }
 
+  /**
+   * Validates the price.
+   * @param price An arbitrary int.
+   * @throws InputFormatException if input is not acceptable.
+   */
   private static void assurePrice(int price) throws InputFormatException {
     if (price < 0) {
       throw new InputFormatException(NEGATIVE_PRICE);
     }
   }
 
+  /**
+   * Validates the title.
+   * @param title An arbitrary String.
+   * @throws InputFormatException if input is not acceptable.
+   */
   private static void assureTitle(String title) throws InputFormatException {
     if (title == null || title.isEmpty()) {
       throw new InputFormatException(EMPTY_TITLE);
@@ -133,11 +169,18 @@ public class InputValidator {
   }
 
 
+  /**
+   * Validates the {@link com.example.demo.backend.custom.Dto.Book Book} object.
+   * Borrowers are written in names.
+   * @param book {@link com.example.demo.backend.custom.Dto.Book Book} object to be checked.
+   * @return The same {@link com.example.demo.backend.custom.Dto.Book Book} object.
+   * @throws InputFormatException if input is not acceptable.
+   */
   public static Book assureBookClassNames(Book book) throws InputFormatException {
     if (book == null) {
       throw new InputFormatException(BOOK_CLASS_NULL);
     }
-    assureBorrowed_bys_name(book.getBorrowedBy());
+    assureBorrowedByNames(book.getBorrowedBy());
     assureURL(book.getUrl());
     assureQuantity(book.getQuantity());
     assurePrice(book.getPrice());
@@ -146,6 +189,13 @@ public class InputValidator {
   }
 
 
+  /**
+   * Validates the {@link com.example.demo.backend.custom.Dto.Book Book} object.
+   * Borrowers are written in phone numbers.
+   * @param book {@link com.example.demo.backend.custom.Dto.Book Book} object to be checked.
+   * @return The same {@link com.example.demo.backend.custom.Dto.Book Book} object.
+   * @throws InputFormatException if input is not acceptable.
+   */
   public static Book assureBookClass(Book book) throws InputFormatException {
     if (book == null) {
       throw new InputFormatException(BOOK_CLASS_NULL);
@@ -159,11 +209,17 @@ public class InputValidator {
   }
 
 
+  /**
+   * Validates the {@link com.example.demo.backend.custom.Dto.User User} object.
+   * @param user  {@link com.example.demo.backend.custom.Dto.User User} object to be checked.
+   * @return The same {@link com.example.demo.backend.custom.Dto.User User}} object.
+   * @throws InputFormatException if input is not acceptable.
+   */
   static User assureBookUser(User user) throws InputFormatException {
     if (user == null) {
       throw new InputFormatException(USER_CLASS_NULL);
     }
-    assureBorrowed_by(user.getPhoneNumber());
+    assureBorrowedBy(user.getPhoneNumber());
     return user;
   }
 
@@ -180,7 +236,7 @@ public class InputValidator {
       throw new InputFormatException(PATCHBOOK_CLASS_NULL);
     }
     assureStatus(book.getStatus());
-    assureBorrowed_by(book.getBorrower());
+    assureBorrowedBy(book.getBorrower());
     return book;
   }
 

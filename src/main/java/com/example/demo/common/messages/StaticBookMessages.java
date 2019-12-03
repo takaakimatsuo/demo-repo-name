@@ -1,4 +1,4 @@
-package com.example.demo.backend.messages;
+package com.example.demo.common.messages;
 
 public class StaticBookMessages {
 

@@ -1,8 +1,8 @@
 package com.example.demo.data.access;
 
 
-import com.example.demo.backend.custom.exceptions.DaoException;
-import com.example.demo.backend.custom.exceptions.DbException;
+import com.example.demo.common.exceptions.DaoException;
+import com.example.demo.common.exceptions.DbException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,8 +11,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.example.demo.DemoApplication.logger;
-import static com.example.demo.backend.messages.StaticBookMessages.DB_FAILED_CONNECTION;
-import static com.example.demo.backend.messages.StaticBookMessages.DB_FAILED_DISCONNECTION;
+import static com.example.demo.common.messages.StaticBookMessages.DB_FAILED_CONNECTION;
+import static com.example.demo.common.messages.StaticBookMessages.DB_FAILED_DISCONNECTION;
+import com.example.demo.common.enums.BookMessages;
 
 public abstract class JdbcDao {
 

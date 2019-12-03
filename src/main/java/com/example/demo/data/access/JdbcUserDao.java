@@ -1,6 +1,6 @@
 package com.example.demo.data.access;
 
-import com.example.demo.backend.custom.exceptions.DaoException;
+import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.backend.custom.Dto.User;
 import org.springframework.stereotype.Component;
 

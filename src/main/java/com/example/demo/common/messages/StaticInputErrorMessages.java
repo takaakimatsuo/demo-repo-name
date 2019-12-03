@@ -1,4 +1,4 @@
-package com.example.demo.application.messages;
+package com.example.demo.common.messages;
 
 public class StaticInputErrorMessages {
   public static String USER_CLASS_NULL = "UserClass is null";

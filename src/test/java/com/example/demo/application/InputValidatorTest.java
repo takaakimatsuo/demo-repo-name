@@ -3,12 +3,12 @@ package com.example.demo.application;
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.backend.custom.Dto.User;
 import com.example.demo.backend.custom.Dto.PatchBook;
-import com.example.demo.backend.custom.exceptions.InputFormatException;
+import com.example.demo.common.exceptions.InputFormatException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static com.example.demo.application.messages.StaticInputErrorMessages.*;
+import static com.example.demo.common.messages.StaticInputErrorMessages.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static com.example.demo.application.InputValidator.*;
 

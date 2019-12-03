@@ -1,8 +1,8 @@
 package com.example.demo.application;
 
 import com.example.demo.backend.custom.Dto.ResponseBooks;
-import com.example.demo.backend.custom.exceptions.DaoException;
-import com.example.demo.backend.custom.exceptions.DbException;
+import com.example.demo.common.exceptions.DaoException;
+import com.example.demo.common.exceptions.DbException;
 import com.example.demo.data.access.BookDaoTest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,22 +26,22 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 
-import static com.example.demo.application.messages.StaticInputErrorMessages.INVALID_ID;
-import static com.example.demo.application.messages.StaticInputErrorMessages.NEGATIVE_PRICE;
-import static com.example.demo.application.messages.StaticInputErrorMessages.NEGATIVE_QUANTITY;
-import static com.example.demo.application.messages.StaticInputErrorMessages.ZERO_QUANTITY;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_BORROWED;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_CANNOT_BE_LOST;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_CANNOT_BE_RETURNED;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_DELETED;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_DUPLICATE;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_INSERTED;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_LOST_AND_DELETED;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NOT_EXISTING;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_FOUND;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NOT_EXISTING_OR_IS_BORROWED;
-import static com.example.demo.backend.messages.StaticBookMessages.BOOK_RETURNED;
-import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_SUCCESS_BOOK;
+import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_ID;
+import static com.example.demo.common.messages.StaticInputErrorMessages.NEGATIVE_PRICE;
+import static com.example.demo.common.messages.StaticInputErrorMessages.NEGATIVE_QUANTITY;
+import static com.example.demo.common.messages.StaticInputErrorMessages.ZERO_QUANTITY;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_BORROWED;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_CANNOT_BE_LOST;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_CANNOT_BE_RETURNED;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_DELETED;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_DUPLICATE;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_INSERTED;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_LOST_AND_DELETED;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_NOT_EXISTING;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_FOUND;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_NOT_EXISTING_OR_IS_BORROWED;
+import static com.example.demo.common.messages.StaticBookMessages.BOOK_RETURNED;
+import static com.example.demo.common.messages.StaticBookMessages.UPDATE_SUCCESS_BOOK;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -81,7 +81,7 @@ class MockMvcBookControllerTest {
   }
 
 
-  String acquireBodyAsErrorMessage(ResultActions result) throws UnsupportedEncodingException, JsonProcessingException {
+  String acquireBodyAsErrorMessage(ResultActions result) throws UnsupportedEncodingException {
     MvcResult output = result.andReturn();
     return output.getResponse().getContentAsString();
   }
