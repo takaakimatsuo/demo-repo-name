@@ -15,9 +15,8 @@ public interface BookDao {
    * @return Returns a list of {@link com.example.demo.backend.custom.Dto.BookClass BookClass} objects, with a {@link com.example.demo.backend.custom.Dto.ResponseHeader ResponseHeader}.
    *         The list will be kept empty if no results were found.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
-   * @throws DbException An exception that gets raised when the database connection/disconnection fails.
    */
-  List<BookClass> getAllBooks() throws DaoException, DbException;
+  List<BookClass> getAllBooks() throws DaoException;
 
 
   /**
@@ -26,27 +25,24 @@ public interface BookDao {
    * @return Returns a list of {@link com.example.demo.backend.custom.Dto.BookClass BookClass} objects, with a {@link com.example.demo.backend.custom.Dto.ResponseHeader ResponseHeader}.
    *         The list will be kept empty if no results were found.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
-   * @throws DbException An exception that gets raised when the database connection/disconnection fails.
    */
-  List<BookClass> getBook(Integer bookId) throws DaoException, DbException;
+  List<BookClass> getBook(Integer bookId) throws DaoException;
 
   /**
    * Tries to insert a new book data to the database.
    * @param book A {@link com.example.demo.backend.custom.Dto.BookClass BookClass} object to be inserted to the database.
    * @return Returns an empty list of {@link com.example.demo.backend.custom.Dto.BookClass BookClass} objects, with a {@link com.example.demo.backend.custom.Dto.ResponseHeader ResponseHeader}.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
-   * @throws DbException An exception that gets raised when the database connection/disconnection fails.
    */
-  int insertBook(BookClass book) throws DaoException, DbException;
+  int insertBook(BookClass book) throws DaoException;
 
   /**
    * Tries to delete a book data from the database.
    * @param bookId Unique identifier for the book stored in the database.
    * @return Returns an empty list of {@link com.example.demo.backend.custom.Dto.BookClass BookClass} objects, with a {@link com.example.demo.backend.custom.Dto.ResponseHeader ResponseHeader}.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
-   * @throws DbException An exception that gets raised when the database connection/disconnection fails.
    */
-  int deleteBook(Integer bookId) throws DaoException, DbException;
+  int deleteBook(Integer bookId) throws DaoException;
 
   /**
    *
@@ -61,16 +57,15 @@ public interface BookDao {
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
    * @throws DbException An exception that gets raised when the database connection/disconnection fails.
    */
-  BookStatus checkBookStatus(Integer bookId, String phoneNumber) throws DaoException, DbException;
+  BookStatus checkBookStatus(Integer bookId, String phoneNumber) throws DaoException;
 
   /**
    * Checks whether there is enough stocks available for a user to borrow a book.
    * @param bookId Unique identifier for the book stored in the database.
    * @return Returns a boolean representing whether the user can borrow the book in terms of quantity available.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
-   * @throws DbException An exception that gets raised when the database connection/disconnection fails.
    */
-  boolean checkBookStockAvailability(Integer bookId) throws DaoException, DbException;
+  boolean checkBookStockAvailability(Integer bookId) throws DaoException;
 
   /**
    *
@@ -78,9 +73,8 @@ public interface BookDao {
    * @param phoneNumber Unique identifier for the user stored in the database.
    * @return Returns the number of updated rows.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
-   * @throws DbException An exception that gets raised when the database connection/disconnection fails.
    */
-  int updateBook_borrowed(Integer bookId, String phoneNumber) throws DaoException, DbException;
+  int updateBook_borrowed(Integer bookId, String phoneNumber) throws DaoException;
 
   /**
    *
@@ -88,18 +82,16 @@ public interface BookDao {
    * @param phoneNumber Unique identifier for the user stored in the database.
    * @return Returns the number of updated rows.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
-   * @throws DbException An exception that gets raised when the database connection/disconnection fails.
    */
-  int updateBook_returned(Integer bookId, String phoneNumber) throws DaoException, DbException;
+  int updateBook_returned(Integer bookId, String phoneNumber) throws DaoException;
 
   /**
    * Removes the user from the borrower
    * @param bookId Unique identifier for the book stored in the database.
    * @param phoneNumber Unique identifier for the user stored in the database.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
-   * @throws DbException An exception that gets raised when the database connection/disconnection fails.
    */
-  int updateBook_lost(Integer bookId, String phoneNumber) throws DaoException, DbException;
+  int updateBook_lost(Integer bookId, String phoneNumber) throws DaoException;
 
   /**
    * Replaces a book data to another one in the database.
@@ -107,9 +99,8 @@ public interface BookDao {
    * @param book  A new {@link com.example.demo.backend.custom.Dto.BookClass BookClass} data to be replaced with another in the database.
    * @return Returns the number of updated rows.
    * @throws DaoException An exception that gets raised when executing an SQL query fails.
-   * @throws DbException An exception that gets raised when the database connection/disconnection fails.
    */
-  int updateBook_data(Integer bookId, BookClass book) throws DaoException, DbException;
+  int updateBook_data(Integer bookId, BookClass book) throws DaoException;
 
 
   /**

@@ -12,7 +12,7 @@ import java.util.List;
 
 
 @Component
-public class JdbcBookUserDao extends JdbcDao {
+public class JdbcUserDao extends JdbcDao {
 
 
 
@@ -32,7 +32,7 @@ public class JdbcBookUserDao extends JdbcDao {
     return lu;
   }
 
-  public List<BookUser> insertBookUser(BookUser book) throws DaoException, DbException {
+  public List<BookUser> insertBookUser(BookUser book) throws DaoException {
     String query = "INSERT INTO book_user(familyName,firstName,phoneNumber) values(?, ?, ?) RETURNING *";
     List<Object> paramList = new ArrayList<Object>();
     paramList.add(book.getFamilyName());
@@ -44,6 +44,13 @@ public class JdbcBookUserDao extends JdbcDao {
     } catch (SQLException e) {
       throw new DaoException(e.getMessage());
     }
+  }
+
+  public int deleteBookUser(Integer userId) throws DaoException {
+    String query = "DELETE FROM book_user WHERE id = ?";
+    List<Object> paramList = new ArrayList<Object>();
+    paramList.add(userId);
+    return executeUpdate(query,paramList);
   }
 
 

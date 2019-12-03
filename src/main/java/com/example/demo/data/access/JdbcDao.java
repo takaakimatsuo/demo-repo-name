@@ -18,7 +18,7 @@ public abstract class JdbcDao {
   /**
    * Tries to connect to the database.
    * @return Connection object
-   * @throws DbException AN exception that raises when connecting/disconnecting from the database.
+   * @throws DbException An exception that raises when connecting/disconnecting from the database.
    */
   Connection connectToDB() throws DbException {
     String url = "jdbc:postgresql://ec2-174-129-253-169.compute-1.amazonaws.com/d9vsaknll1319";
@@ -39,7 +39,7 @@ public abstract class JdbcDao {
   /**
    * Tries to disconnect from the database.
    * @param con Connection object.
-   * @throws DbException AN exception that raises when connecting/disconnecting from the database.
+   * @throws DbException An exception that raises when connecting/disconnecting from the database.
    */
   void closeDB(Connection con) throws DbException {
     try {
@@ -92,9 +92,8 @@ public abstract class JdbcDao {
    *               The number of elements must equal to the number of ? in the query.
    * @return Query output as ResultSet
    * @throws DaoException An exception that raises when executing an SQL query.
-   * @throws DbException AN exception that raises when connecting/disconnecting from the database.
    */
-  ResultSet executeQuery(String query, List<Object> params) throws DaoException, DbException {
+  ResultSet executeQuery(String query, List<Object> params) throws DaoException {
     Connection con = null;
     try {
       con = connectToDB();
@@ -102,13 +101,10 @@ public abstract class JdbcDao {
       parameterMapper(pstmt, params);
       System.out.println("[INFO] Trying to safely execute query " + pstmt.toString());
       ResultSet rs = pstmt.executeQuery();
-      System.out.println("[INFO] Executed query: Outcome was" + rs);
+      System.out.println("[INFO] Executed query.");
       return rs;
     } catch (SQLException e) {
       e.printStackTrace();
-      System.out.println("[ERROR] e.getMessage = " + e.getMessage());
-      System.out.println("[ERROR] e.getSQLstate = " + e.getSQLState());
-      System.out.println("[ERROR] e.getCause = " + e.getCause());
       throw new DaoException(e.getMessage(),e.getCause(),e.getSQLState());
     } finally {
       closeDB(con);
@@ -124,9 +120,8 @@ public abstract class JdbcDao {
    * @param params A list of parameters to be inserted to the query.
    * @return The number of update rows.
    * @throws DaoException An exception that raises when executing an SQL query.
-   * @throws DbException AN exception that raises when connecting/disconnecting from the database.
    */
-  int executeUpdate(String query, List<Object> params) throws DaoException, DbException {
+  int executeUpdate(String query, List<Object> params) throws DaoException {
     Connection con = null;
     try {
       con = connectToDB();
@@ -134,16 +129,12 @@ public abstract class JdbcDao {
       parameterMapper(pstmt, params);
       System.out.println("[INFO] Trying to safely execute query " + pstmt.toString());
       int update = pstmt.executeUpdate();
-      System.out.println("[INFO] Executed query ");
+      System.out.println("[INFO] Executed query.");
       return update;
     } catch (SQLException e) {
       e.printStackTrace();
-      System.out.println("[ERROR] e.getMessage = " + e.getMessage());
-      System.out.println("[ERROR] e.getSQLstate = " + e.getSQLState());
-      System.out.println("[ERROR] e.getCause = " + e.getCause());
       throw new DaoException(e.getMessage(),e.getCause(), e.getSQLState());
     } finally {
-      //Close DB connection.
       closeDB(con);
     }
   }
@@ -155,22 +146,18 @@ public abstract class JdbcDao {
    * @param query Arbitrary sql query.
    * @return Query output as ResultSet
    * @throws DaoException An exception that raises when executing an SQL query.
-   * @throws DbException AN exception that raises when connecting/disconnecting from the database.
    */
-  ResultSet executeQuery(String query) throws DaoException, DbException {
+  ResultSet executeQuery(String query) throws DaoException{
     Connection con = null;
     try {
       con = connectToDB();
       PreparedStatement pstmt = con.prepareStatement(query);
       System.out.println("[INFO] Trying to safely execute query " + pstmt.toString());
       ResultSet rs = pstmt.executeQuery();
-      System.out.println("[INFO] Executed query : Outcome was" + rs);
+      System.out.println("[INFO] Executed query.");
       return rs;
     } catch (SQLException e) {
       e.printStackTrace();
-      System.out.println("[ERROR] e.getMessage = " + e.getMessage());
-      System.out.println("[ERROR] e.getSQLstate = " + e.getSQLState());
-      System.out.println("[ERROR] e.getCause = " + e.getCause());
       throw new DaoException(e.getMessage(),e.getCause(), e.getSQLState());
     } finally {
       closeDB(con);

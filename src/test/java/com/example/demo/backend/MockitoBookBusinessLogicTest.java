@@ -2,12 +2,11 @@ package com.example.demo.backend;
 
 import com.example.demo.backend.custom.Dto.*;
 import com.example.demo.backend.custom.exceptions.*;
-import com.example.demo.data.access.JdbcBookDao;
-import com.example.demo.data.access.JdbcBookUserDao;
 import com.example.demo.data.access.JdbcDao;
 import com.example.demo.data.access.SpringBookDao;
 import com.example.demo.data.access.custom.enums.BookStatus;
 import org.junit.Assert;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,33 +14,28 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.demo.backend.errorcodes.SqlErrorCodes.SQL_CODE_DUPLICATE_KEY_ERROR;
 import static com.example.demo.backend.messages.StaticBookMessages.*;
-import static com.example.demo.backend.messages.StaticUserMessages.USER_DUPLICATE;
-import static com.example.demo.backend.messages.StaticUserMessages.USER_INSERTED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-class MockitoDemoBusinessLogicTest {
+class MockitoBookBusinessLogicTest {
 
 
   @InjectMocks
-  DemoBusinessLogic dbl;
-
-  @Mock
-  JdbcBookDao dao;
-  //SpringBookDao dao;
+  BookBusinessLogic dbl;
 
 
   @Mock
-  JdbcBookUserDao udao;
+  //JdbcBookDao dao;
+  SpringBookDao dao;
+
 
   @Mock
   JdbcDao jdao;
@@ -50,7 +44,7 @@ class MockitoDemoBusinessLogicTest {
   @Nested
   class test1{
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link DemoBusinessLogic#getAllBooks()} method
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link BookBusinessLogic#getAllBooks()} method
      *  when there is no data returned from the Dao
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -58,22 +52,23 @@ class MockitoDemoBusinessLogicTest {
      */
     @DisplayName("全検索で本データが一つも存在しない場合")
     @Test
-    void getAllBooks_EMPTY() throws DbException, DaoException {
+    void getAllBooks_EMPTY() throws DbException, DaoException, BookException {
 
-      ResponseBooks expected = new ResponseBooks();
-      expected.getResponseHeader().setMessage(BOOK_NOT_FOUND);
+
+      BookException expected = new BookException(BOOK_NOT_FOUND);
 
       when(dao.getAllBooks()).thenReturn(new ArrayList<BookClass>());
 
-      ResponseBooks actual = dbl.getAllBooks();
-      verify(dao, times(1)).getAllBooks();
-      Assert.assertEquals(expected.getResponseHeader().getMessage(),actual.getResponseHeader().getMessage());
+      assertThrows(expected.getClass(), ()->{
+        dbl.getAllBooks();
+        verify(dao, times(1)).getAllBooks();
+      });
       //Assert.assertArrayEquals(expected, actual);
     }
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link DemoBusinessLogic#getAllBooks()}  method
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link BookBusinessLogic#getAllBooks()}  method
      *  when there is at least one data returned from the Dao
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -81,7 +76,7 @@ class MockitoDemoBusinessLogicTest {
      */
     @DisplayName("全検索で本データが存在する場合")
     @Test
-    void getAllBooks_OK() throws DbException, DaoException {
+    void getAllBooks_OK() throws DbException, DaoException, BookException {
 
       ResponseBooks expected = new ResponseBooks();
       expected.getResponseHeader().setMessage(BOOK_FOUND);
@@ -96,12 +91,13 @@ class MockitoDemoBusinessLogicTest {
     }
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link DemoBusinessLogic#getAllBooks()} method
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link BookBusinessLogic#getAllBooks()} method
      *  when there is a DbException thrown from the Dao
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
      * @throws DbException An exception that raises when the database connection/disconnection fails.
      */
+    @Disabled("SpringJdbcTemplateではDbExceptionは出ない")
     @DisplayName("本の全検索でDB例外が投げられる場合")
     @Test
     void getAllBooks_Db() throws DbException, DaoException {
@@ -114,7 +110,7 @@ class MockitoDemoBusinessLogicTest {
     }
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link DemoBusinessLogic#getAllBooks()} method
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link BookBusinessLogic#getAllBooks()} method
      *  when there is a DaoException thrown from the Dao
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -138,7 +134,7 @@ class MockitoDemoBusinessLogicTest {
   @Nested
   class test2{
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#removeBook(Integer)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#removeBook(Integer)},
      *  when the specified data does not exist.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -160,7 +156,7 @@ class MockitoDemoBusinessLogicTest {
     }
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#removeBook(Integer)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#removeBook(Integer)},
      *  when the specified data does exist.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -183,7 +179,7 @@ class MockitoDemoBusinessLogicTest {
     }
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#removeBook(Integer)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#removeBook(Integer)},
      *  when the method throws a DaoException.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -201,12 +197,13 @@ class MockitoDemoBusinessLogicTest {
     }
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#removeBook(Integer)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#removeBook(Integer)},
      *  when the method throws a DbException.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
      * @throws DbException An exception that raises when the database connection/disconnection fails.
      */
+    @Disabled("SpringJdbcTemplateではDbExceptionは出ない")
     @DisplayName("本の削除でDb例外が投げられる場合")
     @Test
     void removeBook_Db() throws DbException, DaoException {
@@ -226,7 +223,7 @@ class MockitoDemoBusinessLogicTest {
   @Nested
   class test3{
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#getBook(Integer)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#getBook(Integer)},
      *  when no data is found.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -248,7 +245,7 @@ class MockitoDemoBusinessLogicTest {
     }
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#getBook(Integer)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#getBook(Integer)},
      *  when a data is found.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -273,12 +270,13 @@ class MockitoDemoBusinessLogicTest {
     }
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#getBook(Integer)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#getBook(Integer)},
      *  when the DbException is thrown.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
      * @throws DbException An exception that raises when the database connection/disconnection fails.
      */
+    @Disabled("SpringJdbcTemplateではDbExceptionは出ない")
     @DisplayName("本の検索でDb例外が投げられる場合")
     @Test
     void getBook_Db() throws DbException, DaoException {
@@ -291,7 +289,7 @@ class MockitoDemoBusinessLogicTest {
     }
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#getBook(Integer)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#getBook(Integer)},
      *  when the DaoException is thrown.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -315,7 +313,7 @@ class MockitoDemoBusinessLogicTest {
   class test4{
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#addBook(BookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#addBook(BookClass)},
      *  when the data is correctly inserted to the database.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -334,7 +332,7 @@ class MockitoDemoBusinessLogicTest {
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#addBook(BookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#addBook(BookClass)},
      *  when the data is correctly inserted to the database.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -358,12 +356,13 @@ class MockitoDemoBusinessLogicTest {
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#addBook(BookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#addBook(BookClass)},
      *  when the DbException is thrown.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
      * @throws DbException An exception that raises when the database connection/disconnection fails.
      */
+    @Disabled("SpringJdbcTemplateではDbExceptionは出ない")
     @DisplayName("本の追加時にDb例外")
     @Test
     void addBook_Db() throws DbException, DaoException {
@@ -378,7 +377,7 @@ class MockitoDemoBusinessLogicTest {
     }
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#addBook(BookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#addBook(BookClass)},
      *  when the DaoException is thrown.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -406,7 +405,7 @@ class MockitoDemoBusinessLogicTest {
   class test5{
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#replaceBook(Integer, BookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#replaceBook(Integer, BookClass)},
      *  when the data is correctly replaced.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -455,6 +454,8 @@ class MockitoDemoBusinessLogicTest {
       verify(dao, times(1)).updateBook_data(anyInt(),isA(BookClass.class));
     }
 
+
+    @Disabled("SpringJdbcTemplateではDbExceptionは出ない")
     @DisplayName("本データの置き換えでDb例外")
     @Test
     void replaceBook_Db() throws DbException, DaoException {
@@ -494,7 +495,7 @@ class MockitoDemoBusinessLogicTest {
   class test6{
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
      *  when the data is correctly patched as borrowed.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -521,7 +522,7 @@ class MockitoDemoBusinessLogicTest {
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
      *  when the same book is already borrowed.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -548,7 +549,7 @@ class MockitoDemoBusinessLogicTest {
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
      *  when the book has no stock left.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -574,7 +575,7 @@ class MockitoDemoBusinessLogicTest {
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
      *  when the book doesn't exist.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -603,7 +604,7 @@ class MockitoDemoBusinessLogicTest {
   @Nested
   class test7{
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
      *  when the book is returned correclty
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -627,7 +628,7 @@ class MockitoDemoBusinessLogicTest {
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
      *  when the book being return but is not borrowed first of all.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -659,7 +660,7 @@ class MockitoDemoBusinessLogicTest {
   class test8 {
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
      *  when the book being lost but is not borrowed first of all.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -685,7 +686,7 @@ class MockitoDemoBusinessLogicTest {
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.DemoBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.DemoBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
      *  when the book being lost but is not borrowed first of all.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -713,80 +714,6 @@ class MockitoDemoBusinessLogicTest {
 
 
 
-
-
-
-  @DisplayName("ユーザの追加に関するテスト")
-  @Nested
-  class test9 {
-    @DisplayName("ユーザの追加")
-    @Test
-    void addUser() throws DbException, DaoException, UserException {
-
-      List<BookUser> list = new ArrayList<>();
-      BookUser user = new BookUser("Family","First","08011110000");
-      list.add(user);
-
-      when(udao.insertBookUser(user)).thenReturn(list);
-
-      ResponseUsers actual = dbl.addUser(user);
-      assertEquals(actual.getResponseHeader().getMessage(),USER_INSERTED);
-
-    }
-
-
-    @DisplayName("すでに登録されている電話番号を使い新たなユーザを追加")
-    @Test
-    void addUser_DUPLICATE() throws DbException, DaoException {
-
-      List<BookUser> list = new ArrayList<>();
-      BookUser user = new BookUser("Family","First","08011110000");
-      list.add(user);
-
-      DaoException fakeOutput = new DaoException("This is fake");
-      fakeOutput.setSqlCode(SQL_CODE_DUPLICATE_KEY_ERROR);
-
-      UserException expected = new UserException(USER_DUPLICATE);
-
-      when(udao.insertBookUser(user)).thenThrow(fakeOutput);
-
-      Throwable e = assertThrows(expected.getClass(), () -> {dbl.addUser(user);});
-      System.out.println("Thrown exception was: " + e.getClass());
-
-    }
-
-
-    @DisplayName("ユーザの追加時にDb例外")
-    @Test
-    void addUser_Dp() throws DbException, DaoException {
-
-      List<BookUser> list = new ArrayList<>();
-      BookUser user = new BookUser("Family","First","08011110000");
-      list.add(user);
-
-      DbException fakeOutput = new DbException("This is fake");
-      when(udao.insertBookUser(user)).thenThrow(fakeOutput);
-      Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.addUser(user);});
-      System.out.println("Thrown exception was: " + e.getClass());
-
-    }
-
-
-
-    @DisplayName("ユーザの追加時にDao例外")
-    @Test
-    void addUser_Dao() throws DbException, DaoException {
-
-      List<BookUser> list = new ArrayList<>();
-      BookUser user = new BookUser("Family","First","08011110000");
-      list.add(user);
-
-      DaoException fakeOutput = new DaoException("This is fake");
-      when(udao.insertBookUser(user)).thenThrow(fakeOutput);
-      Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.addUser(user);});
-
-    }
-  }
 
 
 

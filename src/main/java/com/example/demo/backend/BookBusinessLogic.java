@@ -13,26 +13,22 @@ import static com.example.demo.backend.messages.StaticBookMessages.BOOK_INSERTED
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_LOST;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_LOST_AND_DELETED;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NOT_EXISTING;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NOT_EXISTING_OR_IS_BORROWED;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NOT_FOUND;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NO_STOCK;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_RETURNED;
 import static com.example.demo.backend.messages.StaticBookMessages.UNEXPECTED;
 import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_FAILED_BOOK;
 import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_SUCCESS_BOOK;
-import static com.example.demo.backend.messages.StaticUserMessages.USER_DUPLICATE;
-import static com.example.demo.backend.messages.StaticUserMessages.USER_INSERTED;
+
 
 import com.example.demo.backend.custom.Dto.BookClass;
-import com.example.demo.backend.custom.Dto.BookUser;
 import com.example.demo.backend.custom.Dto.PatchBookClass;
 import com.example.demo.backend.custom.Dto.ResponseBooks;
-import com.example.demo.backend.custom.Dto.ResponseUsers;
 import com.example.demo.backend.custom.exceptions.BookException;
 import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.backend.custom.exceptions.DbException;
-import com.example.demo.backend.custom.exceptions.UserException;
 import com.example.demo.data.access.BookDao;
-import com.example.demo.data.access.JdbcBookUserDao;
 import com.example.demo.data.access.custom.enums.BookStatus;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +42,8 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public final class DemoBusinessLogic {
+public final class BookBusinessLogic {
   private ResponseBooks res;
-  private ResponseUsers ures;
 
   @Autowired
   @Qualifier("JdbcBookDao") //Based on standard JDBC.
@@ -56,8 +51,6 @@ public final class DemoBusinessLogic {
   private BookDao dao;
 
 
-  @Autowired
-  private JdbcBookUserDao udao;
 
   /**
    * Logic for searching all books stored in the bookshelf table.
@@ -66,20 +59,16 @@ public final class DemoBusinessLogic {
    * @throws DbException An exception that raises when the database connection/disconnection fails.
    * @throws BookException An exception that gets raised mainly due to logic error.
   */
-  public ResponseBooks getAllBooks() throws DaoException, DbException {
+  public ResponseBooks getAllBooks() throws DaoException, DbException, BookException {
     res = new ResponseBooks();
-    try {
-      List<BookClass> books = dao.getAllBooks();
-      if (books.isEmpty()) {
-        res.getResponseHeader().setMessage(BOOK_NOT_FOUND);
-      } else {
-        res.getResponseHeader().setMessage(BOOK_FOUND);
-      }
-      res.setBooks(books);
-      return res;
-    } catch (DbException | DaoException e) {
-      throw e;
+    List<BookClass> books = dao.getAllBooks();
+    if (books.isEmpty()) {
+      throw new BookException(BOOK_NOT_FOUND);
+    } else {
+      res.getResponseHeader().setMessage(BOOK_FOUND);
     }
+    res.setBooks(books);
+    return res;
   }
 
   /**
@@ -114,17 +103,15 @@ public final class DemoBusinessLogic {
    */
   public ResponseBooks getBook(Integer bookId) throws DaoException, DbException, BookException {
     res = new ResponseBooks();
-    try {
-      List<BookClass> books = dao.getBook(bookId);
-      if (books.size() == 0) {
-        throw new BookException(BOOK_NOT_EXISTING);
-      } else {
-        res.getResponseHeader().setMessage(BOOK_FOUND);
-      }
-      res.setBooks(books);
-    } catch (DaoException | DbException | BookException e) {
-      throw e;
+
+    List<BookClass> books = dao.getBook(bookId);
+    if (books.size() == 0) {
+      throw new BookException(BOOK_NOT_EXISTING);
+    } else {
+      res.getResponseHeader().setMessage(BOOK_FOUND);
     }
+    res.setBooks(books);
+
     return res;
   }
 
@@ -167,7 +154,6 @@ public final class DemoBusinessLogic {
    */
   public ResponseBooks updateBook(Integer bookId, PatchBookClass updStatus) throws DaoException, DbException, BookException {
     res = new ResponseBooks();
-    System.out.println(bookId + ", " + updStatus.getBorrower() + ", " + updStatus.getStatus());
     int action = updStatus.getStatus();//0 = Borrow, 1 = Return, 2 = Lost.
     BookStatus currentStatus = dao.checkBookStatus(bookId, updStatus.getBorrower());
 
@@ -224,8 +210,8 @@ public final class DemoBusinessLogic {
         return res;
       }
 
-    } catch (DaoException | DbException e) {
-      if (e instanceof DaoException && ((DaoException) e).getSqlCode().equals(SQL_CODE_DUPLICATE_KEY_ERROR)) {
+    } catch (DaoException e) {
+      if (e.getSqlCode().equals(SQL_CODE_DUPLICATE_KEY_ERROR)) {
         throw new BookException(BOOK_DUPLICATE);
       }
       throw e;
@@ -237,7 +223,7 @@ public final class DemoBusinessLogic {
     try {
       int updated = dao.updateBook_data(bookId, book);
       if (updated == 0) {
-        throw new BookException(BOOK_NOT_EXISTING);
+        throw new BookException(BOOK_NOT_EXISTING_OR_IS_BORROWED);
       } else {
         res.getResponseHeader().setMessage(UPDATE_SUCCESS_BOOK);
       }
@@ -252,25 +238,6 @@ public final class DemoBusinessLogic {
 
 
 
-
-
-
-
-
-  public ResponseUsers addUser(BookUser user) throws DaoException, DbException, UserException {
-    ures = new ResponseUsers();
-    try {
-      List<BookUser> users = udao.insertBookUser(user);
-      ures.setUsers(users);
-      ures.getResponseHeader().setMessage(USER_INSERTED);
-      return ures;
-    } catch (DaoException | DbException e) {
-      if (e instanceof DaoException && ((DaoException) e).getSqlCode().equals(SQL_CODE_DUPLICATE_KEY_ERROR)) {
-        throw new UserException(USER_DUPLICATE);
-      }
-      throw e;
-    }
-  }
 }
 
 

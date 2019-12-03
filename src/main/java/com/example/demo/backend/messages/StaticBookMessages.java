@@ -10,7 +10,7 @@ public class StaticBookMessages {
   public static String BOOK_LOST_AND_DELETED = "Reported lost book successfully. The book has been deleted as quantity became less than 0.";
   public static String BOOK_DELETED  = "Book deleted successfully";
   public static String BOOK_INSERTED = "New book inserted to database.";
-  public static String UPDATE_FAILED_NO_MATCH_BOOK = "Nothing updated. Wrong ID or the book is currently borrowed by someone.";
+  public static String BOOK_NOT_EXISTING_OR_IS_BORROWED = "Book does not exist, or is currently borrowed by someone and thus cannot be disturbed.";
   public static String UPDATE_SUCCESS_BOOK = "Book data successfully updated.";
   public static String UPDATE_FAILED_BOOK  = "Updating database failed.";
   public static String BOOK_NOT_EXISTING = "Book does not exist.";

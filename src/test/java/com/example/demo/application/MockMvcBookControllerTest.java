@@ -1,7 +1,6 @@
 package com.example.demo.application;
 
 import com.example.demo.backend.custom.Dto.ResponseBooks;
-import com.example.demo.backend.custom.Dto.ResponseUsers;
 import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.backend.custom.exceptions.DbException;
 import com.example.demo.data.access.BookDaoTest;
@@ -27,12 +26,22 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 
-import static com.example.demo.application.messages.StaticInputErrorMessages.*;
-import static com.example.demo.backend.messages.StaticBookMessages.*;
+import static com.example.demo.application.messages.StaticInputErrorMessages.INVALID_ID;
+import static com.example.demo.application.messages.StaticInputErrorMessages.NEGATIVE_PRICE;
+import static com.example.demo.application.messages.StaticInputErrorMessages.NEGATIVE_QUANTITY;
+import static com.example.demo.application.messages.StaticInputErrorMessages.ZERO_QUANTITY;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_BORROWED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_CANNOT_BE_LOST;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_CANNOT_BE_RETURNED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_DELETED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_DUPLICATE;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_INSERTED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_LOST_AND_DELETED;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NOT_EXISTING;
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_FOUND;
-import static com.example.demo.backend.messages.StaticUserMessages.USER_INSERTED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NOT_EXISTING_OR_IS_BORROWED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_RETURNED;
+import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_SUCCESS_BOOK;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -45,7 +54,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @AutoConfigureMockMvc
 @SpringBootTest
-class MockMvcDemoControllerTest {
+class MockMvcBookControllerTest {
 
   @Autowired
   private ObjectMapper objectMapper;
@@ -54,7 +63,7 @@ class MockMvcDemoControllerTest {
   private MockMvc mockMvc;
 
   @Autowired
-  DemoController controller;
+  BookController controller;
 
   @BeforeAll
   static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DbException, DaoException {
@@ -83,46 +92,6 @@ class MockMvcDemoControllerTest {
     System.out.println("contentAsString = " + contentAsString);
     return objectMapper.readValue(contentAsString, ResponseBooks.class);
   }
-
-  ResponseUsers acquireBodyAsResponseUsers(ResultActions result) throws UnsupportedEncodingException, JsonProcessingException {
-    MvcResult output = result.andReturn();
-    String contentAsString = output.getResponse().getContentAsString();
-    System.out.println("contentAsString = " + contentAsString);
-    return objectMapper.readValue(contentAsString, ResponseUsers.class);
-  }
-
-  @Nested
-  @DisplayName("ユーザの追加に関するテスト")
-  public class test1{
-
-    @DisplayName("正しいユーザの追加")
-    @Test
-    void postUserTest() throws Exception {
-      ResultActions result =  mockMvc.perform(post("/users")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content("{\"familyName\":\"mockDude\", \"firstName\":\"mockDude\", \"phoneNumber\":\"08044440011\"}"))
-        .andDo(print())
-        .andExpect(status().isOk());
-
-      ResponseUsers response = acquireBodyAsResponseUsers(result);
-      assertEquals(response.getResponseHeader().getMessage(),USER_INSERTED);
-    }
-
-    @DisplayName("携帯電話番号が間違ったフォーマットの状態でユーザの追加")
-    @Test
-    void postUserTest_WRONG_INPUT() throws Exception {
-      ResultActions result =  mockMvc.perform(post("/users")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content("{\"familyName\":\"mockDude\", \"firstName\":\"mockDude\", \"phoneNumber\":\"08041\"}"))
-        .andDo(print())
-        .andExpect(status().isBadRequest());
-
-      String errorMsg = acquireBodyAsErrorMessage(result);
-      assertEquals(errorMsg,INVALID_PHONENUMBER);
-    }
-
-  }
-
 
 
   @Nested
@@ -299,7 +268,7 @@ class MockMvcDemoControllerTest {
         .andDo(print())
         .andExpect(status().isOk());
 
-      ResponseUsers response = acquireBodyAsResponseUsers(result);
+      ResponseBooks response = acquireBodyAsResponseBooks(result);
       assertEquals(response.getResponseHeader().getMessage(),BOOK_BORROWED);
     }
 
@@ -313,7 +282,7 @@ class MockMvcDemoControllerTest {
         .andDo(print())
         .andExpect(status().isOk());
 
-      ResponseUsers response = acquireBodyAsResponseUsers(result);
+      ResponseBooks response = acquireBodyAsResponseBooks(result);
       assertEquals(response.getResponseHeader().getMessage(),BOOK_BORROWED);
     }
 
@@ -370,7 +339,7 @@ class MockMvcDemoControllerTest {
         .andDo(print())
         .andExpect(status().isOk());
 
-      ResponseUsers response = acquireBodyAsResponseUsers(result);
+      ResponseBooks response = acquireBodyAsResponseBooks(result);
       assertEquals(response.getResponseHeader().getMessage(),BOOK_BORROWED);
 
       ResultActions result2 =  mockMvc.perform(patch("/books/" + id)
@@ -379,7 +348,7 @@ class MockMvcDemoControllerTest {
         .andDo(print())
         .andExpect(status().isOk());
 
-      response = acquireBodyAsResponseUsers(result2);
+      response = acquireBodyAsResponseBooks(result2);
       assertEquals(response.getResponseHeader().getMessage(),BOOK_LOST_AND_DELETED);
     }
 
@@ -395,7 +364,7 @@ class MockMvcDemoControllerTest {
         .andDo(print())
         .andExpect(status().isOk());
 
-      ResponseUsers response = acquireBodyAsResponseUsers(result);
+      ResponseBooks response = acquireBodyAsResponseBooks(result);
       assertEquals(response.getResponseHeader().getMessage(),BOOK_BORROWED);
 
       ResultActions result2 =  mockMvc.perform(patch("/books/" + id)
@@ -404,7 +373,7 @@ class MockMvcDemoControllerTest {
         .andDo(print())
         .andExpect(status().isOk());
 
-      response = acquireBodyAsResponseUsers(result2);
+      response = acquireBodyAsResponseBooks(result2);
       assertEquals(response.getResponseHeader().getMessage(),BOOK_LOST_AND_DELETED);
     }
 
@@ -420,7 +389,7 @@ class MockMvcDemoControllerTest {
         .andDo(print())
         .andExpect(status().isOk());
 
-      ResponseUsers response = acquireBodyAsResponseUsers(result);
+      ResponseBooks response = acquireBodyAsResponseBooks(result);
       assertEquals(response.getResponseHeader().getMessage(),BOOK_BORROWED);
 
       ResultActions result2 =  mockMvc.perform(patch("/books/" + id)
@@ -429,7 +398,7 @@ class MockMvcDemoControllerTest {
         .andDo(print())
         .andExpect(status().isOk());
 
-      response = acquireBodyAsResponseUsers(result2);
+      response = acquireBodyAsResponseBooks(result2);
       assertEquals(response.getResponseHeader().getMessage(),BOOK_RETURNED);
     }
   }
@@ -448,7 +417,7 @@ class MockMvcDemoControllerTest {
         .andDo(print())
         .andExpect(status().isOk());
 
-      ResponseUsers response2 = acquireBodyAsResponseUsers(result2);
+      ResponseBooks response2 = acquireBodyAsResponseBooks(result2);
       assertEquals(response2.getResponseHeader().getMessage(),BOOK_DELETED);
     }
 
@@ -479,7 +448,7 @@ class MockMvcDemoControllerTest {
         .andDo(print())
         .andExpect(status().isOk());
 
-      ResponseUsers response = acquireBodyAsResponseUsers(result);
+      ResponseBooks response = acquireBodyAsResponseBooks(result);
       assertEquals(response.getResponseHeader().getMessage(),UPDATE_SUCCESS_BOOK);
     }
 
@@ -494,7 +463,7 @@ class MockMvcDemoControllerTest {
         .andExpect(status().isBadRequest());
 
       String errorMsg = acquireBodyAsErrorMessage(result);
-      assertEquals(errorMsg,BOOK_NOT_EXISTING);
+      assertEquals(errorMsg,BOOK_NOT_EXISTING_OR_IS_BORROWED);
     }
 
     @DisplayName("既に存在している本のタイトルでの置き換え")

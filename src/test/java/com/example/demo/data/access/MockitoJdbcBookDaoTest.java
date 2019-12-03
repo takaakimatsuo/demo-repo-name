@@ -4,6 +4,7 @@ import com.example.demo.backend.custom.Dto.BookClass;
 import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.backend.custom.exceptions.DbException;
 import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,11 +24,6 @@ import static org.mockito.Mockito.when;
 class JdbcBookDaoTest {
 
 
-  //@Mock private Connection mockConnection = mock(Connection.class);
-  //@Mock private PreparedStatement mockStatement = mock(PreparedStatement.class);
-  //@Mock private ResultSet resultSet = mock(ResultSet.class);
-  //@InjectMocks
-
   @Mock
   private PreparedStatement pstmt = mock(PreparedStatement.class);
 
@@ -40,8 +36,10 @@ class JdbcBookDaoTest {
   @InjectMocks
   private static JdbcBookDao dao = mock(JdbcBookDao.class);
 
-
-
+  @BeforeEach
+  void reinitializeMock(){
+    reset(dao);
+  }
 
 
 
@@ -69,36 +67,117 @@ class JdbcBookDaoTest {
   void updateBook_data() {
   }
 
-  @Test
-  void insertBook() {
+  @DisplayName("Daoによる本の削除に関するテスト")
+  @Nested
+  class insertBook {
+    @Test
+    void insertBook1() {
+    }
   }
 
-  @Test
-  void deleteBook() {
+  @DisplayName("Daoによる本の削除に関するテスト")
+  @Nested
+  class deleteBook1 {
+    @Test
+    @DisplayName("SQL実行の失敗")
+    void deleteBook1() throws DbException, DaoException {
+      int bookId = 1;
+      DaoException expected = new DaoException("This is fake");
+
+      when(dao.deleteBook(anyInt())).thenCallRealMethod();
+      when(dao.connectToDB()).thenReturn(mockConnection);
+      when(dao.executeUpdate(anyString(),anyList())).thenThrow(expected);
+      doNothing().when(dao).closeDB(isA(Connection.class));
+
+      Throwable e = assertThrows(expected.getClass(), () -> {
+        dao.deleteBook(bookId);
+        verify(dao, times(1)).deleteBook(anyInt());
+        verify(dao, times(1)).connectToDB();
+        verify(dao, times(1)).executeUpdate(anyString(),anyList());
+        verify(dao, times(1)).closeDB(isA(Connection.class));
+      });
+    }
+
+    @Test
+    @DisplayName("データベースへの接続失敗")
+    void deleteBook2() throws DbException, DaoException {
+
+    }
   }
+
+
+
+
 
   @DisplayName("Daoによる本の全検索に関するテスト")
   @Nested
   class getAllBooks {
     @Test
     @DisplayName("SQL実行の失敗")
-    void getAllBooks1() throws DbException, DaoException{
+    void getAllBooks1() throws DbException, DaoException {
       DaoException expected = new DaoException("This is fake");
 
-      reset(dao);
       when(dao.getAllBooks()).thenCallRealMethod();
       when(dao.connectToDB()).thenCallRealMethod();
-      when(dao.executeQuery(anyString(), anyList())).thenThrow(expected);
+      when(dao.executeQuery(anyString())).thenThrow(expected);
 
       Throwable e = assertThrows(expected.getClass(), () -> {
-        dao.getBook(0);
+        dao.getAllBooks();
         verify(dao, times(1)).getAllBooks();
         verify(dao, times(1)).connectToDB();
-        verify(dao, times(1)).executeQuery(anyString(),anyList());
+        verify(dao, times(1)).executeQuery(anyString());
         verify(dao, times(1)).closeDB(isA(Connection.class));
       });
     }
+
+    @Test
+    @DisplayName("データベースへの接続失敗")
+    void getAllBooks2() throws DbException, DaoException{
+      DbException expected = new DbException("This is fake");
+
+      when(dao.getAllBooks()).thenCallRealMethod();
+      when(dao.connectToDB()).thenThrow(expected);
+      when(dao.executeQuery(anyString())).thenCallRealMethod();
+
+      Throwable e = assertThrows(expected.getClass(), () -> {
+        dao.getAllBooks();
+        verify(dao, times(1)).getAllBooks();
+        verify(dao, times(1)).connectToDB();
+        verify(dao, times(1)).executeQuery(anyString());
+        verify(dao, times(1)).closeDB(isA(Connection.class));
+      });
+    }
+
+    @Ignore
+    @DisplayName("正しい本へのアクセス")
+    @Test
+    public void getAllBooks3() throws SQLException, DbException, DaoException {
+
+      when(dao.connectToDB()).thenCallRealMethod();
+      when(dao.getAllBooks()).thenCallRealMethod();
+      when(mockResultSet.getString("ID")).thenReturn("1");
+      when(mockResultSet.getString("TITLE")).thenReturn("MOCK");
+      when(mockResultSet.getString("QUANTITY")).thenReturn("1");
+      when(mockResultSet.getString("PRICE")).thenReturn("1");
+      when(mockResultSet.getString("URL")).thenReturn("https://mock.com");
+      when(mockResultSet.getString("BORROWEDBY")).thenReturn("{\"08011110000\",\"08011110001\"}");
+      when(dao.executeQuery(anyString())).thenReturn(mockResultSet);
+
+      dao.getAllBooks();
+      verify(dao, times(1)).getAllBooks();
+      verify(dao, times(1)).executeQuery(anyString());
+     }
   }
+
+
+
+
+
+
+
+
+
+
 
   @DisplayName("Daoによる本の検索に関するテスト")
   @Nested
@@ -108,12 +187,10 @@ class JdbcBookDaoTest {
     public void getBook1() throws DbException, DaoException {
       DaoException expected = new DaoException("This is fake");
 
-      reset(dao);
-
       when(dao.getBook(anyInt())).thenCallRealMethod();
-      when(dao.connectToDB()).thenCallRealMethod();
+      when(dao.connectToDB()).thenReturn(mockConnection);
       when(dao.executeQuery(anyString(), anyList())).thenThrow(expected);
-
+      doNothing().when(dao).closeDB(isA(Connection.class));
 
       Throwable e = assertThrows(expected.getClass(), () -> {
         dao.getBook(0);
@@ -130,11 +207,10 @@ class JdbcBookDaoTest {
     public void getBook2() throws SQLException, DbException, DaoException {
       DbException expected = new DbException("This is fake");
 
-      reset(dao);
-
       when(dao.connectToDB()).thenThrow(new DbException("This is fake"));
       when(dao.executeQuery(anyString(), anyList())).thenCallRealMethod();
       when(dao.getBook(anyInt())).thenCallRealMethod();
+
 
       Throwable e = assertThrows(expected.getClass(), () -> {
         dao.getBook(0);
@@ -150,9 +226,7 @@ class JdbcBookDaoTest {
     @Test
     public void getBook3() throws SQLException, DbException, DaoException {
 
-
-      reset(dao);
-      when(dao.connectToDB()).thenCallRealMethod();
+      when(dao.connectToDB()).thenReturn(mockConnection);
       when(dao.getBook(anyInt())).thenCallRealMethod();
       when(mockResultSet.getString("ID")).thenReturn("1");
       when(mockResultSet.getString("TITLE")).thenReturn("MOCK");
@@ -161,12 +235,11 @@ class JdbcBookDaoTest {
       when(mockResultSet.getString("URL")).thenReturn("https://mock.com");
       when(mockResultSet.getString("BORROWEDBY")).thenReturn("{\"08011110000\",\"08011110001\"}");
       when(dao.executeQuery(anyString(),anyList())).thenReturn(mockResultSet);
+      doNothing().when(dao).closeDB(isA(Connection.class));
 
       dao.getBook(1);
       verify(dao, times(1)).getBook(anyInt());
       verify(dao, times(1)).executeQuery(anyString(),anyList());
-      //verify(dao, times(1)).connectToDB(); //Mocked, thus skipped
-      //verify(dao, times(1)).closeDB(isA(Connection.class)); //Mocked, thus skipped
     }
   }
 

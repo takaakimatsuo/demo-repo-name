@@ -1,23 +1,18 @@
 package com.example.demo.application;
 
 import static com.example.demo.application.InputValidator.assureBookClass;
-import static com.example.demo.application.InputValidator.assureBookUser;
 import static com.example.demo.application.InputValidator.assureInteger;
 import static com.example.demo.application.InputValidator.assurePatchBookClass;
 import static com.example.demo.application.InputValidator.assurePositive;
 
-import com.example.demo.backend.DemoBusinessLogic;
+import com.example.demo.backend.BookBusinessLogic;
 import com.example.demo.backend.custom.Dto.BookClass;
-import com.example.demo.backend.custom.Dto.BookUser;
 import com.example.demo.backend.custom.Dto.PatchBookClass;
 import com.example.demo.backend.custom.Dto.ResponseBooks;
-import com.example.demo.backend.custom.Dto.ResponseHeader;
-import com.example.demo.backend.custom.Dto.ResponseUsers;
 import com.example.demo.backend.custom.exceptions.BookException;
 import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.backend.custom.exceptions.DbException;
 import com.example.demo.backend.custom.exceptions.InputFormatException;
-import com.example.demo.backend.custom.exceptions.UserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -35,10 +30,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-public class DemoController {
+public class BookController {
 
   @Autowired
-  DemoBusinessLogic dbl;
+  BookBusinessLogic dbl;
 
   /**
    * Takes care of Get requests with a single integer path-variable.
@@ -48,11 +43,11 @@ public class DemoController {
    */
   @CrossOrigin
   @GetMapping(value = "/books/{id}")
-  public ResponseBooks getBook(@PathVariable("id") String bookId) throws InputFormatException, DbException, DaoException, BookException {
+  public ResponseBooks getBook(@PathVariable("id") String bookId) throws InputFormatException, DaoException, BookException {
     ResponseBooks response;
     try {
       response = dbl.getBook(assurePositive(assureInteger(bookId)));
-    } catch (DaoException | InputFormatException | DbException | BookException e) {
+    } catch (DaoException | InputFormatException | BookException e) {
       e.printStackTrace();
       throw e;
     }
@@ -67,10 +62,10 @@ public class DemoController {
    */
   @CrossOrigin
   @GetMapping(value = "/books")
-  public ResponseBooks getBooks() throws DbException, DaoException {
+  public ResponseBooks getBooks() throws DaoException, BookException {
     try {
       return dbl.getAllBooks();
-    } catch (DaoException | DbException e) {
+    } catch (DaoException | BookException e) {
       e.printStackTrace();
       throw e;
     }
@@ -86,11 +81,11 @@ public class DemoController {
   */
   @CrossOrigin
   @PostMapping(value = "/books")
-  public ResponseBooks postBook(@RequestBody BookClass book) throws DaoException, InputFormatException, DbException, BookException {
+  public ResponseBooks postBook(@RequestBody BookClass book) throws DaoException, InputFormatException, BookException {
     ResponseBooks response = new ResponseBooks();
     try {
       response = dbl.addBook(assureBookClass(book));
-    } catch (InputFormatException | DaoException | DbException | BookException e) {
+    } catch (InputFormatException | DaoException | BookException e) {
       e.printStackTrace();
       throw e;
     }
@@ -107,11 +102,11 @@ public class DemoController {
    */
   @CrossOrigin
   @PutMapping(value = "/books/{id}")
-  public ResponseBooks putBook(@PathVariable("id") String bookId, @RequestBody BookClass newBookData) throws InputFormatException, DaoException, BookException, DbException {
+  public ResponseBooks putBook(@PathVariable("id") String bookId, @RequestBody BookClass newBookData) throws InputFormatException, DaoException, BookException {
     ResponseBooks response;
     try {
       response = dbl.replaceBook(assurePositive(assureInteger(bookId)),assureBookClass(newBookData));
-    } catch (InputFormatException |  DbException | DaoException | BookException e) {
+    } catch (InputFormatException | DaoException | BookException e) {
       e.printStackTrace();
       throw e;
     }
@@ -128,11 +123,11 @@ public class DemoController {
    */
   @CrossOrigin
   @PatchMapping(value = "/books/{id}")
-  public ResponseBooks patchBook(@PathVariable("id") String bookId, @RequestBody PatchBookClass patchData) throws InputFormatException, BookException, DaoException, DbException {
+  public ResponseBooks patchBook(@PathVariable("id") String bookId, @RequestBody PatchBookClass patchData) throws InputFormatException, BookException, DaoException {
     ResponseBooks response;
     try {
       response = dbl.updateBook(assurePositive(assureInteger(bookId)),assurePatchBookClass(patchData));
-    } catch (InputFormatException | DaoException | DbException | BookException e) {
+    } catch (InputFormatException | DaoException | BookException e) {
       //TODO
       e.printStackTrace();
       throw e;
@@ -148,11 +143,11 @@ public class DemoController {
    */
   @CrossOrigin
   @DeleteMapping(value = "/books/{id}")
-  public ResponseBooks deleteBook(@PathVariable("id") String bookId) throws DaoException, InputFormatException, DbException, BookException {
+  public ResponseBooks deleteBook(@PathVariable("id") String bookId) throws DaoException, InputFormatException, BookException {
     ResponseBooks response;
     try {
       response = dbl.removeBook(assurePositive(assureInteger(bookId)));
-    } catch (DaoException | InputFormatException | DbException | BookException e) {
+    } catch (DaoException | InputFormatException | BookException e) {
       throw e;
     }
     return response;
@@ -193,33 +188,6 @@ public class DemoController {
   }
 
 
-
-
-
-
-
-  /**
-   * Receiver for the Post request with no path-variable.
-   * This is used for inserting a new user data to the database.
-   * @param user A UserClass object to be inserted.
-   * @return A list of UserClass objects, with a ResponseHeader class.
-   * The list will hold the data of inserted user.
-   * Otherwise it is empty.
-   */
-  @CrossOrigin
-  @PostMapping(value = "/users")
-  public ResponseUsers postUser(@RequestBody BookUser user) throws DaoException, InputFormatException, DbException, UserException {
-    ResponseUsers response = new ResponseUsers();
-    try {
-      response = dbl.addUser(assureBookUser(user));
-    } catch (InputFormatException | DaoException | DbException | UserException e) {
-      //TODO
-      response.setResponseHeader(new ResponseHeader(e.getMessage()));
-      System.out.println(e.getMessage());
-      throw e;
-    }
-    return response;
-  }
 
 
 

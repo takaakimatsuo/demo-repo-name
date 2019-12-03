@@ -7,7 +7,6 @@ import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_FAILED
 import com.example.demo.backend.custom.Dto.BookClass;
 import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.data.access.custom.enums.BookStatus;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -24,11 +23,9 @@ public class SpringBookDao implements BookDao {
   @Autowired
   private JdbcTemplate jdbcTemplate;
 
-
-  /*
+  /**
   * Get all books stored in the bookshelf table.
-  * @param: None
-  * @return:  List<BookClass> list - A list of BookClass objects with the ResponseHeader class.
+  * @return  List<BookClass> list - A list of BookClass objects with the ResponseHeader class.
   */
   @Override
   public List<BookClass> getAllBooks() throws DaoException {
@@ -54,7 +51,6 @@ public class SpringBookDao implements BookDao {
     }
   }
 
-
   /**
    * Generates a DaoException from the SQLExcetion
    * @param sqlExc Raw SQLException
@@ -63,11 +59,6 @@ public class SpringBookDao implements BookDao {
   public DaoException createDaoException(SQLException sqlExc) {
     return new DaoException(sqlExc.getMessage(),sqlExc.getCause(),sqlExc.getSQLState());
   }
-
-  public DaoException createDaoException(DaoException e) {
-    return new DaoException(e.getMessage(),e.getCause());
-  }
-
 
   @Override
   public List<BookClass> getBook(Integer bookId) throws DaoException {
@@ -104,7 +95,7 @@ public class SpringBookDao implements BookDao {
         SQLException sqlEx = (SQLException) e.getRootCause();
         throw new DaoException(e.getMessage(),sqlEx.getCause(), sqlEx.getSQLState());
       }
-      throw e;
+      throw new DaoException(e.getMessage(),e.getCause());
     }
     return updated;
   }
@@ -114,7 +105,7 @@ public class SpringBookDao implements BookDao {
     try {
       return jdbcTemplate.update("DELETE FROM bookshelf WHERE id = ?", bookId);
     } catch (DataAccessException e) {
-      throw new DaoException(e.getLocalizedMessage());
+      throw new DaoException(e.getMessage(),e.getCause());
     }
   }
 
@@ -157,7 +148,7 @@ public class SpringBookDao implements BookDao {
           }
         }, bookId);
     } catch (DataAccessException e) {
-      throw new DaoException(e.getMessage());
+      throw new DaoException(e.getMessage(),e.getCause());
     }
     return available;
   }
@@ -176,11 +167,11 @@ public class SpringBookDao implements BookDao {
     try {
       return jdbcTemplate.update("UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?) WHERE id = ?", phoneNumber, bookId);
     } catch (DataAccessException e) {
-      if(e.getRootCause() instanceof SQLException) {
+      if (e.getRootCause() instanceof SQLException) {
         SQLException sqlEx = (SQLException) e.getRootCause();
         throw new DaoException(UPDATE_FAILED_BOOK,sqlEx.getCause(), sqlEx.getSQLState());
       }
-      throw e;
+      throw new DaoException(e.getMessage(),e.getCause());
     }
   }
 
@@ -193,7 +184,7 @@ public class SpringBookDao implements BookDao {
         SQLException sqlEx = (SQLException) e.getRootCause();
         throw new DaoException(UPDATE_FAILED_BOOK,sqlEx.getCause(), sqlEx.getSQLState());
       }
-      throw e;
+      throw new DaoException(e.getMessage(),e.getCause());
     }
   }
 
@@ -206,7 +197,7 @@ public class SpringBookDao implements BookDao {
         SQLException sqlEx = (SQLException) e.getRootCause();
         throw new DaoException(BOOK_DUPLICATE,sqlEx.getCause(), sqlEx.getSQLState());
       }
-      throw e;
+      throw new DaoException(e.getMessage(),e.getCause());
     }
   }
 }

@@ -1,6 +1,6 @@
 package com.example.demo.data.access;
 
-import com.example.demo.backend.DemoBusinessLogic;
+import com.example.demo.backend.BookBusinessLogic;
 import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.backend.custom.exceptions.DbException;
 import com.example.demo.backend.custom.Dto.BookClass;
@@ -15,9 +15,9 @@ public class BookDaoTest {
 
 
 
-    static JdbcBookUserDao userDao = new JdbcBookUserDao();
+    static JdbcUserDao userDao = new JdbcUserDao();
     static BookDao bookDao = new JdbcBookDao();
-    static DemoBusinessLogic dbl = new DemoBusinessLogic();
+    static BookBusinessLogic dbl = new BookBusinessLogic();
 
     public static void dropBookshelf() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String query = "DROP TABLE IF EXISTS bookshelf";
