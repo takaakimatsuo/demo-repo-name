@@ -10,15 +10,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.example.demo.DemoApplication.logger;
 import static com.example.demo.backend.messages.StaticBookMessages.DB_FAILED_CONNECTION;
 import static com.example.demo.backend.messages.StaticBookMessages.DB_FAILED_DISCONNECTION;
 
 public abstract class JdbcDao {
 
   /**
-   * Tries to connect to the database.
-   * @return Connection object
-   * @throws DbException An exception that raises when connecting/disconnecting from the database.
+   * Used for connecting to the database.
+   * @return Connection object, not {@code null}.
+   * @throws DbException if connection fails.
    */
   Connection connectToDB() throws DbException {
     String url = "jdbc:postgresql://ec2-174-129-253-169.compute-1.amazonaws.com/d9vsaknll1319";
@@ -28,28 +29,27 @@ public abstract class JdbcDao {
 
     try {
       Connection con = DriverManager.getConnection(url, user, password);
-      System.out.println("[INFO] Successfully connected to DB.");
+      logger.info("Successfully connected to DB.");
       return con;
     } catch (SQLException e) {
-      e.printStackTrace();
+      logger.error("Failed connecting to DB.");
       throw new DbException(DB_FAILED_CONNECTION);
     }
   }
 
   /**
-   * Tries to disconnect from the database.
-   * @param con Connection object.
-   * @throws DbException An exception that raises when connecting/disconnecting from the database.
+   * Used for disconnecting from the database.
+   * @param con Connection object, not {@code null}.
+   * @throws DbException if disconnection fails.
    */
   void closeDB(Connection con) throws DbException {
     try {
       if (con != null) {
-        System.out.println("[INFO] Closed DB connection.");
         con.close();
+        logger.info("Successfully closed DB connection.");
       }
     } catch (SQLException e) {
-      System.out.println("[ERR] Failed closing DB connection.");
-      e.printStackTrace();
+      logger.error("Failed closing DB connection.");
       throw new DbException(DB_FAILED_DISCONNECTION);
     }
   }
@@ -61,9 +61,9 @@ public abstract class JdbcDao {
   /**
    * Inserts the parameters into the PreparedStatement one by one.
    * Currently assumes that each parameter is either an Integer, String or Boolean.
-   * @param pstmt A raw PreparedStatement with no parameter inserted.
-   * @param params A list of parameters to be inserted to the statement.
-   * @throws DaoException An exception that raises when executing an SQL query.
+   * @param pstmt A raw PreparedStatement with no parameter inserted, not {@code null}.
+   * @param params A list of parameters to be inserted to the statement, not {@code null}.
+   * @throws DaoException if query execution fails.
    */
   void parameterMapper(PreparedStatement pstmt, List<Object> params) throws DaoException {
     try {
@@ -86,12 +86,10 @@ public abstract class JdbcDao {
 
   /**
    * Used for executing an arbitrary SQL query, with a given set of parameters.
-   * The process includes the database connection, query execution, and the database disconnection.
-   * @param query Arbitrary sql query.
-   * @param params A list of parameters to be inserted to the statement.
-   *               The number of elements must equal to the number of ? in the query.
-   * @return Query output as ResultSet
-   * @throws DaoException An exception that raises when executing an SQL query.
+   * @param query An arbitrary sql query, not {@code null}.
+   * @param params A list of parameters to be inserted to the statement, not {@code null}.
+   * @return The query output as ResultSet, not {@code null}.
+   * @throws DaoException if query execution fails.
    */
   ResultSet executeQuery(String query, List<Object> params) throws DaoException {
     Connection con = null;
@@ -99,9 +97,9 @@ public abstract class JdbcDao {
       con = connectToDB();
       PreparedStatement pstmt = con.prepareStatement(query);
       parameterMapper(pstmt, params);
-      System.out.println("[INFO] Trying to safely execute query " + pstmt.toString());
+      logger.info("Trying to safely execute query {}.", pstmt.toString());
       ResultSet rs = pstmt.executeQuery();
-      System.out.println("[INFO] Executed query.");
+      logger.info("Executed query.");
       return rs;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -115,11 +113,10 @@ public abstract class JdbcDao {
 
   /**
    * Used for executing an arbitrary SQL update, with a given set of parameters.
-   * The process includes the database connection, query execution, and the database disconnection.
-   * @param query Arbitrary sql query.
-   * @param params A list of parameters to be inserted to the query.
-   * @return The number of update rows.
-   * @throws DaoException An exception that raises when executing an SQL query.
+   * @param query An arbitrary sql query, not {@code null}.
+   * @param params A list of parameters to be inserted to the query, not {@code null}.
+   * @return The number of update rows, not {@code null}.
+   * @throws DaoException if query execution fails.
    */
   int executeUpdate(String query, List<Object> params) throws DaoException {
     Connection con = null;
@@ -127,9 +124,9 @@ public abstract class JdbcDao {
       con = connectToDB();
       PreparedStatement pstmt = con.prepareStatement(query);
       parameterMapper(pstmt, params);
-      System.out.println("[INFO] Trying to safely execute query " + pstmt.toString());
+      logger.info("Trying to safely execute query {}.", pstmt.toString());
       int update = pstmt.executeUpdate();
-      System.out.println("[INFO] Executed query.");
+      logger.info("Executed query.");
       return update;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -142,19 +139,18 @@ public abstract class JdbcDao {
 
   /**
    * Used for executing an arbitrary SQL query.
-   * The process includes the database connection, query execution, and the database disconnection.
-   * @param query Arbitrary sql query.
-   * @return Query output as ResultSet
-   * @throws DaoException An exception that raises when executing an SQL query.
+   * @param query An arbitrary sql query, not {@code null}.
+   * @return The query output as ResultSet, not {@code null}.
+   * @throws DaoException if query execution fails.
    */
-  ResultSet executeQuery(String query) throws DaoException{
+  ResultSet executeQuery(String query) throws DaoException {
     Connection con = null;
     try {
       con = connectToDB();
       PreparedStatement pstmt = con.prepareStatement(query);
-      System.out.println("[INFO] Trying to safely execute query " + pstmt.toString());
+      logger.info("Trying to safely execute query {}.", pstmt.toString());
       ResultSet rs = pstmt.executeQuery();
-      System.out.println("[INFO] Executed query.");
+      logger.info("Executed query.");
       return rs;
     } catch (SQLException e) {
       e.printStackTrace();

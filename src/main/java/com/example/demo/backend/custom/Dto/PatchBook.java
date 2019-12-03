@@ -1,14 +1,14 @@
 package com.example.demo.backend.custom.Dto;
 
-public class PatchBookClass {
+public class PatchBook {
   private String borrower;
   private int status;
 
-  public PatchBookClass(){
+  public PatchBook(){
 
   }
 
-  public PatchBookClass(String borrower, int status) {
+  public PatchBook(String borrower, int status) {
     this.borrower = borrower;
     this.status = status;
   }

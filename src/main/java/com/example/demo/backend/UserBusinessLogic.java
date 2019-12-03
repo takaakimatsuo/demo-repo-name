@@ -9,7 +9,7 @@ import static com.example.demo.backend.messages.StaticUserMessages.USER_INSERTED
 
 
 
-import com.example.demo.backend.custom.Dto.BookUser;
+import com.example.demo.backend.custom.Dto.User;
 import com.example.demo.backend.custom.Dto.ResponseUsers;
 import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.backend.custom.exceptions.DbException;
@@ -29,10 +29,10 @@ public class UserBusinessLogic {
   private ResponseUsers ures;
 
 
-  public ResponseUsers addUser(BookUser user) throws DaoException, DbException, UserException {
+  public ResponseUsers addUser(User user) throws DaoException, DbException, UserException {
     ures = new ResponseUsers();
     try {
-      List<BookUser> users = udao.insertBookUser(user);
+      List<User> users = udao.insertBookUser(user);
       ures.setUsers(users);
       ures.getResponseHeader().setMessage(USER_INSERTED);
       return ures;

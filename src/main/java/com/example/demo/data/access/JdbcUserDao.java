@@ -1,8 +1,7 @@
 package com.example.demo.data.access;
 
 import com.example.demo.backend.custom.exceptions.DaoException;
-import com.example.demo.backend.custom.exceptions.DbException;
-import com.example.demo.backend.custom.Dto.BookUser;
+import com.example.demo.backend.custom.Dto.User;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
@@ -17,13 +16,13 @@ public class JdbcUserDao extends JdbcDao {
 
 
 
-  private static List<BookUser> copyBookUserFromResultSet(ResultSet rs)throws SQLException {
-    List<BookUser> lu = new ArrayList<>();
+  private static List<User> copyBookUserFromResultSet(ResultSet rs)throws SQLException {
+    List<User> lu = new ArrayList<>();
     if (!rs.isBeforeFirst()) {
       return lu;
     }
     while (rs.next()) {
-      BookUser user = new BookUser();
+      User user = new User();
       user.setFamilyName(rs.getString("familyName"));
       user.setFirstName(rs.getString("firstName"));
       user.setFamilyName(rs.getString("phoneNumber"));
@@ -32,7 +31,7 @@ public class JdbcUserDao extends JdbcDao {
     return lu;
   }
 
-  public List<BookUser> insertBookUser(BookUser book) throws DaoException {
+  public List<User> insertBookUser(User book) throws DaoException {
     String query = "INSERT INTO book_user(familyName,firstName,phoneNumber) values(?, ?, ?) RETURNING *";
     List<Object> paramList = new ArrayList<Object>();
     paramList.add(book.getFamilyName());

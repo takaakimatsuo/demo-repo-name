@@ -16,9 +16,9 @@ import static com.example.demo.application.messages.StaticInputErrorMessages.URL
 import static com.example.demo.application.messages.StaticInputErrorMessages.USER_CLASS_NULL;
 import static com.example.demo.application.messages.StaticInputErrorMessages.ZERO_QUANTITY;
 
-import com.example.demo.backend.custom.Dto.BookClass;
-import com.example.demo.backend.custom.Dto.BookUser;
-import com.example.demo.backend.custom.Dto.PatchBookClass;
+import com.example.demo.backend.custom.Dto.Book;
+import com.example.demo.backend.custom.Dto.User;
+import com.example.demo.backend.custom.Dto.PatchBook;
 import com.example.demo.backend.custom.exceptions.InputFormatException;
 
 import java.util.regex.Matcher;
@@ -133,7 +133,7 @@ public class InputValidator {
   }
 
 
-  public static BookClass assureBookClassNames(BookClass book) throws InputFormatException {
+  public static Book assureBookClassNames(Book book) throws InputFormatException {
     if (book == null) {
       throw new InputFormatException(BOOK_CLASS_NULL);
     }
@@ -146,7 +146,7 @@ public class InputValidator {
   }
 
 
-  public static BookClass assureBookClass(BookClass book) throws InputFormatException {
+  public static Book assureBookClass(Book book) throws InputFormatException {
     if (book == null) {
       throw new InputFormatException(BOOK_CLASS_NULL);
     }
@@ -159,7 +159,7 @@ public class InputValidator {
   }
 
 
-  static BookUser assureBookUser(BookUser user) throws InputFormatException {
+  static User assureBookUser(User user) throws InputFormatException {
     if (user == null) {
       throw new InputFormatException(USER_CLASS_NULL);
     }
@@ -175,7 +175,7 @@ public class InputValidator {
   }
 
 
-  public static PatchBookClass assurePatchBookClass(PatchBookClass book) throws InputFormatException {
+  public static PatchBook assurePatchBookClass(PatchBook book) throws InputFormatException {
     if (book == null) {
       throw new InputFormatException(PATCHBOOK_CLASS_NULL);
     }

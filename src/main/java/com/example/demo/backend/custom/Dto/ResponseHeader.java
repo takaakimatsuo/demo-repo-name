@@ -4,10 +4,6 @@ public class ResponseHeader {
 
   private String message;
 
-  public ResponseHeader(String msg) {
-    this.message = msg;
-  }
-
   ResponseHeader() {
     this.message = "Blank message";
   }

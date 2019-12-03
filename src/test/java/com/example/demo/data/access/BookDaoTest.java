@@ -3,8 +3,8 @@ package com.example.demo.data.access;
 import com.example.demo.backend.BookBusinessLogic;
 import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.backend.custom.exceptions.DbException;
-import com.example.demo.backend.custom.Dto.BookClass;
-import com.example.demo.backend.custom.Dto.BookUser;
+import com.example.demo.backend.custom.Dto.Book;
+import com.example.demo.backend.custom.Dto.User;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -89,7 +89,7 @@ public class BookDaoTest {
             {"Shota", "Nagayama","00000000002"}};
 
         for(String[] user: users){
-            BookUser test = new BookUser(user[0], user[1], user[2]);
+            User test = new User(user[0], user[1], user[2]);
             userDao.insertBookUser(test);
         }
 
@@ -113,7 +113,7 @@ public class BookDaoTest {
             {"無料の本","12","1","https://cheap.example.com"}};
 
         for(String[] book: books){
-            BookClass test = new BookClass(book[0],Integer.parseInt(book[1]),book[3],Integer.parseInt(book[2]));
+            Book test = new Book(book[0],Integer.parseInt(book[1]),book[3],Integer.parseInt(book[2]));
             bookDao.insertBook(test);
         }
 

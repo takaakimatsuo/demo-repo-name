@@ -1,16 +1,16 @@
 package com.example.demo.backend.custom.Dto;
 
-public class BookUser {
+public class User {
   private String familyName = "";
   private String firstName = "";
   private String phoneNumber = "";
 
 
-  public BookUser(){
+  public User(){
 
   }
 
-  public BookUser(String familyName, String firstName, String phoneNumber) {
+  public User(String familyName, String firstName, String phoneNumber) {
     setPhoneNumber(phoneNumber);
     setFirstName(firstName);
     setFamilyName(familyName);

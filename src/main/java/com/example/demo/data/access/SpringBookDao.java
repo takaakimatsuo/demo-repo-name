@@ -4,7 +4,7 @@ import static com.example.demo.backend.messages.StaticBookMessages.BOOK_DUPLICAT
 import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NO_STOCK;
 import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_FAILED_BOOK;
 
-import com.example.demo.backend.custom.Dto.BookClass;
+import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.data.access.custom.enums.BookStatus;
 import java.sql.ResultSet;
@@ -28,11 +28,11 @@ public class SpringBookDao implements BookDao {
   * @return  List<BookClass> list - A list of BookClass objects with the ResponseHeader class.
   */
   @Override
-  public List<BookClass> getAllBooks() throws DaoException {
+  public List<Book> getAllBooks() throws DaoException {
     try {
-      return jdbcTemplate.query("SELECT * FROM bookshelf", new RowMapper<BookClass>() {
-        public BookClass mapRow(ResultSet rs, int rowNum) throws SQLException {
-          BookClass book = new BookClass();
+      return jdbcTemplate.query("SELECT * FROM bookshelf", new RowMapper<Book>() {
+        public Book mapRow(ResultSet rs, int rowNum) throws SQLException {
+          Book book = new Book();
           book.setId(rs.getInt("ID"));
           book.setTitle(rs.getString("TITLE"));
           book.setPrice(rs.getInt("PRICE"));
@@ -61,11 +61,11 @@ public class SpringBookDao implements BookDao {
   }
 
   @Override
-  public List<BookClass> getBook(Integer bookId) throws DaoException {
+  public List<Book> getBook(Integer bookId) throws DaoException {
     try {
-      return jdbcTemplate.query("select * from bookshelf where id = ?", new RowMapper<BookClass>() {
-        public BookClass mapRow(ResultSet rs, int rowNum) throws SQLException {
-          BookClass book = new BookClass();
+      return jdbcTemplate.query("select * from bookshelf where id = ?", new RowMapper<Book>() {
+        public Book mapRow(ResultSet rs, int rowNum) throws SQLException {
+          Book book = new Book();
           book.setId(rs.getInt("ID"));
           book.setTitle(rs.getString("TITLE"));
           book.setPrice(rs.getInt("PRICE"));
@@ -85,7 +85,7 @@ public class SpringBookDao implements BookDao {
   }
 
   @Override
-  public int insertBook(BookClass book) throws DaoException {
+  public int insertBook(Book book) throws DaoException {
     int updated;
     try {
       updated = jdbcTemplate.update("INSERT INTO bookshelf(title,price,quantity,url) values(?, ?, ?, ?)"
@@ -113,9 +113,9 @@ public class SpringBookDao implements BookDao {
   @Override
   public BookStatus checkBookStatus(Integer bookId, String phoneNumber) throws DaoException {
     BookStatus st = BookStatus.UNKNOWN;
-    List<BookClass> customers = jdbcTemplate.query("select borrowedby from bookshelf where id = ?", new RowMapper<BookClass>() {
-      public BookClass mapRow(ResultSet rs, int rowNum) throws SQLException {
-        BookClass book = new BookClass();
+    List<Book> customers = jdbcTemplate.query("select borrowedby from bookshelf where id = ?", new RowMapper<Book>() {
+      public Book mapRow(ResultSet rs, int rowNum) throws SQLException {
+        Book book = new Book();
         book.setBorrowedBy(splitStringIntoArray(rs.getString("BORROWEDBY"), ",", new String[]{"\"", "}", "{"}));
         return book;
       }
@@ -189,7 +189,7 @@ public class SpringBookDao implements BookDao {
   }
 
   @Override
-  public int updateBook_data(Integer bookId, BookClass book) throws DaoException {
+  public int updateBook_data(Integer bookId, Book book) throws DaoException {
     try {
       return jdbcTemplate.update("UPDATE bookshelf SET title = ?, price = ?, url = ?, quantity = ? where id = ? AND borrowedBy = \'{}\'", book.getTitle(), book.getPrice(), book.getUrl(), book.getQuantity(), bookId);
     } catch (DataAccessException e) {

@@ -9,17 +9,17 @@ import java.util.List;
 public class ResponseUsers {
 
 
-  private List<BookUser> users = new ArrayList<BookUser>();
+  private List<User> users = new ArrayList<User>();
   private ResponseHeader header = new ResponseHeader();
 
   public ResponseUsers() {
   }
 
-  public List<BookUser> getUsers() {
+  public List<User> getUsers() {
     return users;
   }
 
-  public void setUsers(List<BookUser> users) {
+  public void setUsers(List<User> users) {
     this.users = users;
   }
 

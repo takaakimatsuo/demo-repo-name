@@ -1,28 +1,49 @@
 package com.example.demo.backend;
 
-import com.example.demo.backend.custom.Dto.*;
-import com.example.demo.backend.custom.exceptions.*;
+
+import com.example.demo.backend.custom.Dto.Book;
+import com.example.demo.backend.custom.Dto.PatchBook;
+import com.example.demo.backend.custom.Dto.ResponseBooks;
+import com.example.demo.backend.custom.exceptions.BookException;
+import com.example.demo.backend.custom.exceptions.DaoException;
+import com.example.demo.backend.custom.exceptions.DbException;
 import com.example.demo.data.access.JdbcDao;
 import com.example.demo.data.access.SpringBookDao;
 import com.example.demo.data.access.custom.enums.BookStatus;
 import org.junit.Assert;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.demo.DemoApplication.logger;
 import static com.example.demo.backend.errorcodes.SqlErrorCodes.SQL_CODE_DUPLICATE_KEY_ERROR;
-import static com.example.demo.backend.messages.StaticBookMessages.*;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_BORROWED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_CANNOT_BE_DOUBLE_BORROWED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_CANNOT_BE_LOST;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_CANNOT_BE_RETURNED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_DELETED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_DUPLICATE;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_FOUND;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_INSERTED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_LOST_AND_DELETED;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NOT_EXISTING;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NOT_FOUND;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_NO_STOCK;
+import static com.example.demo.backend.messages.StaticBookMessages.BOOK_RETURNED;
+import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_SUCCESS_BOOK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.isA;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 class MockitoBookBusinessLogicTest {
@@ -57,7 +78,7 @@ class MockitoBookBusinessLogicTest {
 
       BookException expected = new BookException(BOOK_NOT_FOUND);
 
-      when(dao.getAllBooks()).thenReturn(new ArrayList<BookClass>());
+      when(dao.getAllBooks()).thenReturn(new ArrayList<Book>());
 
       assertThrows(expected.getClass(), ()->{
         dbl.getAllBooks();
@@ -81,8 +102,8 @@ class MockitoBookBusinessLogicTest {
       ResponseBooks expected = new ResponseBooks();
       expected.getResponseHeader().setMessage(BOOK_FOUND);
 
-      List<BookClass> fakeList = new ArrayList<>();
-      fakeList.add(new BookClass("title", 1000,"https://fake.com",10));
+      List<Book> fakeList = new ArrayList<>();
+      fakeList.add(new Book("title", 1000,"https://fake.com",10));
       when(dao.getAllBooks()).thenReturn(fakeList);
 
       ResponseBooks actual = dbl.getAllBooks();
@@ -95,18 +116,15 @@ class MockitoBookBusinessLogicTest {
      *  when there is a DbException thrown from the Dao
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
-     * @throws DbException An exception that raises when the database connection/disconnection fails.
      */
-    @Disabled("SpringJdbcTemplateではDbExceptionは出ない")
     @DisplayName("本の全検索でDB例外が投げられる場合")
     @Test
-    void getAllBooks_Db() throws DbException, DaoException {
+    void getAllBooks_Db() throws DaoException {
 
-      Throwable fakeOutput = new DbException("This is fake");
+      Throwable fakeOutput = new DaoException("This is fake");
       when(dao.getAllBooks()).thenThrow(fakeOutput);
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.getAllBooks();});
       verify(dao, times(1)).getAllBooks();
-      System.out.println("Thrown exception was: " + e.getClass());
     }
 
     /**
@@ -124,7 +142,6 @@ class MockitoBookBusinessLogicTest {
       when(dao.getAllBooks()).thenThrow(fakeOutput);
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.getAllBooks();});
       verify(dao, times(1)).getAllBooks();
-      System.out.println("Thrown exception was: " + e.getClass());
     }
 
   }
@@ -201,14 +218,12 @@ class MockitoBookBusinessLogicTest {
      *  when the method throws a DbException.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
-     * @throws DbException An exception that raises when the database connection/disconnection fails.
      */
-    @Disabled("SpringJdbcTemplateではDbExceptionは出ない")
     @DisplayName("本の削除でDb例外が投げられる場合")
     @Test
-    void removeBook_Db() throws DbException, DaoException {
+    void removeBook_Db() throws DaoException {
       int id = 1;
-      Throwable fakeOutput = new DbException("This is fake");
+      Throwable fakeOutput = new DaoException("This is fake");
       when(dao.deleteBook(id)).thenThrow(fakeOutput);
 
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.removeBook(id);});
@@ -241,7 +256,6 @@ class MockitoBookBusinessLogicTest {
 
       Throwable e = assertThrows(expected.getClass(), () -> {dbl.getBook(id);});
       verify(dao, times(1)).getBook(anyInt());
-      System.out.println("Thrown exception was: " + e.getClass());
     }
 
     /**
@@ -259,8 +273,8 @@ class MockitoBookBusinessLogicTest {
       ResponseBooks expected = new ResponseBooks();
       expected.getResponseHeader().setMessage(BOOK_FOUND);
 
-      List<BookClass> fakeList = new ArrayList<>();
-      fakeList.add(new BookClass("title", 1000,"https://fake.com",10));
+      List<Book> fakeList = new ArrayList<>();
+      fakeList.add(new Book("title", 1000,"https://fake.com",10));
       when(dao.getBook(id)).thenReturn(fakeList);
 
       ResponseBooks actual = dbl.getBook(id);
@@ -274,14 +288,12 @@ class MockitoBookBusinessLogicTest {
      *  when the DbException is thrown.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
-     * @throws DbException An exception that raises when the database connection/disconnection fails.
      */
-    @Disabled("SpringJdbcTemplateではDbExceptionは出ない")
     @DisplayName("本の検索でDb例外が投げられる場合")
     @Test
-    void getBook_Db() throws DbException, DaoException {
+    void getBook_Db() throws DaoException {
       int id = 1;
-      Throwable fakeOutput = new DbException("This is fake");
+      Throwable fakeOutput = new DaoException("This is fake");
       when(dao.getBook(id)).thenThrow(fakeOutput);
 
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.getBook(id);});
@@ -313,7 +325,7 @@ class MockitoBookBusinessLogicTest {
   class test4{
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#addBook(BookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#addBook(Book)},
      *  when the data is correctly inserted to the database.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -322,17 +334,17 @@ class MockitoBookBusinessLogicTest {
     @DisplayName("本の追加")
     @Test
     void addBook() throws DbException, DaoException, BookException {
-      BookClass book = new BookClass("newTitle",1000,"https://fake.com",10);
+      Book book = new Book("newTitle",1000,"https://fake.com",10);
       when(dao.insertBook(book)).thenReturn(1);
 
       ResponseBooks actual = dbl.addBook(book);
-      verify(dao, times(1)).insertBook(isA(BookClass.class));
+      verify(dao, times(1)).insertBook(isA(Book.class));
       assertEquals(actual.getResponseHeader().getMessage(),BOOK_INSERTED);
     }
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#addBook(BookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#addBook(Book)},
      *  when the data is correctly inserted to the database.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -341,7 +353,7 @@ class MockitoBookBusinessLogicTest {
     @DisplayName("すでに登録されている本の追加")
     @Test
     void addBook_DUPLICATE() throws DbException, DaoException {
-      BookClass book = new BookClass("newTitle",1000,"https://fake.com",10);
+      Book book = new Book("newTitle",1000,"https://fake.com",10);
 
       DaoException fakeOutput = new DaoException("This is fake");
       fakeOutput.setSqlCode(SQL_CODE_DUPLICATE_KEY_ERROR);
@@ -351,33 +363,31 @@ class MockitoBookBusinessLogicTest {
       BookException expected = new BookException("This is fake");
 
       Throwable e = assertThrows(expected.getClass(), () -> {dbl.addBook(book);});
-      verify(dao, times(1)).insertBook(isA(BookClass.class));
+      verify(dao, times(1)).insertBook(isA(Book.class));
     }
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#addBook(BookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#addBook(Book)},
      *  when the DbException is thrown.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
-     * @throws DbException An exception that raises when the database connection/disconnection fails.
      */
-    @Disabled("SpringJdbcTemplateではDbExceptionは出ない")
     @DisplayName("本の追加時にDb例外")
     @Test
-    void addBook_Db() throws DbException, DaoException {
-      BookClass book = new BookClass("newTitle",1000,"https://fake.com",10);
+    void addBook_Db() throws DaoException {
+      Book book = new Book("newTitle",1000,"https://fake.com",10);
 
-      DbException fakeOutput = new DbException("This is fake");
+      DaoException fakeOutput = new DaoException("This is fake");
 
       when(dao.insertBook(book)).thenThrow(fakeOutput);
 
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.addBook(book);});
-      verify(dao, times(1)).insertBook(isA(BookClass.class));
+      verify(dao, times(1)).insertBook(isA(Book.class));
     }
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#addBook(BookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#addBook(Book)},
      *  when the DaoException is thrown.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -386,14 +396,14 @@ class MockitoBookBusinessLogicTest {
     @DisplayName("本の追加時にDao例外")
     @Test
     void addBook_Dao() throws DbException, DaoException {
-      BookClass book = new BookClass("newTitle",1000,"https://fake.com",10);
+      Book book = new Book("newTitle",1000,"https://fake.com",10);
 
       DaoException fakeOutput = new DaoException("This is fake");
 
       when(dao.insertBook(book)).thenThrow(fakeOutput);
 
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.addBook(book);});
-      verify(dao, times(1)).insertBook(isA(BookClass.class));
+      verify(dao, times(1)).insertBook(isA(Book.class));
     }
 
   }
@@ -405,7 +415,7 @@ class MockitoBookBusinessLogicTest {
   class test5{
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#replaceBook(Integer, BookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#replaceBook(Integer, Book)},
      *  when the data is correctly replaced.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -415,10 +425,10 @@ class MockitoBookBusinessLogicTest {
     @Test
     void replaceBook() throws DbException, DaoException, BookException {
       Integer bookId = 1;
-      BookClass book = new BookClass("newTitle",1000,"https://fake.com",10);
+      Book book = new Book("newTitle",1000,"https://fake.com",10);
       when(dao.updateBook_data(bookId,book)).thenReturn(1);
       ResponseBooks actual = dbl.replaceBook(bookId,book);
-      verify(dao, times(1)).updateBook_data(anyInt(),isA(BookClass.class));
+      verify(dao, times(1)).updateBook_data(anyInt(),isA(Book.class));
       assertEquals(actual.getResponseHeader().getMessage(), UPDATE_SUCCESS_BOOK);
     }
 
@@ -426,7 +436,7 @@ class MockitoBookBusinessLogicTest {
     @Test
     void replaceBook_DUPLICATE() throws DbException, DaoException {
       Integer bookId = 0;
-      BookClass book = new BookClass("newTitle",1000,"https://fake.com",10);
+      Book book = new Book("newTitle",1000,"https://fake.com",10);
 
       DaoException fakeOutput = new DaoException("This is fake");
       fakeOutput.setSqlCode(SQL_CODE_DUPLICATE_KEY_ERROR);
@@ -436,7 +446,7 @@ class MockitoBookBusinessLogicTest {
       BookException expected = new BookException(BOOK_DUPLICATE);
 
       Throwable e = assertThrows(expected.getClass(), () -> {dbl.replaceBook(bookId,book);});
-      verify(dao, times(1)).updateBook_data(anyInt(),isA(BookClass.class));
+      verify(dao, times(1)).updateBook_data(anyInt(),isA(Book.class));
       assertEquals(e.getMessage(),expected.getMessage());
     }
 
@@ -444,44 +454,44 @@ class MockitoBookBusinessLogicTest {
     @Test
     void replaceBook_NOT_EXISTING() throws DbException, DaoException {
       Integer bookId = 0;
-      BookClass book = new BookClass("newTitle",1000,"https://fake.com",10);
+      Book book = new Book("newTitle",1000,"https://fake.com",10);
 
       when(dao.updateBook_data(bookId,book)).thenReturn(0);
 
       BookException expected = new BookException(BOOK_NOT_EXISTING);
 
       Throwable e = assertThrows(expected.getClass(), () -> {dbl.replaceBook(bookId,book);});
-      verify(dao, times(1)).updateBook_data(anyInt(),isA(BookClass.class));
+      verify(dao, times(1)).updateBook_data(anyInt(),isA(Book.class));
     }
 
 
-    @Disabled("SpringJdbcTemplateではDbExceptionは出ない")
+
     @DisplayName("本データの置き換えでDb例外")
     @Test
-    void replaceBook_Db() throws DbException, DaoException {
+    void replaceBook_Db() throws DaoException {
       Integer bookId = 0;
-      BookClass book = new BookClass("newTitle",1000,"https://fake.com",10);
-
-      DbException fakeOutput = new DbException("This is fake");
-
-      when(dao.updateBook_data(bookId,book)).thenThrow(fakeOutput);
-
-      Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.replaceBook(bookId,book);});
-      verify(dao, times(1)).updateBook_data(anyInt(),isA(BookClass.class));
-    }
-
-    @DisplayName("本データの置き換えでDao例外")
-    @Test
-    void replaceBook_Dao() throws DbException, DaoException {
-      Integer bookId = 0;
-      BookClass book = new BookClass("newTitle",1000,"https://fake.com",10);
+      Book book = new Book("newTitle",1000,"https://fake.com",10);
 
       DaoException fakeOutput = new DaoException("This is fake");
 
       when(dao.updateBook_data(bookId,book)).thenThrow(fakeOutput);
 
       Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.replaceBook(bookId,book);});
-      verify(dao, times(1)).updateBook_data(anyInt(),isA(BookClass.class));
+      verify(dao, times(1)).updateBook_data(anyInt(),isA(Book.class));
+    }
+
+    @DisplayName("本データの置き換えでDao例外")
+    @Test
+    void replaceBook_Dao() throws DaoException {
+      Integer bookId = 0;
+      Book book = new Book("newTitle",1000,"https://fake.com",10);
+
+      DaoException fakeOutput = new DaoException("This is fake");
+
+      when(dao.updateBook_data(bookId,book)).thenThrow(fakeOutput);
+
+      Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.replaceBook(bookId,book);});
+      verify(dao, times(1)).updateBook_data(anyInt(),isA(Book.class));
     }
 
   }
@@ -495,7 +505,7 @@ class MockitoBookBusinessLogicTest {
   class test6{
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBook)},
      *  when the data is correctly patched as borrowed.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -505,7 +515,7 @@ class MockitoBookBusinessLogicTest {
     @DisplayName("本を正しく借りることができた場合")
     void updateBook_BORROWED() throws DbException, DaoException, BookException {
       //TODO
-      PatchBookClass book = new PatchBookClass();
+      PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
       book.setStatus(0);//Borrow
@@ -522,7 +532,7 @@ class MockitoBookBusinessLogicTest {
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBook)},
      *  when the same book is already borrowed.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -532,7 +542,7 @@ class MockitoBookBusinessLogicTest {
     @DisplayName("同じ本を既に借りている時に、また借りようとした場合")
     void updateBook_BORROWED_AGAIN() throws DbException, DaoException, BookException {
       //TODO
-      PatchBookClass book = new PatchBookClass();
+      PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
       book.setStatus(0);//Borrow
@@ -549,7 +559,7 @@ class MockitoBookBusinessLogicTest {
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBook)},
      *  when the book has no stock left.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -558,7 +568,7 @@ class MockitoBookBusinessLogicTest {
     @Test
     @DisplayName("本の借り出しを行うための在庫がない場合")
     void updateBook_NO_STOCK() throws DbException, DaoException, BookException {
-      PatchBookClass book = new PatchBookClass();
+      PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
       book.setStatus(0);//Borrow
@@ -575,7 +585,7 @@ class MockitoBookBusinessLogicTest {
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBook)},
      *  when the book doesn't exist.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -584,7 +594,7 @@ class MockitoBookBusinessLogicTest {
     @Test
     @DisplayName("存在しない本を借りようとする場合")
     void updateBook_NO_() throws DbException, DaoException, BookException {
-      PatchBookClass book = new PatchBookClass();
+      PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
       book.setStatus(0);//Borrow
@@ -604,7 +614,7 @@ class MockitoBookBusinessLogicTest {
   @Nested
   class test7{
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBook)},
      *  when the book is returned correclty
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -613,7 +623,7 @@ class MockitoBookBusinessLogicTest {
     @Test
     @DisplayName("本の正しい返却")
     void updateBook_RETURN() throws DbException, DaoException, BookException {
-      PatchBookClass book = new PatchBookClass();
+      PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
       book.setStatus(1);//Return
@@ -628,7 +638,7 @@ class MockitoBookBusinessLogicTest {
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBook)},
      *  when the book being return but is not borrowed first of all.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -637,7 +647,7 @@ class MockitoBookBusinessLogicTest {
     @Test
     @DisplayName("借りていない本の返却")
     void updateBook_RETURN_NOT_BORROWED() throws DbException, DaoException, BookException {
-      PatchBookClass book = new PatchBookClass();
+      PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
       book.setStatus(1);//Return
@@ -660,7 +670,7 @@ class MockitoBookBusinessLogicTest {
   class test8 {
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBook)},
      *  when the book being lost but is not borrowed first of all.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -669,7 +679,7 @@ class MockitoBookBusinessLogicTest {
     @Test
     @DisplayName("借りていない本の紛失")
     void updateBook_LOST_NOT_BORROWED() throws DbException, DaoException, BookException {
-      PatchBookClass book = new PatchBookClass();
+      PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
       book.setStatus(2);//LOST
@@ -686,7 +696,7 @@ class MockitoBookBusinessLogicTest {
 
 
     /**
-     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBookClass)},
+     * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link com.example.demo.backend.BookBusinessLogic#updateBook(Integer, PatchBook)},
      *  when the book being lost but is not borrowed first of all.
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
@@ -695,14 +705,14 @@ class MockitoBookBusinessLogicTest {
     @Test
     @DisplayName("正しい本の紛失、および削除")
     void updateBook_LOST() throws DbException, DaoException, BookException {
-      PatchBookClass book = new PatchBookClass();
+      PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
       book.setStatus(2);//LOST
       Integer bookId = 1;
       when(dao.checkBookStatus(bookId,borrower)).thenReturn(BookStatus.BOOK_BORROWED_BY_THIS_USER);
-      List<BookClass> fakeList = new ArrayList<>();
-      fakeList.add(new BookClass("title", 1000,"https://fake.com",0));
+      List<Book> fakeList = new ArrayList<>();
+      fakeList.add(new Book("title", 1000,"https://fake.com",0));
       when(dao.getBook(bookId)).thenReturn(fakeList);
       ResponseBooks actual = dbl.updateBook(bookId, book);
       verify(dao, times(1)).checkBookStatus(anyInt(),anyString());

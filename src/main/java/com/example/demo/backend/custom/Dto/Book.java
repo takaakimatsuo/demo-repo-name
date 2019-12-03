@@ -3,7 +3,7 @@ package com.example.demo.backend.custom.Dto;
 import org.springframework.stereotype.Component;
 
 @Component
-public class BookClass {
+public class Book {
   private int id;
   private String title = "";
   private int price = 0;
@@ -11,11 +11,11 @@ public class BookClass {
   private int quantity = 1;
   private String[] borrowedBy = {};
 
-  public BookClass(){
+  public Book(){
 
   }
 
-  public BookClass(String title, int price, String url, int quantity, String[] borrowedBy) {
+  public Book(String title, int price, String url, int quantity, String[] borrowedBy) {
     setTitle(title);
     setPrice(price);
     setUrl(url);
@@ -23,7 +23,7 @@ public class BookClass {
     setBorrowedBy(borrowedBy);
   }
 
-  public BookClass(String title, int price, String url, int quantity) {
+  public Book(String title, int price, String url, int quantity) {
     setTitle(title);
     setPrice(price);
     setUrl(url);

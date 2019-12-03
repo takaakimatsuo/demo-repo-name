@@ -1,15 +1,28 @@
 package com.example.demo.application;
 
 import com.example.demo.backend.UserBusinessLogic;
-import com.example.demo.backend.custom.Dto.BookUser;
-import com.example.demo.backend.custom.Dto.ResponseHeader;
+import com.example.demo.backend.custom.Dto.User;
 import com.example.demo.backend.custom.Dto.ResponseUsers;
-import com.example.demo.backend.custom.exceptions.*;
+import com.example.demo.backend.custom.exceptions.BookException;
+import com.example.demo.backend.custom.exceptions.DaoException;
+import com.example.demo.backend.custom.exceptions.InputFormatException;
+import com.example.demo.backend.custom.exceptions.UserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-import static com.example.demo.application.InputValidator.*;
+import static com.example.demo.DemoApplication.logger;
+import static com.example.demo.application.InputValidator.assureBookUser;
+import static com.example.demo.application.InputValidator.assureInteger;
+import static com.example.demo.application.InputValidator.assurePositive;
 
 
 @RestController
@@ -28,12 +41,12 @@ public class UserController {
    */
   @CrossOrigin
   @PostMapping(value = "/users")
-  public ResponseUsers postUser(@RequestBody BookUser user) throws DaoException, InputFormatException, UserException {
+  public ResponseUsers postUser(@RequestBody User user) throws DaoException, InputFormatException, UserException {
     ResponseUsers response = new ResponseUsers();
     try {
       response = dbl.addUser(assureBookUser(user));
     } catch (InputFormatException | DaoException | UserException e) {
-      e.printStackTrace();
+      logger.error("Error in getBook() in BookController.java: ",e);
       throw e;
     }
     return response;
@@ -48,12 +61,12 @@ public class UserController {
    */
   @CrossOrigin
   @DeleteMapping(value = "/users/{id}")
-  public ResponseUsers deleteUser(@PathVariable("id") String userId) throws DaoException, InputFormatException, DbException, UserException {
+  public ResponseUsers deleteUser(@PathVariable("id") String userId) throws DaoException, InputFormatException, UserException {
     ResponseUsers response = new ResponseUsers();
     try {
       response = dbl.removeUser(assurePositive(assureInteger(userId)));
     } catch (InputFormatException | DaoException | UserException e) {
-      e.printStackTrace();
+      logger.error("Error in getBook() in BookController.java: ",e);
       throw e;
     }
     return response;
@@ -61,13 +74,6 @@ public class UserController {
 
 
 
-
-  @ExceptionHandler({DbException.class})
-  @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-  @ResponseBody
-  public String handleException(DbException e) {
-    return e.getMessage();
-  }
 
   @ExceptionHandler({DaoException.class})
   @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)

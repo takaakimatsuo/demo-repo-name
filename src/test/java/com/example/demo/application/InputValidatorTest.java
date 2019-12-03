@@ -1,8 +1,8 @@
 package com.example.demo.application;
 
-import com.example.demo.backend.custom.Dto.BookClass;
-import com.example.demo.backend.custom.Dto.BookUser;
-import com.example.demo.backend.custom.Dto.PatchBookClass;
+import com.example.demo.backend.custom.Dto.Book;
+import com.example.demo.backend.custom.Dto.User;
+import com.example.demo.backend.custom.Dto.PatchBook;
 import com.example.demo.backend.custom.exceptions.InputFormatException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -139,19 +139,19 @@ class InputValidatorTest {
 
   @DisplayName("assureBookClassNames()に関するテスト")
   @Nested
-  class assureBookClassNames {
+  class assureBookNames {
     @DisplayName("正しい引数の場合")
     @Test
     void assureBookClassNames1() throws InputFormatException {
-      BookClass expected = new BookClass("Title",0,"https://example.com",1);
-      BookClass actual = assureBookClassNames(expected);
+      Book expected = new Book("Title",0,"https://example.com",1);
+      Book actual = assureBookClassNames(expected);
       assertEquals(expected,actual);
     }
 
     @DisplayName("Nullが引数の場合")
     @Test
     void assureBookClassNames2() throws InputFormatException {
-      BookClass example = null;
+      Book example = null;
       Throwable e = assertThrows(InputFormatException.class, () -> {assureBookClassNames(example);});
       assertEquals(e.getMessage(),BOOK_CLASS_NULL);
     }
@@ -163,35 +163,36 @@ class InputValidatorTest {
     @DisplayName("正しい引数の場合")
     @Test
     void assureBookUser1() throws InputFormatException {
-      BookUser expected = new BookUser("damilyName","firstName","08000001111");
-      BookUser actual = assureBookUser(expected);
+      User expected = new User("damilyName","firstName","08000001111");
+      User actual = assureBookUser(expected);
       assertEquals(expected,actual);
     }
 
     @DisplayName("Nullが引数の場合")
     @Test
     void assureBookUser2() throws InputFormatException {
-      BookUser example = null;
-      Throwable e = assertThrows(InputFormatException.class, () -> {BookUser actual = assureBookUser(example);});
+      User example = null;
+      Throwable e = assertThrows(InputFormatException.class, () -> {
+        User actual = assureBookUser(example);});
       assertEquals(e.getMessage(),USER_CLASS_NULL);
     }
   }
 
   @Nested
   @DisplayName("PatchBookClass()に関するテスト")
-  class assurePatchBookClass {
+  class assurePatchBook {
     @DisplayName("正しい引数の場合")
     @Test
     void assurePatchBookClass1() throws InputFormatException {
-      PatchBookClass expected = new PatchBookClass("08011110000",0);
-      PatchBookClass actual = assurePatchBookClass(expected);
+      PatchBook expected = new PatchBook("08011110000",0);
+      PatchBook actual = assurePatchBookClass(expected);
       assertEquals(expected,actual);
     }
 
     @DisplayName("間違った電話番号がはいった引数の場合")
     @Test
     void assurePatchBookClass2() throws InputFormatException {
-      PatchBookClass expected = new PatchBookClass("08010",0);
+      PatchBook expected = new PatchBook("08010",0);
       Throwable e = assertThrows(InputFormatException.class, () -> { assurePatchBookClass(expected);});
       assertEquals(e.getMessage(),INVALID_PHONENUMBER);
     }
@@ -199,7 +200,7 @@ class InputValidatorTest {
     @DisplayName("間違ったステータスがはいった引数の場合")
     @Test
     void assurePatchBookClass3() throws InputFormatException {
-      PatchBookClass expected = new PatchBookClass("08011110000",5);
+      PatchBook expected = new PatchBook("08011110000",5);
       Throwable e = assertThrows(InputFormatException.class, () -> { assurePatchBookClass(expected);});
       assertEquals(e.getMessage(),INVALID_STATUS);
     }
@@ -207,7 +208,7 @@ class InputValidatorTest {
     @DisplayName("Nullが引数の場合")
     @Test
     void assurePatchBookClass4() throws InputFormatException {
-      PatchBookClass expected = null;
+      PatchBook expected = null;
       Throwable e = assertThrows(InputFormatException.class, () -> {assurePatchBookClass(expected);});
       assertEquals(e.getMessage(),PATCHBOOK_CLASS_NULL);
     }

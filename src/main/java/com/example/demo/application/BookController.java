@@ -1,17 +1,17 @@
 package com.example.demo.application;
 
+import static com.example.demo.DemoApplication.logger;
 import static com.example.demo.application.InputValidator.assureBookClass;
 import static com.example.demo.application.InputValidator.assureInteger;
 import static com.example.demo.application.InputValidator.assurePatchBookClass;
 import static com.example.demo.application.InputValidator.assurePositive;
 
 import com.example.demo.backend.BookBusinessLogic;
-import com.example.demo.backend.custom.Dto.BookClass;
-import com.example.demo.backend.custom.Dto.PatchBookClass;
+import com.example.demo.backend.custom.Dto.Book;
+import com.example.demo.backend.custom.Dto.PatchBook;
 import com.example.demo.backend.custom.Dto.ResponseBooks;
 import com.example.demo.backend.custom.exceptions.BookException;
 import com.example.demo.backend.custom.exceptions.DaoException;
-import com.example.demo.backend.custom.exceptions.DbException;
 import com.example.demo.backend.custom.exceptions.InputFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 public class BookController {
 
@@ -36,10 +35,13 @@ public class BookController {
   BookBusinessLogic dbl;
 
   /**
-   * Takes care of Get requests with a single integer path-variable.
-   * This is used for acquiring a single book data from the database.
-   * @param bookId Unique identifier for the book stored in the database.
-   * @return A list of BookClass objects, with a ResponseHeader class. The list will be kept empty if no results were found.
+   * Used for acquiring a single book data from the database, specified with an ID.
+   * @param bookId Unique identifier for the book to be searched, not {@code null}.
+   * @return A list of searched {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+   * with a ResponseHeader class, not {@code null}.
+   * @throws DaoException if query execution fails.
+   * @throws InputFormatException if user input is wrong.
+   * @throws BookException if logic fails.
    */
   @CrossOrigin
   @GetMapping(value = "/books/{id}")
@@ -48,7 +50,7 @@ public class BookController {
     try {
       response = dbl.getBook(assurePositive(assureInteger(bookId)));
     } catch (DaoException | InputFormatException | BookException e) {
-      e.printStackTrace();
+      logger.error("Error in getBook() in BookController.java: ",e);
       throw e;
     }
     return response;
@@ -56,9 +58,12 @@ public class BookController {
 
 
   /**
-   * Takes care of Get requests with no path-variable.
-   * This is used for acquiring the whole book data from the database.
-   * @return A list of BookClass objects, with a ResponseHeader class. The list will be kept empty if no results were found.
+   * Used for acquiring the entire book data from the database.
+   * @return A list of searched {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+   * with a ResponseHeader class, not {@code null}.
+   * @throws DaoException if query execution fails.
+   * @throws InputFormatException if user input is wrong.
+   * @throws BookException if logic fails.
    */
   @CrossOrigin
   @GetMapping(value = "/books")
@@ -66,80 +71,87 @@ public class BookController {
     try {
       return dbl.getAllBooks();
     } catch (DaoException | BookException e) {
-      e.printStackTrace();
+      logger.error("Error in getBook() in BookController.java: ",e);
       throw e;
     }
   }
 
   /**
-  * Takes care of Post requests with no path-variable.
-  * This is used for inserting a new book data to the database.
-  * @param book A BookClass object to be inserted.
-  * @return A list of BookClass objects, with a ResponseHeader class.
-  * The list will hold the data of inserted book.
-  * Otherwise it is empty.
+  * Used for inserting a new book data to the database.
+  * @param book The {@link com.example.demo.backend.custom.Dto.Book Book} object to be inserted, not {@code null}.
+  * @return An empty list of {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+  * with a ResponseHeader class, not {@code null}.
+  * @throws DaoException if query execution fails.
+  * @throws InputFormatException if user input is wrong.
+  * @throws BookException if logic fails.
   */
   @CrossOrigin
   @PostMapping(value = "/books")
-  public ResponseBooks postBook(@RequestBody BookClass book) throws DaoException, InputFormatException, BookException {
+  public ResponseBooks postBook(@RequestBody Book book) throws DaoException, InputFormatException, BookException {
     ResponseBooks response = new ResponseBooks();
     try {
       response = dbl.addBook(assureBookClass(book));
     } catch (InputFormatException | DaoException | BookException e) {
-      e.printStackTrace();
+      logger.error("Error in postBook() in BookController.java: ",e);
       throw e;
     }
     return response;
   }
 
   /**
-   * Takes care of Put requests with a single integer path-variable.
-   * This is used for replacing the book data to a new one, followed by an identifier.
-   * @param bookId Unique identifier for the book stored in the database.
-   * @param newBookData A BookClass that is ought to be replaced with another data inside the database.
-   * @return A list of BookClass objects, with a ResponseHeader class. The list will hold the data of replaced book.
-   * Otherwise it is empty.
+   * Used for replacing a book data to a new one, specified by an ID.
+   * @param bookId Unique identifier for the book stored in the database, not {@code null}.
+   * @param newBookData A new {@link com.example.demo.backend.custom.Dto.Book Book} object.
+   * @return An empty list of {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+   * with a ResponseHeader class, not {@code null}.
+   * @throws DaoException if query execution fails.
+   * @throws InputFormatException if user input is wrong.
+   * @throws BookException if logic fails.
    */
   @CrossOrigin
   @PutMapping(value = "/books/{id}")
-  public ResponseBooks putBook(@PathVariable("id") String bookId, @RequestBody BookClass newBookData) throws InputFormatException, DaoException, BookException {
+  public ResponseBooks putBook(@PathVariable("id") String bookId, @RequestBody Book newBookData) throws InputFormatException, DaoException, BookException {
     ResponseBooks response;
     try {
       response = dbl.replaceBook(assurePositive(assureInteger(bookId)),assureBookClass(newBookData));
     } catch (InputFormatException | DaoException | BookException e) {
-      e.printStackTrace();
+      logger.error("Error in putBook() in BookController.java: ",e);
       throw e;
     }
     return response;
   }
 
   /**
-   * Takes care of Patch requests with a single integer path-variable.
-   * This is used for replacing the book data to a new one, specified with an id.
-   * The book title must also be unique.
-   * @param bookId Unique identifier for the book stored in the database.
-   * @param patchData Update data for the book.
-   * @return An empty list of BookClass objects, with a ResponseHeader class.
+   * Used for updating the status of the book.
+   * @param bookId Unique identifier for the book stored in the database, not {@code null}.
+   * @param patchData Update data for the book, not {@code null}.
+   * @return An empty list of {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+   * with a ResponseHeader class, not {@code null}.
+   * @throws DaoException if query execution fails.
+   * @throws InputFormatException if user input is wrong.
+   * @throws BookException if logic fails.
    */
   @CrossOrigin
   @PatchMapping(value = "/books/{id}")
-  public ResponseBooks patchBook(@PathVariable("id") String bookId, @RequestBody PatchBookClass patchData) throws InputFormatException, BookException, DaoException {
+  public ResponseBooks patchBook(@PathVariable("id") String bookId, @RequestBody PatchBook patchData) throws InputFormatException, BookException, DaoException {
     ResponseBooks response;
     try {
       response = dbl.updateBook(assurePositive(assureInteger(bookId)),assurePatchBookClass(patchData));
     } catch (InputFormatException | DaoException | BookException e) {
-      //TODO
-      e.printStackTrace();
+      logger.error("Error in patchBook() in BookController.java: ",e);
       throw e;
     }
     return response;
   }
 
   /**
-   * Takes care of Delete requests with a single integer path-variable.
-   * This is used for deleting a book data from the database.
-   * @param bookId Unique identifier for the book stored in the database.
-   * @return An empty list of BookClass objects, with a ResponseHeader class.
+   * Used for deleting a book data from the database.
+   * @param bookId Unique identifier for the book stored in the database, not {@code null}.
+   * @return An empty list of {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+   * with a ResponseHeader class, not {@code null}.
+   * @throws DaoException if query execution fails.
+   * @throws InputFormatException if user input is wrong.
+   * @throws BookException if logic fails.
    */
   @CrossOrigin
   @DeleteMapping(value = "/books/{id}")
@@ -148,6 +160,7 @@ public class BookController {
     try {
       response = dbl.removeBook(assurePositive(assureInteger(bookId)));
     } catch (DaoException | InputFormatException | BookException e) {
+      logger.error("Error in deleteBook() in BookController.java: ",e);
       throw e;
     }
     return response;
@@ -155,13 +168,6 @@ public class BookController {
 
 
 
-
-  @ExceptionHandler({DbException.class})
-  @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-  @ResponseBody
-  public String handleException(DbException e) {
-    return e.getMessage();
-  }
 
   @ExceptionHandler({DaoException.class})
   @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)

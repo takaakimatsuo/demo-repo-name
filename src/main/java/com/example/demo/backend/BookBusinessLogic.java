@@ -22,8 +22,8 @@ import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_FAILED
 import static com.example.demo.backend.messages.StaticBookMessages.UPDATE_SUCCESS_BOOK;
 
 
-import com.example.demo.backend.custom.Dto.BookClass;
-import com.example.demo.backend.custom.Dto.PatchBookClass;
+import com.example.demo.backend.custom.Dto.Book;
+import com.example.demo.backend.custom.Dto.PatchBook;
 import com.example.demo.backend.custom.Dto.ResponseBooks;
 import com.example.demo.backend.custom.exceptions.BookException;
 import com.example.demo.backend.custom.exceptions.DaoException;
@@ -54,14 +54,13 @@ public final class BookBusinessLogic {
 
   /**
    * Logic for searching all books stored in the bookshelf table.
-   * @return Returns a list of BookClass objects, with the ResponseHeader class.
-   * @throws DaoException An exception that raises when executing an SQL query fails.
-   * @throws DbException An exception that raises when the database connection/disconnection fails.
-   * @throws BookException An exception that gets raised mainly due to logic error.
+   * @return Returns a list of Book objects, with the ResponseHeader class, not {@code null}.
+   * @throws DaoException if query execution fails.
+   * @throws BookException if query logic fails.
   */
   public ResponseBooks getAllBooks() throws DaoException, DbException, BookException {
     res = new ResponseBooks();
-    List<BookClass> books = dao.getAllBooks();
+    List<Book> books = dao.getAllBooks();
     if (books.isEmpty()) {
       throw new BookException(BOOK_NOT_FOUND);
     } else {
@@ -72,14 +71,11 @@ public final class BookBusinessLogic {
   }
 
   /**
-   * Logic for removing a specified book from the bookshelf table.
-   *  This method does not check whether the book exists in the database beforehand,
-   *  but executes the query anyway and checks how many rows in the database has been updated afterwards.
+   *  Logic for removing a specified book from the bookshelf table.
    *  @param bookId Identifier of a book, not {@code null}
-   *  @return Returns an empty list of BookClass objects, with the ResponseHeader class.
-   *  @throws DaoException An exception that raises when executing an SQL query fails.
-   *  @throws DbException An exception that raises when the database connection/disconnection fails.
-   *  @throws BookException An exception that gets raised mainly due to logic error.
+   *  @return Returns an empty list of BookClass objects, with the ResponseHeader class, not {@code null}.
+   *  @throws DaoException if query execution fails.
+   *  @throws BookException if query logic fails.
    */
   public ResponseBooks removeBook(Integer bookId) throws DaoException, DbException, BookException {
     res = new ResponseBooks();
@@ -97,14 +93,13 @@ public final class BookBusinessLogic {
    *  @param bookId Identifier of a book.
    *  @return Returns a list containing a single BookClass object, with a ResponseHeader class.
    *  The list will be kept empty if no matching data has been found.
-   *  @throws DaoException An exception that raises when executing an SQL query fails.
-   *  @throws DbException An exception that raises when the database connection/disconnection fails.
-   *  @throws BookException An exception that gets raised mainly due to logic error.
+   * @throws DaoException if query execution fails.
+   * @throws BookException if query logic fails.
    */
   public ResponseBooks getBook(Integer bookId) throws DaoException, DbException, BookException {
     res = new ResponseBooks();
 
-    List<BookClass> books = dao.getBook(bookId);
+    List<Book> books = dao.getBook(bookId);
     if (books.size() == 0) {
       throw new BookException(BOOK_NOT_EXISTING);
     } else {
@@ -120,7 +115,7 @@ public final class BookBusinessLogic {
    *  @param currentStatus enum representing the current book status. It is either not existing, already borrowed by the same user, or available.
    *  @param requestedStatus Users requested status {0:borrow, 1:return, 2:report lost
    *  @return Returns the inputted requestedStatus directly.
-   *  @throws BookException An exception that gets raised when there is a contradiction between the user's action and the state recognized by the system.
+   * @throws BookException if query logic fails.
    */
   private int validateUserBookRelation(BookStatus currentStatus, int requestedStatus) throws BookException {
     System.out.println("Current Status = " + currentStatus.toString());
@@ -148,11 +143,10 @@ public final class BookBusinessLogic {
    * @param bookId Identifier of a book.
    * @param updStatus Describes the user, and the user's action
    * @return An empty list of BookClass objects, with a ResponseHeader class.
-   * @throws DaoException An exception that gets raised when executing an SQL query fails.
-   * @throws DbException An exception that gets raised when the database connection/disconnection fails.
-   * @throws BookException An exception that gets raised mainly due to logic error.
+   * @throws DaoException if query execution fails.
+   * @throws BookException if query logic fails.
    */
-  public ResponseBooks updateBook(Integer bookId, PatchBookClass updStatus) throws DaoException, DbException, BookException {
+  public ResponseBooks updateBook(Integer bookId, PatchBook updStatus) throws DaoException, DbException, BookException {
     res = new ResponseBooks();
     int action = updStatus.getStatus();//0 = Borrow, 1 = Return, 2 = Lost.
     BookStatus currentStatus = dao.checkBookStatus(bookId, updStatus.getBorrower());
@@ -177,7 +171,7 @@ public final class BookBusinessLogic {
       case 2: {
         //Lost
         dao.updateBook_lost(bookId,updStatus.getBorrower());
-        List<BookClass> book = dao.getBook(bookId);
+        List<Book> book = dao.getBook(bookId);
         if (book.get(0).getQuantity() <= 0) {
           dao.deleteBook(bookId);//Simply remove the book from the bookshelf
           res.getResponseHeader().setMessage(BOOK_LOST_AND_DELETED);
@@ -193,13 +187,12 @@ public final class BookBusinessLogic {
 
   /**
    * Logic for adding a new book data to the database.
-   * @param book {@link com.example.demo.backend.custom.Dto.BookClass BookClass} to be added.
+   * @param book {@link com.example.demo.backend.custom.Dto.Book BookClass} to be added.
    * @return Returns an empty list of BookClass objects, with the ResponseHeader class.
-   * @throws DaoException An exception that gets raised when executing an SQL query fails.
-   * @throws DbException An exception that gets raised when the database connection/disconnection fails.
-   * @throws BookException An exception that gets raised mainly due to logic error.
+   * @throws DaoException if query execution fails.
+   * @throws BookException if query logic fails.
    */
-  public ResponseBooks addBook(BookClass book) throws DaoException, DbException, BookException {
+  public ResponseBooks addBook(Book book) throws DaoException, DbException, BookException {
     res = new ResponseBooks();
     try {
       int updated = dao.insertBook(book);
@@ -218,7 +211,7 @@ public final class BookBusinessLogic {
     }
   }
 
-  public ResponseBooks replaceBook(Integer bookId, BookClass book) throws DbException, DaoException, BookException {
+  public ResponseBooks replaceBook(Integer bookId, Book book) throws DbException, DaoException, BookException {
     res = new ResponseBooks();
     try {
       int updated = dao.updateBook_data(bookId, book);

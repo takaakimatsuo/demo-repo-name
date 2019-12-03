@@ -1,8 +1,7 @@
 package com.example.demo.data.access;
 
-import com.example.demo.backend.custom.Dto.BookClass;
+import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.backend.custom.exceptions.DaoException;
-import com.example.demo.backend.custom.exceptions.DbException;
 import com.example.demo.data.access.custom.enums.BookStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -96,7 +95,7 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
   }
 
   @Override
-  public int updateBook_data(Integer bookId, BookClass book) throws DaoException {
+  public int updateBook_data(Integer bookId, Book book) throws DaoException {
     String query = "UPDATE bookshelf SET title = ?, price = ?, url = ?, quantity = ? where id = ? AND borrowedBy = \'{}\'";
     List<Object> paramList = new ArrayList<Object>();
     paramList.add(book.getTitle());
@@ -108,7 +107,7 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
   }
 
   @Override
-  public int insertBook(BookClass book) throws DaoException {
+  public int insertBook(Book book) throws DaoException {
     String query = "INSERT INTO bookshelf(title,price,quantity,url) values(?, ?, ?, ?)";
     List<Object> paramList = new ArrayList<Object>();
     paramList.add(book.getTitle());
@@ -132,7 +131,7 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
 
 
   @Override
-  public List<BookClass> getAllBooks() throws DaoException {
+  public List<Book> getAllBooks() throws DaoException {
     String query = "SELECT id, title, price, quantity, (SELECT ARRAY( select familyName ||' '|| firstName FROM book_user u JOIN bookshelf b ON u.phoneNumber = ANY(b.borrowedBy) WHERE b.title = OuterQuery.title)) AS \"borrowedBy\", url FROM bookshelf AS OuterQuery ORDER BY id DESC;";
     System.out.println("[INFO] Requesting query execution");
     ResultSet rs = executeQuery(query);
@@ -142,7 +141,7 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
 
 
   @Override
-  public List<BookClass> getBook(Integer bookId) throws DaoException {
+  public List<Book> getBook(Integer bookId) throws DaoException {
     String query = "select id, title, price, quantity, (SELECT ARRAY( select familyName ||' '|| firstName from book_user u JOIN bookshelf b ON u.phoneNumber = ANY(b.borrowedBy) WHERE b.title = OuterQuery.title)) AS \"borrowedBy\", url from bookshelf AS OuterQuery WHERE id = ?";
     List<Object> paramList = new ArrayList<Object>();
     paramList.add(bookId);
@@ -153,14 +152,14 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
   }
 
 
-  private List<BookClass> mapRow(ResultSet rs)throws DaoException {
+  private List<Book> mapRow(ResultSet rs)throws DaoException {
     try {
-      List<BookClass> lb = new ArrayList<>();
+      List<Book> lb = new ArrayList<>();
       if (!rs.isBeforeFirst()) {
         return lb;
       }
       while (rs.next()) {
-        BookClass book = new BookClass();
+        Book book = new Book();
         book.setId(rs.getInt("ID"));
         book.setPrice(rs.getInt("PRICE"));
         book.setQuantity(rs.getInt("QUANTITY"));

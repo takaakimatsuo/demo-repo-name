@@ -1,6 +1,6 @@
 package com.example.demo.backend;
 
-import com.example.demo.backend.custom.Dto.BookUser;
+import com.example.demo.backend.custom.Dto.User;
 import com.example.demo.backend.custom.Dto.ResponseUsers;
 import com.example.demo.backend.custom.exceptions.DaoException;
 import com.example.demo.backend.custom.exceptions.DbException;
@@ -40,8 +40,8 @@ public class MockitoUserBusinessLogicTest {
     @Test
     void addUser() throws DbException, DaoException, UserException {
 
-      List<BookUser> list = new ArrayList<>();
-      BookUser user = new BookUser("Family","First","08011110000");
+      List<User> list = new ArrayList<>();
+      User user = new User("Family","First","08011110000");
       list.add(user);
 
       when(udao.insertBookUser(user)).thenReturn(list);
@@ -56,8 +56,8 @@ public class MockitoUserBusinessLogicTest {
     @Test
     void addUser_DUPLICATE() throws DbException, DaoException {
 
-      List<BookUser> list = new ArrayList<>();
-      BookUser user = new BookUser("Family","First","08011110000");
+      List<User> list = new ArrayList<>();
+      User user = new User("Family","First","08011110000");
       list.add(user);
 
       DaoException fakeOutput = new DaoException("This is fake");
@@ -77,8 +77,8 @@ public class MockitoUserBusinessLogicTest {
     @Test
     void addUser_Dp() throws DbException, DaoException {
 
-      List<BookUser> list = new ArrayList<>();
-      BookUser user = new BookUser("Family","First","08011110000");
+      List<User> list = new ArrayList<>();
+      User user = new User("Family","First","08011110000");
       list.add(user);
 
       DbException fakeOutput = new DbException("This is fake");
@@ -94,8 +94,8 @@ public class MockitoUserBusinessLogicTest {
     @Test
     void addUser_Dao() throws DbException, DaoException {
 
-      List<BookUser> list = new ArrayList<>();
-      BookUser user = new BookUser("Family","First","08011110000");
+      List<User> list = new ArrayList<>();
+      User user = new User("Family","First","08011110000");
       list.add(user);
 
       DaoException fakeOutput = new DaoException("This is fake");
