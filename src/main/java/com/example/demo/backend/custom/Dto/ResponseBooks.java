@@ -10,7 +10,7 @@ import java.util.List;
 public class ResponseBooks {
 
   private List<Book> books = new ArrayList<Book>();
-  private ResponseHeader header = new ResponseHeader();
+  private MessageHeader header = new MessageHeader();
 
   public ResponseBooks() {
   }
@@ -23,11 +23,11 @@ public class ResponseBooks {
     books = b;
   }
 
-  public ResponseHeader getResponseHeader() {
+  public MessageHeader getMessageHeader() {
     return header;
   }
 
-  public void setResponseHeader(ResponseHeader header) {
+  public void setMessageHeader(MessageHeader header) {
     this.header = header;
   }
 

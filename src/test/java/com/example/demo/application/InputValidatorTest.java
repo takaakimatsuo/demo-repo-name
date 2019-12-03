@@ -8,9 +8,24 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static com.example.demo.common.messages.StaticInputErrorMessages.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static com.example.demo.application.InputValidator.*;
+import static com.example.demo.application.InputValidator.assureAllBorrowedBy;
+import static com.example.demo.application.InputValidator.assureBookClassNames;
+import static com.example.demo.application.InputValidator.assureBookUser;
+import static com.example.demo.application.InputValidator.assureInteger;
+import static com.example.demo.application.InputValidator.assurePatchBookClass;
+import static com.example.demo.application.InputValidator.assurePositive;
+import static com.example.demo.application.InputValidator.assureURL;
+import static com.example.demo.common.messages.StaticInputErrorMessages.BOOK_CLASS_NULL;
+import static com.example.demo.common.messages.StaticInputErrorMessages.INTEGER_NULL;
+import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_ID;
+import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_PHONENUMBER;
+import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_STATUS;
+import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_URL;
+import static com.example.demo.common.messages.StaticInputErrorMessages.PATCHBOOK_CLASS_NULL;
+import static com.example.demo.common.messages.StaticInputErrorMessages.URL_NULL;
+import static com.example.demo.common.messages.StaticInputErrorMessages.USER_CLASS_NULL;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class InputValidatorTest {
 
@@ -110,7 +125,7 @@ class InputValidatorTest {
 
   @DisplayName("assureAllBorrowedBy()に関するテスト")
   @Nested
-  class assureAllBorrowedBy{
+  class assureAllBorrowedBy {
 
     @DisplayName("正しい電話番号が引数の場合")
     @Test

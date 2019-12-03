@@ -10,7 +10,7 @@ public class ResponseUsers {
 
 
   private List<User> users = new ArrayList<User>();
-  private ResponseHeader header = new ResponseHeader();
+  private MessageHeader header = new MessageHeader();
 
   public ResponseUsers() {
   }
@@ -23,11 +23,11 @@ public class ResponseUsers {
     this.users = users;
   }
 
-  public ResponseHeader getResponseHeader() {
+  public MessageHeader getMessageHeader() {
     return header;
   }
 
-  public void setResponseHeader(ResponseHeader header) {
+  public void setMessageHeader(MessageHeader header) {
     this.header = header;
   }
 

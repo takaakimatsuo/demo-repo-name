@@ -34,7 +34,7 @@ public class UserBusinessLogic {
     try {
       List<User> users = udao.insertBookUser(user);
       ures.setUsers(users);
-      ures.getResponseHeader().setMessage(USER_INSERTED);
+      ures.getMessageHeader().setMessage(USER_INSERTED);
       return ures;
     } catch (DaoException e) {
       if (e.getSqlCode().equals(SQL_CODE_DUPLICATE_KEY_ERROR)) {
@@ -55,7 +55,7 @@ public class UserBusinessLogic {
     if (update == 0) {
       throw new UserException(USER_NOT_EXISTING);
     } else {
-      ures.getResponseHeader().setMessage(USER_DELETED);
+      ures.getMessageHeader().setMessage(USER_DELETED);
     }
     return ures;
   }

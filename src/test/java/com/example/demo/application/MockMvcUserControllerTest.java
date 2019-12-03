@@ -81,7 +81,7 @@ public class MockMvcUserControllerTest {
         .andExpect(status().isOk());
 
       ResponseUsers response = acquireBodyAsResponseUsers(result);
-      assertEquals(response.getResponseHeader().getMessage(),USER_INSERTED);
+      assertEquals(response.getMessageHeader().getMessage(),USER_INSERTED);
     }
 
     @DisplayName("携帯電話番号が間違ったフォーマットの状態でユーザの追加")

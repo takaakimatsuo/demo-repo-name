@@ -106,7 +106,7 @@ class MockMvcBookControllerTest {
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
 
-      assertEquals(response.getResponseHeader().getMessage(), BOOK_FOUND);
+      assertEquals(response.getMessageHeader().getMessage(), BOOK_FOUND);
     }
 
     @DisplayName("正しいIDによる本の検索")
@@ -121,7 +121,7 @@ class MockMvcBookControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$.books[0].id").value(id));
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getResponseHeader().getMessage(), BOOK_FOUND);
+      assertEquals(response.getMessageHeader().getMessage(), BOOK_FOUND);
     }
 
     @DisplayName("存在しない本の検索")
@@ -170,7 +170,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getResponseHeader().getMessage(), BOOK_INSERTED);
+      assertEquals(response.getMessageHeader().getMessage(), BOOK_INSERTED);
     }
 
     @DisplayName("正しい本の追加　その２")
@@ -183,7 +183,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getResponseHeader().getMessage(), BOOK_INSERTED);
+      assertEquals(response.getMessageHeader().getMessage(), BOOK_INSERTED);
     }
 
     @DisplayName("本の重複追加(タイトルはユニークでないといけない)")
@@ -197,7 +197,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getResponseHeader().getMessage(), BOOK_INSERTED);
+      assertEquals(response.getMessageHeader().getMessage(), BOOK_INSERTED);
 
 
       ResultActions result2 =  mockMvc.perform(post("/books")
@@ -267,7 +267,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getResponseHeader().getMessage(),BOOK_BORROWED);
+      assertEquals(response.getMessageHeader().getMessage(),BOOK_BORROWED);
     }
 
     @DisplayName("正しい本の貸し出し　その２")
@@ -281,7 +281,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getResponseHeader().getMessage(),BOOK_BORROWED);
+      assertEquals(response.getMessageHeader().getMessage(),BOOK_BORROWED);
     }
 
     @DisplayName("存在しない本の貸し出し")
@@ -338,7 +338,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getResponseHeader().getMessage(),BOOK_BORROWED);
+      assertEquals(response.getMessageHeader().getMessage(),BOOK_BORROWED);
 
       ResultActions result2 =  mockMvc.perform(patch("/books/" + id)
         .contentType(MediaType.APPLICATION_JSON)
@@ -347,7 +347,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       response = acquireBodyAsResponseBooks(result2);
-      assertEquals(response.getResponseHeader().getMessage(),BOOK_LOST_AND_DELETED);
+      assertEquals(response.getMessageHeader().getMessage(),BOOK_LOST_AND_DELETED);
     }
 
 
@@ -363,7 +363,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getResponseHeader().getMessage(),BOOK_BORROWED);
+      assertEquals(response.getMessageHeader().getMessage(),BOOK_BORROWED);
 
       ResultActions result2 =  mockMvc.perform(patch("/books/" + id)
         .contentType(MediaType.APPLICATION_JSON)
@@ -372,7 +372,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       response = acquireBodyAsResponseBooks(result2);
-      assertEquals(response.getResponseHeader().getMessage(),BOOK_LOST_AND_DELETED);
+      assertEquals(response.getMessageHeader().getMessage(),BOOK_LOST_AND_DELETED);
     }
 
 
@@ -388,7 +388,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getResponseHeader().getMessage(),BOOK_BORROWED);
+      assertEquals(response.getMessageHeader().getMessage(),BOOK_BORROWED);
 
       ResultActions result2 =  mockMvc.perform(patch("/books/" + id)
         .contentType(MediaType.APPLICATION_JSON)
@@ -397,7 +397,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       response = acquireBodyAsResponseBooks(result2);
-      assertEquals(response.getResponseHeader().getMessage(),BOOK_RETURNED);
+      assertEquals(response.getMessageHeader().getMessage(),BOOK_RETURNED);
     }
   }
 
@@ -416,7 +416,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response2 = acquireBodyAsResponseBooks(result2);
-      assertEquals(response2.getResponseHeader().getMessage(),BOOK_DELETED);
+      assertEquals(response2.getMessageHeader().getMessage(),BOOK_DELETED);
     }
 
     @DisplayName("存在していないIDの本の削除")
@@ -447,7 +447,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getResponseHeader().getMessage(),UPDATE_SUCCESS_BOOK);
+      assertEquals(response.getMessageHeader().getMessage(),UPDATE_SUCCESS_BOOK);
     }
 
     @DisplayName("存在しない本の置き換え")

@@ -47,7 +47,7 @@ public class MockitoUserBusinessLogicTest {
       when(udao.insertBookUser(user)).thenReturn(list);
 
       ResponseUsers actual = dbl.addUser(user);
-      assertEquals(actual.getResponseHeader().getMessage(),USER_INSERTED);
+      assertEquals(actual.getMessageHeader().getMessage(),USER_INSERTED);
 
     }
 

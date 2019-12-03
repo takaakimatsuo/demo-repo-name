@@ -12,7 +12,6 @@ public class DaoException extends Exception {
     super(errorMessage, cause);
   }
 
-
   public DaoException(String errorMessage, Throwable cause, String sqlCode) {
     super(errorMessage, cause);
     this.sqlCode = sqlCode;
@@ -25,5 +24,4 @@ public class DaoException extends Exception {
   public void setSqlCode(String sqlCode) {
     this.sqlCode = sqlCode;
   }
-
 }

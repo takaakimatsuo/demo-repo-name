@@ -40,8 +40,6 @@ import org.springframework.stereotype.Component;
 
 
 
-
-
 @Component
 public final class BookBusinessLogic {
   private ResponseBooks res;
@@ -55,7 +53,7 @@ public final class BookBusinessLogic {
 
   /**
    * Logic for searching all books stored in the bookshelf table.
-   * @return Returns a list of Book objects, with the ResponseHeader class, not {@code null}.
+   * @return Returns a list of Book objects, with the MessageHeader class, not {@code null}.
    * @throws DaoException if query execution fails.
    * @throws BookException if query logic fails.
   */
@@ -65,7 +63,7 @@ public final class BookBusinessLogic {
     if (books.isEmpty()) {
       throw new BookException(BOOK_NOT_FOUND);
     } else {
-      res.getResponseHeader().setMessage(BOOK_FOUND);
+      res.getMessageHeader().setMessage(BOOK_FOUND);
     }
     res.setBooks(books);
     return res;
@@ -74,7 +72,7 @@ public final class BookBusinessLogic {
   /**
    *  Logic for removing a specified book from the bookshelf table.
    *  @param bookId Identifier of a book, not {@code null}
-   *  @return Returns an empty list of BookClass objects, with the ResponseHeader class, not {@code null}.
+   *  @return Returns an empty list of BookClass objects, with the MessageHeader class, not {@code null}.
    *  @throws DaoException if query execution fails.
    *  @throws BookException if query logic fails.
    */
@@ -84,7 +82,7 @@ public final class BookBusinessLogic {
     if (update == 0) {
       throw new BookException(BOOK_NOT_EXISTING);
     } else {
-      res.getResponseHeader().setMessage(BOOK_DELETED);
+      res.getMessageHeader().setMessage(BOOK_DELETED);
     }
     return res;
   }
@@ -92,7 +90,7 @@ public final class BookBusinessLogic {
   /**
    * Logic for searching a specific book stored in the bookshelf table using its id.
    *  @param bookId Identifier of a book.
-   *  @return Returns a list containing a single BookClass object, with a ResponseHeader class.
+   *  @return Returns a list containing a single BookClass object, with a MessageHeader class.
    *  The list will be kept empty if no matching data has been found.
    * @throws DaoException if query execution fails.
    * @throws BookException if query logic fails.
@@ -104,7 +102,7 @@ public final class BookBusinessLogic {
     if (books.size() == 0) {
       throw new BookException(BOOK_NOT_EXISTING);
     } else {
-      res.getResponseHeader().setMessage(BOOK_FOUND);
+      res.getMessageHeader().setMessage(BOOK_FOUND);
     }
     res.setBooks(books);
 
@@ -112,10 +110,9 @@ public final class BookBusinessLogic {
   }
 
   /** Validates the relation between what the user wants to do and what the system knows.
-   *  An example that will throw an exception would be when a user tries to return a book that has never been borrowed.
-   *  @param currentStatus enum representing the current book status. It is either not existing, already borrowed by the same user, or available.
+   *  @param currentStatus enum representing the current book status.
    *  @param requestedStatus Users requested status {0:borrow, 1:return, 2:report lost
-   *  @return Returns the inputted requestedStatus directly.
+   *  @return The same inputted requestedStatus.
    * @throws BookException if query logic fails.
    */
   private int validateUserBookRelation(BookStatus currentStatus, int requestedStatus) throws BookException {
@@ -142,7 +139,7 @@ public final class BookBusinessLogic {
   /**
    * @param bookId Identifier of a book.
    * @param updStatus Describes the user, and the user's action
-   * @return An empty list of BookClass objects, with a ResponseHeader class.
+   * @return An empty list of BookClass objects, with a MessageHeader class.
    * @throws DaoException if query execution fails.
    * @throws BookException if query logic fails.
    */
@@ -156,7 +153,7 @@ public final class BookBusinessLogic {
         //Borrow!
         if (dao.checkBookStockAvailability(bookId)) {
           dao.updateBook_borrowed(bookId, updStatus.getBorrower());
-          res.getResponseHeader().setMessage(BOOK_BORROWED);
+          res.getMessageHeader().setMessage(BOOK_BORROWED);
         } else {
           throw new BookException(BOOK_NO_STOCK);
         }
@@ -165,7 +162,7 @@ public final class BookBusinessLogic {
       case 1: {
         //Return
         dao.updateBook_returned(bookId, updStatus.getBorrower());
-        res.getResponseHeader().setMessage(BOOK_RETURNED);
+        res.getMessageHeader().setMessage(BOOK_RETURNED);
         break;
       }
       case 2: {
@@ -174,9 +171,9 @@ public final class BookBusinessLogic {
         List<Book> book = dao.getBook(bookId);
         if (book.get(0).getQuantity() <= 0) {
           dao.deleteBook(bookId);//Simply remove the book from the bookshelf
-          res.getResponseHeader().setMessage(BOOK_LOST_AND_DELETED);
+          res.getMessageHeader().setMessage(BOOK_LOST_AND_DELETED);
         }else {
-          res.getResponseHeader().setMessage(BOOK_LOST);
+          res.getMessageHeader().setMessage(BOOK_LOST);
         }
         break;
       }
@@ -188,7 +185,7 @@ public final class BookBusinessLogic {
   /**
    * Logic for adding a new book data to the database.
    * @param book {@link com.example.demo.backend.custom.Dto.Book BookClass} to be added.
-   * @return Returns an empty list of BookClass objects, with the ResponseHeader class.
+   * @return Returns an empty list of BookClass objects, with the MessageHeader class.
    * @throws DaoException if query execution fails.
    * @throws BookException if query logic fails.
    */
@@ -199,7 +196,7 @@ public final class BookBusinessLogic {
       if (updated == 0) {
         throw new BookException(UPDATE_FAILED_BOOK);
       } else {
-        res.getResponseHeader().setMessage(BOOK_INSERTED);
+        res.getMessageHeader().setMessage(BOOK_INSERTED);
         return res;
       }
 
@@ -218,7 +215,7 @@ public final class BookBusinessLogic {
       if (updated == 0) {
         throw new BookException(BOOK_NOT_EXISTING_OR_IS_BORROWED);
       } else {
-        res.getResponseHeader().setMessage(UPDATE_SUCCESS_BOOK);
+        res.getMessageHeader().setMessage(UPDATE_SUCCESS_BOOK);
       }
     } catch (DaoException e) {
       if (e.getSqlCode().equals(SQL_CODE_DUPLICATE_KEY_ERROR)) {

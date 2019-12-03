@@ -47,15 +47,12 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 class MockitoBookBusinessLogicTest {
 
-
   @InjectMocks
   BookBusinessLogic dbl;
-
 
   @Mock
   JdbcBookDao dao;
   //SpringBookDao dao;
-
 
   @Mock
   JdbcDao jdao;
@@ -99,7 +96,7 @@ class MockitoBookBusinessLogicTest {
     void getAllBooks_OK() throws DbException, DaoException, BookException {
 
       ResponseBooks expected = new ResponseBooks();
-      expected.getResponseHeader().setMessage(BOOK_FOUND);
+      expected.getMessageHeader().setMessage(BOOK_FOUND);
 
       List<Book> fakeList = new ArrayList<>();
       fakeList.add(new Book("title", 1000,"https://fake.com",10));
@@ -107,7 +104,7 @@ class MockitoBookBusinessLogicTest {
 
       ResponseBooks actual = dbl.getAllBooks();
       verify(dao, times(1)).getAllBooks();
-      Assert.assertEquals(expected.getResponseHeader().getMessage(),actual.getResponseHeader().getMessage());
+      Assert.assertEquals(expected.getMessageHeader().getMessage(),actual.getMessageHeader().getMessage());
     }
 
     /**
@@ -183,14 +180,14 @@ class MockitoBookBusinessLogicTest {
     void removeBook() throws DbException, DaoException, BookException {
       int id = 1;
       ResponseBooks expected = new ResponseBooks();
-      expected.getResponseHeader().setMessage(BOOK_DELETED);
+      expected.getMessageHeader().setMessage(BOOK_DELETED);
 
       when(dao.deleteBook(id)).thenReturn(1);
 
       ResponseBooks actual = dbl.removeBook(id);
 
       verify(dao, times(1)).deleteBook(anyInt());
-      Assert.assertEquals(expected.getResponseHeader().getMessage(),actual.getResponseHeader().getMessage());
+      Assert.assertEquals(expected.getMessageHeader().getMessage(),actual.getMessageHeader().getMessage());
 
     }
 
@@ -270,7 +267,7 @@ class MockitoBookBusinessLogicTest {
       //TODO
       int id = 1;
       ResponseBooks expected = new ResponseBooks();
-      expected.getResponseHeader().setMessage(BOOK_FOUND);
+      expected.getMessageHeader().setMessage(BOOK_FOUND);
 
       List<Book> fakeList = new ArrayList<>();
       fakeList.add(new Book("title", 1000,"https://fake.com",10));
@@ -279,7 +276,7 @@ class MockitoBookBusinessLogicTest {
       ResponseBooks actual = dbl.getBook(id);
 
       verify(dao, times(1)).getBook(anyInt());
-      Assert.assertEquals(expected.getResponseHeader().getMessage(),actual.getResponseHeader().getMessage());
+      Assert.assertEquals(expected.getMessageHeader().getMessage(),actual.getMessageHeader().getMessage());
     }
 
     /**
@@ -338,7 +335,7 @@ class MockitoBookBusinessLogicTest {
 
       ResponseBooks actual = dbl.addBook(book);
       verify(dao, times(1)).insertBook(isA(Book.class));
-      assertEquals(actual.getResponseHeader().getMessage(),BOOK_INSERTED);
+      assertEquals(actual.getMessageHeader().getMessage(),BOOK_INSERTED);
     }
 
 
@@ -428,7 +425,7 @@ class MockitoBookBusinessLogicTest {
       when(dao.updateBook_data(bookId,book)).thenReturn(1);
       ResponseBooks actual = dbl.replaceBook(bookId,book);
       verify(dao, times(1)).updateBook_data(anyInt(),isA(Book.class));
-      assertEquals(actual.getResponseHeader().getMessage(), UPDATE_SUCCESS_BOOK);
+      assertEquals(actual.getMessageHeader().getMessage(), UPDATE_SUCCESS_BOOK);
     }
 
     @DisplayName("本データの置き換えですでに保存されている本のタイトルを指定")
@@ -526,7 +523,7 @@ class MockitoBookBusinessLogicTest {
       verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
       verify(dao, times(1)).checkBookStockAvailability(anyInt());
       verify(dao, times(1)).updateBook_borrowed(anyInt(), anyString());
-      assertEquals(actual.getResponseHeader().getMessage(), BOOK_BORROWED);
+      assertEquals(actual.getMessageHeader().getMessage(), BOOK_BORROWED);
     }
 
 
@@ -632,7 +629,7 @@ class MockitoBookBusinessLogicTest {
       ResponseBooks actual = dbl.updateBook(bookId, book);
       verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
       verify(dao, times(1)).updateBook_returned(anyInt(),anyString());
-      assertEquals(actual.getResponseHeader().getMessage(), BOOK_RETURNED);
+      assertEquals(actual.getMessageHeader().getMessage(), BOOK_RETURNED);
     }
 
 
@@ -717,7 +714,7 @@ class MockitoBookBusinessLogicTest {
       verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
       verify(dao, times(1)).updateBook_lost(anyInt(),anyString());
       verify(dao, times(1)).deleteBook(anyInt());
-      assertEquals(BOOK_LOST_AND_DELETED, actual.getResponseHeader().getMessage());
+      assertEquals(BOOK_LOST_AND_DELETED, actual.getMessageHeader().getMessage());
     }
   }
 

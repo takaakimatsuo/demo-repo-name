@@ -1,5 +1,6 @@
 package com.example.demo.data.access;
 
+import com.example.demo.backend.custom.Dto.MessageHeader;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.data.access.custom.enums.BookStatus;
@@ -12,7 +13,7 @@ public interface BookDao {
   /**
    * Searches all book data from the database.
    * @return Returns a list of searched {@link com.example.demo.backend.custom.Dto.Book Book} objects,
-   * with a {@link com.example.demo.backend.custom.Dto.ResponseHeader ResponseHeader}, not {@code null}..
+   * with a {@link MessageHeader MessageHeader}, not {@code null}..
    * @throws DaoException if query execution fails.
    */
   List<Book> getAllBooks() throws DaoException;
@@ -21,7 +22,7 @@ public interface BookDao {
    * Searches a book data stored in the database with an ID.
    * @param bookId  Unique identifier of the book data in the database, not {@code null}.
    * @return Returns a list of searched {@link com.example.demo.backend.custom.Dto.Book Book} objects,
-   * with a {@link com.example.demo.backend.custom.Dto.ResponseHeader ResponseHeader}, not {@code null}..
+   * with a {@link MessageHeader MessageHeader}, not {@code null}..
    * @throws DaoException if query execution fails.
    */
   List<Book> getBook(Integer bookId) throws DaoException;
@@ -30,7 +31,7 @@ public interface BookDao {
    * Inserts a new book data to the database.
    * @param book A {@link com.example.demo.backend.custom.Dto.Book Book} object to be inserted to the database , not {@code null}..
    * @return Returns an empty list of {@link com.example.demo.backend.custom.Dto.Book Book} objects,
-   * with a {@link com.example.demo.backend.custom.Dto.ResponseHeader ResponseHeader}, not {@code null}..
+   * with a {@link MessageHeader MessageHeader}, not {@code null}..
    * @throws DaoException if query execution fails.
    */
   int insertBook(Book book) throws DaoException;
@@ -39,7 +40,7 @@ public interface BookDao {
    * Deletes a book data from the database.
    * @param bookId Unique identifier for the book stored in the database, not {@code null}.
    * @return Returns an empty list of {@link com.example.demo.backend.custom.Dto.Book Book} objects,
-   * with a {@link com.example.demo.backend.custom.Dto.ResponseHeader ResponseHeader}, not {@code null}.
+   * with a {@link MessageHeader MessageHeader}, not {@code null}.
    * @throws DaoException if query execution fails.
    */
   int deleteBook(Integer bookId) throws DaoException;

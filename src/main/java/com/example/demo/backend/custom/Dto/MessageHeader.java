@@ -1,10 +1,10 @@
 package com.example.demo.backend.custom.Dto;
 
-public class ResponseHeader {
+public class MessageHeader {
 
   private String message;
 
-  ResponseHeader() {
+  MessageHeader() {
     this.message = "Blank message";
   }
 
