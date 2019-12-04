@@ -3,6 +3,7 @@ package com.example.demo.data.access;
 import static com.example.demo.common.messages.StaticBookMessages.BOOK_DUPLICATE;
 import static com.example.demo.common.messages.StaticBookMessages.BOOK_NO_STOCK;
 import static com.example.demo.common.messages.StaticBookMessages.UPDATE_FAILED_BOOK;
+import static com.example.demo.DemoApplication.logger;
 
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.common.exceptions.DaoException;
@@ -16,6 +17,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+
 
 
 @Component("SpringBookDao")
@@ -49,7 +51,7 @@ public class SpringBookDao implements BookDao {
   }
 
 
-  public DaoException createDaoException(SQLException sqlExc) {
+  private DaoException createDaoException(SQLException sqlExc) {
     return new DaoException(sqlExc.getMessage(),sqlExc.getCause(),sqlExc.getSQLState());
   }
 
@@ -98,7 +100,12 @@ public class SpringBookDao implements BookDao {
     try {
       return jdbcTemplate.update("DELETE FROM bookshelf WHERE id = ?", bookId);
     } catch (DataAccessException e) {
-      throw new DaoException(e.getMessage(),e.getCause());
+      if (e.getRootCause() instanceof SQLException) {
+        SQLException sqlEx = (SQLException) e.getRootCause();
+        throw createDaoException(sqlEx);
+      } else {
+        throw new DaoException(e.getMessage(), e.getCause());
+      }
     }
   }
 
@@ -114,15 +121,14 @@ public class SpringBookDao implements BookDao {
       }
       },bookId);
     if (customers.size() == 0) {
-      System.out.println("list =  null ");
       st = BookStatus.BOOK_NOT_EXISTING;
     } else {
       if (Arrays.asList(customers.get(0).getBorrowedBy()).contains(phoneNumber)) {
         //Book is borrowed by the user.
-        System.out.println("[INFO] User already borrowing the book.");
+        logger.info("User already borrowing the book.");
         st = BookStatus.BOOK_BORROWED_BY_THIS_USER;
       } else {
-        System.out.println("[INFO] User not borrowing the book yet.");
+        logger.info("User not borrowing the book yet.");
         st =  BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER;
       }
     }

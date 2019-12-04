@@ -57,7 +57,7 @@ public final class BookBusinessLogic {
    * @throws DaoException if query execution fails.
    * @throws BookException if query logic fails.
   */
-  public ResponseBooks getAllBooks() throws DaoException, DbException, BookException {
+  public ResponseBooks getAllBooks() throws DaoException, BookException {
     res = new ResponseBooks();
     List<Book> books = dao.getAllBooks();
     if (books.isEmpty()) {
@@ -76,7 +76,7 @@ public final class BookBusinessLogic {
    *  @throws DaoException if query execution fails.
    *  @throws BookException if query logic fails.
    */
-  public ResponseBooks removeBook(Integer bookId) throws DaoException, DbException, BookException {
+  public ResponseBooks removeBook(Integer bookId) throws DaoException, BookException {
     res = new ResponseBooks();
     int update = dao.deleteBook(bookId);
     if (update == 0) {
@@ -95,7 +95,7 @@ public final class BookBusinessLogic {
    * @throws DaoException if query execution fails.
    * @throws BookException if query logic fails.
    */
-  public ResponseBooks getBook(Integer bookId) throws DaoException, DbException, BookException {
+  public ResponseBooks getBook(Integer bookId) throws DaoException, BookException {
     res = new ResponseBooks();
 
     List<Book> books = dao.getBook(bookId);
@@ -143,7 +143,7 @@ public final class BookBusinessLogic {
    * @throws DaoException if query execution fails.
    * @throws BookException if query logic fails.
    */
-  public ResponseBooks updateBook(Integer bookId, PatchBook updStatus) throws DaoException, DbException, BookException {
+  public ResponseBooks updateBook(Integer bookId, PatchBook updStatus) throws DaoException, BookException {
     res = new ResponseBooks();
     int action = updStatus.getStatus();//0 = Borrow, 1 = Return, 2 = Lost.
     BookStatus currentStatus = dao.checkBookStatus(bookId, updStatus.getBorrower());
@@ -189,7 +189,7 @@ public final class BookBusinessLogic {
    * @throws DaoException if query execution fails.
    * @throws BookException if query logic fails.
    */
-  public ResponseBooks addBook(Book book) throws DaoException, DbException, BookException {
+  public ResponseBooks addBook(Book book) throws DaoException, BookException {
     res = new ResponseBooks();
     try {
       int updated = dao.insertBook(book);
@@ -208,7 +208,7 @@ public final class BookBusinessLogic {
     }
   }
 
-  public ResponseBooks replaceBook(Integer bookId, Book book) throws DbException, DaoException, BookException {
+  public ResponseBooks replaceBook(Integer bookId, Book book) throws DaoException, BookException {
     res = new ResponseBooks();
     try {
       int updated = dao.updateBook_data(bookId, book);

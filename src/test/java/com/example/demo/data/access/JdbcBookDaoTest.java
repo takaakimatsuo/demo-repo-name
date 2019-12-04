@@ -1,5 +1,6 @@
 package com.example.demo.data.access;
 
+
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.DbException;
@@ -415,7 +416,7 @@ class JdbcBookDaoTest {
       dao.getAllBooks();
       verify(dao, times(1)).getAllBooks();
       verify(dao, times(1)).executeQuery(anyString());
-     }
+    }
   }
 
 
