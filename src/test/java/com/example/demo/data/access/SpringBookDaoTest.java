@@ -45,6 +45,27 @@ class SpringBookDaoTest {
     reset(jdbcTemplate);
   }
 
+  private String[] dummyBorrowers = {"08011110000"};
+
+  private Book dummyBook1 = Book.builder()
+    .id(1)
+    .price(100)
+    .title("Hello")
+    .quantity(1)
+    .url("https://example.com")
+    .borrowedBy(dummyBorrowers)
+    .build();
+
+  private Book dummyBook2 = Book.builder()
+    .id(1)
+    .price(2000)
+    .title("World")
+    .quantity(3)
+    .url("https://example.com")
+    .build();
+
+  private Integer dummyBookId = 1;
+
   @DisplayName("SpringDaoの本の全検索に関するテスト")
   @Nested
   class getAllBooks {
@@ -53,26 +74,9 @@ class SpringBookDaoTest {
     void getAllBooks1() throws DaoException {
       List<Book> expected = new ArrayList<>();
 
-      String[] borrowers = {"08011110000"};
-      Book book1 = Book.builder()
-        .id(0)
-        .price(100)
-        .title("Hello")
-        .quantity(1)
-        .url("https://example.com")
-        .borrowedBy(borrowers)
-        .build();
 
-      Book book2 = Book.builder()
-        .id(1)
-        .price(2000)
-        .title("World")
-        .quantity(3)
-        .url("https://example.com")
-        .build();
-
-      expected.add(book1);
-      expected.add(book2);
+      expected.add(dummyBook1);
+      expected.add(dummyBook2);
 
       when(jdbcTemplate.query(anyString(), any(RowMapper.class))).thenReturn(expected);
       when(sdao.getAllBooks()).thenCallRealMethod();
@@ -131,24 +135,11 @@ class SpringBookDaoTest {
     @Test
     void getBook1() throws DaoException {
       List<Book> expected = new ArrayList<>();
-
-      Integer id = 1;
-
-      String[] borrowers = {"08011110000"};
-      Book book1 = Book.builder()
-        .id(1)
-        .price(100)
-        .title("Hello")
-        .quantity(1)
-        .url("https://example.com")
-        .borrowedBy(borrowers)
-        .build();
-
-      expected.add(book1);
+      expected.add(dummyBook1);
 
       when(sdao.getBook(anyInt())).thenCallRealMethod();
       when(jdbcTemplate.query(anyString(), any(RowMapper.class),anyInt())).thenReturn(expected);
-      List<Book> actual = sdao.getBook(id);
+      List<Book> actual = sdao.getBook(dummyBookId);
       assertEquals(actual.size(), 1);
       assertArrayEquals(expected.toArray(),actual.toArray());
       verify(sdao, times(1)).getBook(anyInt());
@@ -160,11 +151,9 @@ class SpringBookDaoTest {
     void getBook2() throws DaoException {
       List<Book> expected = new ArrayList<>();
 
-      Integer id = 1;
-
       when(sdao.getBook(anyInt())).thenCallRealMethod();
       when(jdbcTemplate.query(anyString(), any(RowMapper.class),anyInt())).thenReturn(expected);
-      List<Book> actual = sdao.getBook(id);
+      List<Book> actual = sdao.getBook(dummyBookId);
       assertEquals(actual.size(), 0);
       assertArrayEquals(expected.toArray(),actual.toArray());
       verify(sdao, times(1)).getBook(anyInt());
@@ -174,7 +163,6 @@ class SpringBookDaoTest {
     @DisplayName("本の検索でDataAccessExceptionが投げられる場合")
     @Test
     void getBook3() throws DaoException {
-      Integer id = 1;
 
       when(sdao.getBook(anyInt())).thenCallRealMethod();
       when(jdbcTemplate.query(anyString(), any(RowMapper.class), anyInt())).thenThrow(new DataAccessException("..."){});
@@ -182,7 +170,7 @@ class SpringBookDaoTest {
       DaoException expected = new DaoException("This is fake");
 
       Throwable e = assertThrows(expected.getClass(), ()->{
-        sdao.getBook(id);
+        sdao.getBook(dummyBookId);
       });
       verify(sdao, times(1)).getBook(anyInt());
       verify(jdbcTemplate, times(1)).query(anyString(), any(RowMapper.class), anyInt());
@@ -200,33 +188,75 @@ class SpringBookDaoTest {
   @Nested
   @DisplayName("SpringDaoの本の追加に関するテスト")
   class insertBook {
-
     @DisplayName("正しい本の追加")
     @Test
     void insertBook1() throws DaoException {
 
       int expected = 1;
-      String[] borrowers = {"08011110000"};
-      Book book1 = Book.builder()
-        .id(1)
-        .price(100)
-        .title("Hello")
-        .quantity(1)
-        .url("https://example.com")
-        .borrowedBy(borrowers)
-        .build();
 
       when(sdao.insertBook(any(Book.class))).thenCallRealMethod();
       when(jdbcTemplate.update(anyString(), anyString(), anyInt(), anyInt(), anyString())).thenReturn(1);
 
-      int actual = sdao.insertBook(book1);
+      int actual = sdao.insertBook(dummyBook1);
       assertEquals(expected, actual);
+    }
 
+    @DisplayName("本の検索でDataAccessExceptionが投げられる場合")
+    @Test
+    void insertBook2() throws DaoException {
+
+
+
+      when(sdao.insertBook(any(Book.class))).thenCallRealMethod();
+      when(jdbcTemplate.update(anyString(), anyString(), anyInt(), anyInt(), anyString())).thenThrow(new DataAccessException("..."){});
+
+      DaoException expected = new DaoException("This is fake");
+
+      Throwable e = assertThrows(expected.getClass(), ()->{
+        sdao.insertBook(dummyBook1);
+      });
+      verify(sdao, times(1)).insertBook(any(Book.class));
+      verify(jdbcTemplate, times(1)).update(anyString(), anyString(), anyInt(), anyInt(), anyString());
+      logger.info("Thrown error class was ",e);
     }
   }
 
-  @Test
-  void deleteBook() {
+
+
+
+  @Nested
+  @DisplayName("SpringDaoの本の削除に関するテスト")
+  class deleteBook {
+    @Test
+    @DisplayName("正しい本の削除")
+    void deleteBook1() throws DaoException {
+      int expected = 1;
+
+      when(sdao.deleteBook(anyInt())).thenCallRealMethod();
+      when(jdbcTemplate.update(anyString(), anyInt())).thenReturn(1);
+      int actual = sdao.deleteBook(dummyBookId);
+      assertEquals(expected,actual);
+      verify(sdao, times(1)).deleteBook(anyInt());
+      verify(jdbcTemplate, times(1)).update(anyString(), anyInt());
+    }
+
+    @Test
+    @DisplayName("本の削除でDataAccessExceptionが投げられる場合")
+    void deleteBook2() throws DaoException {
+
+      DaoException expected = new DaoException("This is fake.");
+      when(sdao.deleteBook(anyInt())).thenCallRealMethod();
+      when(jdbcTemplate.update(anyString(), anyInt())).thenThrow(new DataAccessException("..."){});
+
+      Throwable e = assertThrows(expected.getClass(), ()->{
+        sdao.deleteBook(dummyBookId);
+      });
+      verify(sdao, times(1)).deleteBook(anyInt());
+      verify(jdbcTemplate, times(1)).update(anyString(), anyInt());
+      logger.info("Thrown error was ",e);
+    }
+
+
   }
 
   @Test
@@ -241,7 +271,28 @@ class SpringBookDaoTest {
   void updateBook_lost() {
   }
 
-  @Test
-  void updateBook_data() {
+  @Nested
+  @DisplayName("SpringDaoによる本の置換に関するテスト")
+  class updateBook_data {
+    @DisplayName("正しい本の置換")
+    @Test
+    void updateBook_data() throws DaoException {
+
+      int expected = 1;
+
+      when(sdao.updateBook_data(anyInt(),any(Book.class))).thenCallRealMethod();
+      when(jdbcTemplate.update(anyString(), anyString(), anyInt(), anyString(), anyInt(),  anyInt())).thenReturn(1);
+      int actual = sdao.updateBook_data(dummyBookId, dummyBook1);
+      assertEquals(expected,actual);
+      verify(sdao, times(1)).updateBook_data(anyInt(),any(Book.class));
+      verify(jdbcTemplate, times(1)).update(anyString(), anyString(), anyInt(), anyString(), anyInt(),  anyInt());
+    }
+    @DisplayName("本の置換時にDataAccessExceptionが投げられる場合")
+    @Test
+    void updateBook_data2() throws DaoException {
+
+
+    }
   }
+
 }
