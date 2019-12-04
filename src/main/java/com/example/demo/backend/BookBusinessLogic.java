@@ -34,7 +34,7 @@ public final class BookBusinessLogic {
    * @throws BookBusinessLogicException if query logic fails.
   */
   public ResponseBooks getAllBooks() throws DaoException, BookBusinessLogicException {
-    res = new ResponseBooks();
+    res =  ResponseBooks.builder().build();
     List<Book> books = dao.getAllBooks();
     if (books.isEmpty()) {
       throw new BookBusinessLogicException(Messages.BOOK_NOT_FOUND);
@@ -53,7 +53,7 @@ public final class BookBusinessLogic {
    *  @throws BookBusinessLogicException if query logic fails.
    */
   public ResponseBooks removeBook(Integer bookId) throws DaoException, BookBusinessLogicException {
-    res = new ResponseBooks();
+    res =  ResponseBooks.builder().build();
     int update = dao.deleteBook(bookId);
     if (update == 0) {
       throw new BookBusinessLogicException(Messages.BOOK_NOT_EXISTING);
@@ -72,7 +72,7 @@ public final class BookBusinessLogic {
    * @throws BookBusinessLogicException if query logic fails.
    */
   public ResponseBooks getBook(Integer bookId) throws DaoException, BookBusinessLogicException {
-    res = new ResponseBooks();
+    res =  ResponseBooks.builder().build();
 
     List<Book> books = dao.getBook(bookId);
     if (books.size() == 0) {
@@ -120,7 +120,7 @@ public final class BookBusinessLogic {
    * @throws BookBusinessLogicException if query logic fails.
    */
   public ResponseBooks updateBook(Integer bookId, PatchBook updStatus) throws DaoException, BookBusinessLogicException {
-    res = new ResponseBooks();
+    res = ResponseBooks.builder().build();
     int action = updStatus.getStatus();//0 = Borrow, 1 = Return, 2 = Lost.
     BookStatus currentStatus = dao.checkBookStatus(bookId, updStatus.getBorrower());
 
@@ -166,7 +166,7 @@ public final class BookBusinessLogic {
    * @throws BookBusinessLogicException if query logic fails.
    */
   public ResponseBooks addBook(Book book) throws DaoException, BookBusinessLogicException {
-    res = new ResponseBooks();
+    res =  ResponseBooks.builder().build();
     try {
       int updated = dao.insertBook(book);
       if (updated == 0) {
@@ -185,7 +185,7 @@ public final class BookBusinessLogic {
   }
 
   public ResponseBooks replaceBook(Integer bookId, Book book) throws DaoException, BookBusinessLogicException {
-    res = new ResponseBooks();
+    res =  ResponseBooks.builder().build();
     try {
       int updated = dao.updateBook_data(bookId, book);
       if (updated == 0) {

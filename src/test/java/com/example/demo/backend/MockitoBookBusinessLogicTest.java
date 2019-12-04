@@ -82,7 +82,7 @@ class MockitoBookBusinessLogicTest {
     @Test
     void getAllBooks_OK() throws DbException, DaoException, BookBusinessLogicException {
 
-      ResponseBooks expected = new ResponseBooks();
+      ResponseBooks expected =  ResponseBooks.builder().build();
       expected.getMessageHeader().setMessage(Messages.BOOK_FOUND);
 
       List<Book> fakeList = new ArrayList<>();
@@ -166,7 +166,7 @@ class MockitoBookBusinessLogicTest {
     @Test
     void removeBook() throws DbException, DaoException, BookBusinessLogicException {
       int id = 1;
-      ResponseBooks expected = new ResponseBooks();
+      ResponseBooks expected =  ResponseBooks.builder().build();
       expected.getMessageHeader().setMessage(Messages.BOOK_DELETED);
 
       when(dao.deleteBook(id)).thenReturn(1);
@@ -253,7 +253,7 @@ class MockitoBookBusinessLogicTest {
     void getBook() throws DbException, DaoException, BookBusinessLogicException {
       //TODO
       int id = 1;
-      ResponseBooks expected = new ResponseBooks();
+      ResponseBooks expected =  ResponseBooks.builder().build();
       expected.getMessageHeader().setMessage(Messages.BOOK_FOUND);
 
       List<Book> fakeList = new ArrayList<>();
