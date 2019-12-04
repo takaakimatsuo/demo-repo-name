@@ -1,9 +1,10 @@
 package com.example.demo.application;
 
+
 import com.example.demo.backend.custom.Dto.ResponseBooks;
+import com.example.demo.common.enums.Messages;
 import com.example.demo.common.exceptions.DaoException;
-import com.example.demo.common.exceptions.DbException;
-import com.example.demo.data.access.BookDaoTest;
+import com.example.demo.data.access.DatabaseTableInitializer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
@@ -26,22 +27,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 
-import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_ID;
-import static com.example.demo.common.messages.StaticInputErrorMessages.NEGATIVE_PRICE;
-import static com.example.demo.common.messages.StaticInputErrorMessages.NEGATIVE_QUANTITY;
-import static com.example.demo.common.messages.StaticInputErrorMessages.ZERO_QUANTITY;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_BORROWED;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_CANNOT_BE_LOST;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_CANNOT_BE_RETURNED;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_DELETED;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_DUPLICATE;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_INSERTED;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_LOST_AND_DELETED;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_NOT_EXISTING;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_FOUND;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_NOT_EXISTING_OR_IS_BORROWED;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_RETURNED;
-import static com.example.demo.common.messages.StaticBookMessages.UPDATE_SUCCESS_BOOK;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -66,13 +51,13 @@ class MockMvcBookControllerTest {
   BookController controller;
 
   @BeforeAll
-  static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DbException, DaoException {
-    BookDaoTest.dropBookshelf();
-    BookDaoTest.dropBookUser();
-    BookDaoTest.createBookshelf();
-    BookDaoTest.createBookUser();
-    BookDaoTest.fillInBookUser();
-    BookDaoTest.fillInBooks();
+  static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DaoException {
+    DatabaseTableInitializer.dropBookshelf();
+    DatabaseTableInitializer.dropBookUser();
+    DatabaseTableInitializer.createBookshelf();
+    DatabaseTableInitializer.createBookUser();
+    DatabaseTableInitializer.fillInBookUser();
+    DatabaseTableInitializer.fillInBooks();
   }
 
   @Before
@@ -95,7 +80,7 @@ class MockMvcBookControllerTest {
 
   @Nested
   @DisplayName("本の検索に関するテスト")
-  public class test2 {
+  class test2 {
     @DisplayName("正しい本の全検索")
     @Test
     void getBooksTest() throws Exception {
@@ -106,7 +91,7 @@ class MockMvcBookControllerTest {
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
 
-      assertEquals(response.getMessageHeader().getMessage(), BOOK_FOUND);
+      assertEquals(Messages.BOOK_FOUND, response.getMessageHeader().getMessage());
     }
 
     @DisplayName("正しいIDによる本の検索")
@@ -121,7 +106,7 @@ class MockMvcBookControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$.books[0].id").value(id));
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getMessageHeader().getMessage(), BOOK_FOUND);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_FOUND);
     }
 
     @DisplayName("存在しない本の検索")
@@ -135,7 +120,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isBadRequest());
 
       String errorMsg = acquireBodyAsErrorMessage(result);
-      assertEquals(errorMsg,BOOK_NOT_EXISTING);
+      assertEquals(errorMsg, Messages.BOOK_NOT_EXISTING.getMessageKey());
 
     }
 
@@ -150,7 +135,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isBadRequest());
 
       String errorMsg = acquireBodyAsErrorMessage(result);
-      assertEquals(errorMsg,INVALID_ID);
+      assertEquals(errorMsg,Messages.INVALID_ID.getMessageKey());
 
     }
 
@@ -159,7 +144,7 @@ class MockMvcBookControllerTest {
 
   @Nested
   @DisplayName("本の追加に関するテスト")
-  public class test3{
+  class test3{
     @DisplayName("正しい本の追加　その1")
     @Test
     void postBookTest() throws Exception {
@@ -170,7 +155,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getMessageHeader().getMessage(), BOOK_INSERTED);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_INSERTED);
     }
 
     @DisplayName("正しい本の追加　その２")
@@ -183,7 +168,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getMessageHeader().getMessage(), BOOK_INSERTED);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_INSERTED);
     }
 
     @DisplayName("本の重複追加(タイトルはユニークでないといけない)")
@@ -197,7 +182,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getMessageHeader().getMessage(), BOOK_INSERTED);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_INSERTED);
 
 
       ResultActions result2 =  mockMvc.perform(post("/books")
@@ -207,7 +192,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isBadRequest());
 
       String errorMsg = acquireBodyAsErrorMessage(result2);
-      assertEquals(errorMsg,BOOK_DUPLICATE);
+      assertEquals(errorMsg, Messages.BOOK_DUPLICATE.getMessageKey());
     }
 
     @DisplayName("価格がマイナスの状態での本の追加")
@@ -220,7 +205,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isBadRequest());
 
       String errorMsg = acquireBodyAsErrorMessage(result);
-      assertEquals(errorMsg,NEGATIVE_PRICE);
+      assertEquals(errorMsg, Messages.NEGATIVE_PRICE.getMessageKey());
     }
 
     @DisplayName("量がゼロの状態での本の追加")
@@ -233,7 +218,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isBadRequest());
 
       String errorMsg = acquireBodyAsErrorMessage(result);
-      assertEquals(errorMsg,ZERO_QUANTITY);
+      assertEquals(errorMsg,Messages.ZERO_QUANTITY.getMessageKey());
     }
 
     @DisplayName("量がマイナスの状態での本の追加")
@@ -246,7 +231,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isBadRequest());
 
       String errorMsg = acquireBodyAsErrorMessage(result);
-      assertEquals(errorMsg,NEGATIVE_QUANTITY);
+      assertEquals(errorMsg, Messages.NEGATIVE_QUANTITY.getMessageKey());
     }
 
   }
@@ -255,7 +240,7 @@ class MockMvcBookControllerTest {
 
   @Nested
   @DisplayName("本の貸し出しに関するテスト")
-  public class test4{
+  class test4{
     @DisplayName("正しい本の貸し出し　その１")
     @Test
     void patchBookTest1() throws Exception {
@@ -267,7 +252,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getMessageHeader().getMessage(),BOOK_BORROWED);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_BORROWED);
     }
 
     @DisplayName("正しい本の貸し出し　その２")
@@ -281,7 +266,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getMessageHeader().getMessage(),BOOK_BORROWED);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_BORROWED);
     }
 
     @DisplayName("存在しない本の貸し出し")
@@ -295,7 +280,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isBadRequest());
 
       String errorMsg = acquireBodyAsErrorMessage(result);
-      assertEquals(errorMsg, BOOK_NOT_EXISTING);
+      assertEquals(errorMsg, Messages.BOOK_NOT_EXISTING.getMessageKey());
     }
 
       @DisplayName("借りていない本の返却")
@@ -309,7 +294,7 @@ class MockMvcBookControllerTest {
           .andExpect(status().isBadRequest());
 
         String errorMsg = acquireBodyAsErrorMessage(result);
-        assertEquals(errorMsg,BOOK_CANNOT_BE_RETURNED);
+        assertEquals(errorMsg, Messages.BOOK_CANNOT_BE_RETURNED.getMessageKey());
     }
 
     @DisplayName("借りていない本の紛失")
@@ -324,7 +309,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isBadRequest());
 
       String errorMsg = acquireBodyAsErrorMessage(result2);
-      assertEquals(errorMsg,BOOK_CANNOT_BE_LOST);
+      assertEquals(errorMsg, Messages.BOOK_CANNOT_BE_LOST.getMessageKey());
     }
 
     @DisplayName("正しい本の紛失、および削除")
@@ -338,7 +323,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getMessageHeader().getMessage(),BOOK_BORROWED);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_BORROWED);
 
       ResultActions result2 =  mockMvc.perform(patch("/books/" + id)
         .contentType(MediaType.APPLICATION_JSON)
@@ -347,7 +332,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       response = acquireBodyAsResponseBooks(result2);
-      assertEquals(response.getMessageHeader().getMessage(),BOOK_LOST_AND_DELETED);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_LOST_AND_DELETED);
     }
 
 
@@ -363,7 +348,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getMessageHeader().getMessage(),BOOK_BORROWED);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_BORROWED);
 
       ResultActions result2 =  mockMvc.perform(patch("/books/" + id)
         .contentType(MediaType.APPLICATION_JSON)
@@ -372,7 +357,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       response = acquireBodyAsResponseBooks(result2);
-      assertEquals(response.getMessageHeader().getMessage(),BOOK_LOST_AND_DELETED);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_LOST_AND_DELETED);
     }
 
 
@@ -388,7 +373,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getMessageHeader().getMessage(),BOOK_BORROWED);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_BORROWED);
 
       ResultActions result2 =  mockMvc.perform(patch("/books/" + id)
         .contentType(MediaType.APPLICATION_JSON)
@@ -397,14 +382,14 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       response = acquireBodyAsResponseBooks(result2);
-      assertEquals(response.getMessageHeader().getMessage(),BOOK_RETURNED);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_RETURNED);
     }
   }
 
 
   @DisplayName("本の削除に関するテスト")
   @Nested
-  public class test5{
+  class test5{
     @DisplayName("正しい本の削除")
     @Test
     void deleteUserTest1() throws Exception {
@@ -416,7 +401,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response2 = acquireBodyAsResponseBooks(result2);
-      assertEquals(response2.getMessageHeader().getMessage(),BOOK_DELETED);
+      assertEquals(response2.getMessageHeader().getMessage(), Messages.BOOK_DELETED);
     }
 
     @DisplayName("存在していないIDの本の削除")
@@ -428,14 +413,14 @@ class MockMvcBookControllerTest {
         .andExpect(status().isBadRequest());
 
       String errorMsg = acquireBodyAsErrorMessage(result);
-      assertEquals(errorMsg,BOOK_NOT_EXISTING);
+      assertEquals(errorMsg, Messages.BOOK_NOT_EXISTING.getMessageKey());
     }
   }
 
 
   @DisplayName("本の置き換えに関するテスト")
   @Nested
-  public class test6 {
+  class test6 {
     @DisplayName("正しい本の置き換え")
     @Test
     void putBookTest() throws Exception {
@@ -447,7 +432,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isOk());
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
-      assertEquals(response.getMessageHeader().getMessage(),UPDATE_SUCCESS_BOOK);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.UPDATE_SUCCESS_BOOK);
     }
 
     @DisplayName("存在しない本の置き換え")
@@ -461,7 +446,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isBadRequest());
 
       String errorMsg = acquireBodyAsErrorMessage(result);
-      assertEquals(errorMsg,BOOK_NOT_EXISTING_OR_IS_BORROWED);
+      assertEquals(errorMsg, Messages.BOOK_NOT_EXISTING_OR_IS_BORROWED.getMessageKey());
     }
 
     @DisplayName("既に存在している本のタイトルでの置き換え")
@@ -475,7 +460,7 @@ class MockMvcBookControllerTest {
         .andExpect(status().isBadRequest());
 
       String errorMsg = acquireBodyAsErrorMessage(result);
-      assertEquals(errorMsg,BOOK_DUPLICATE);
+      assertEquals(errorMsg, Messages.BOOK_DUPLICATE.getMessageKey());
     }
   }
 

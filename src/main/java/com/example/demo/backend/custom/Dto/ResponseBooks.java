@@ -1,16 +1,12 @@
 package com.example.demo.backend.custom.Dto;
 
-
 import java.util.ArrayList;
 import java.util.List;
-
-
-
 
 public class ResponseBooks {
 
   private List<Book> books = new ArrayList<Book>();
-  private MessageHeader header = new MessageHeader();
+  private MessageHeader messageHeader = new MessageHeader();
 
   public ResponseBooks() {
   }
@@ -24,12 +20,13 @@ public class ResponseBooks {
   }
 
   public MessageHeader getMessageHeader() {
-    return header;
+    return messageHeader;
   }
 
   public void setMessageHeader(MessageHeader header) {
-    this.header = header;
+    this.messageHeader = header;
   }
+
 
 
 }

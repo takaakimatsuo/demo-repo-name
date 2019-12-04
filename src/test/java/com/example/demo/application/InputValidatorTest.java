@@ -3,6 +3,7 @@ package com.example.demo.application;
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.backend.custom.Dto.User;
 import com.example.demo.backend.custom.Dto.PatchBook;
+import com.example.demo.common.enums.Messages;
 import com.example.demo.common.exceptions.InputFormatException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,15 +16,6 @@ import static com.example.demo.application.InputValidator.assureInteger;
 import static com.example.demo.application.InputValidator.assurePatchBookClass;
 import static com.example.demo.application.InputValidator.assurePositive;
 import static com.example.demo.application.InputValidator.assureURL;
-import static com.example.demo.common.messages.StaticInputErrorMessages.BOOK_CLASS_NULL;
-import static com.example.demo.common.messages.StaticInputErrorMessages.INTEGER_NULL;
-import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_ID;
-import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_PHONENUMBER;
-import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_STATUS;
-import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_URL;
-import static com.example.demo.common.messages.StaticInputErrorMessages.PATCHBOOK_CLASS_NULL;
-import static com.example.demo.common.messages.StaticInputErrorMessages.URL_NULL;
-import static com.example.demo.common.messages.StaticInputErrorMessages.USER_CLASS_NULL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -37,7 +29,7 @@ class InputValidatorTest {
     void assureInteger1() throws InputFormatException {
       String integer = null;
       Throwable e = assertThrows(InputFormatException.class, () -> {Integer i  = assureInteger(integer);});
-      assertEquals(e.getMessage(),INTEGER_NULL);
+      assertEquals(e.getMessage(),Messages.INTEGER_NULL.getMessageKey());
     }
 
     @Test
@@ -45,7 +37,7 @@ class InputValidatorTest {
     void assureInteger2() throws InputFormatException {
       String integer = "ABC";
       Throwable e = assertThrows(InputFormatException.class, () -> {Integer i  = assureInteger(integer);});
-      assertEquals(e.getMessage(),INVALID_ID);
+      assertEquals(e.getMessage(),Messages.INVALID_ID.getMessageKey());
     }
 
     @Test
@@ -53,7 +45,7 @@ class InputValidatorTest {
     void assureInteger3() throws InputFormatException {
       String integer = "12312312312312312313123132131232131312";
       Throwable e = assertThrows(InputFormatException.class, () -> {Integer i  = assureInteger(integer);});
-      assertEquals(e.getMessage(),INVALID_ID);
+      assertEquals(e.getMessage(),Messages.INVALID_ID.getMessageKey());
     }
 
     @Test
@@ -104,7 +96,7 @@ class InputValidatorTest {
     void assureURL1() throws InputFormatException {
       String url = null;
       Throwable e = assertThrows(InputFormatException.class, () -> {assureURL(url);});
-      assertEquals(e.getMessage(), URL_NULL);
+      assertEquals(e.getMessage(), Messages.URL_NULL.getMessageKey());
     }
 
     @DisplayName("正しいURLが引数の時")
@@ -119,7 +111,7 @@ class InputValidatorTest {
     void assureURL3() throws InputFormatException {
       String url = "abc";
       Throwable e = assertThrows(InputFormatException.class, () -> {assureURL(url);});
-      assertEquals(e.getMessage(),INVALID_URL);
+      assertEquals(e.getMessage(), Messages.INVALID_URL.getMessageKey());
     }
   }
 
@@ -139,7 +131,7 @@ class InputValidatorTest {
     void assureAllBorrowedBy2() throws InputFormatException {
       String[] phoneNumbers = {"08000","07000001111"};
       Throwable e = assertThrows(InputFormatException.class, () -> {assureAllBorrowedBy(phoneNumbers);});
-      assertEquals(e.getMessage(),INVALID_PHONENUMBER);
+      assertEquals(e.getMessage(),Messages.INVALID_PHONENUMBER.getMessageKey());
     }
 
     @DisplayName("文字列混ざった引数の場合")
@@ -147,7 +139,7 @@ class InputValidatorTest {
     void assureAllBorrowedBy3() throws InputFormatException {
       String[] phoneNumbers = {"080ABC","07000001111"};
       Throwable e  = assertThrows(InputFormatException.class, () -> {assureAllBorrowedBy(phoneNumbers);});
-      assertEquals(e.getMessage(),INVALID_PHONENUMBER);
+      assertEquals(e.getMessage(),Messages.INVALID_PHONENUMBER.getMessageKey());
     }
   }
 
@@ -168,7 +160,7 @@ class InputValidatorTest {
     void assureBookClassNames2() throws InputFormatException {
       Book example = null;
       Throwable e = assertThrows(InputFormatException.class, () -> {assureBookClassNames(example);});
-      assertEquals(e.getMessage(),BOOK_CLASS_NULL);
+      assertEquals(e.getMessage(),Messages.BOOK_CLASS_NULL.getMessageKey());
     }
   }
 
@@ -178,7 +170,11 @@ class InputValidatorTest {
     @DisplayName("正しい引数の場合")
     @Test
     void assureBookUser1() throws InputFormatException {
-      User expected = new User("damilyName","firstName","08000001111");
+      User expected = User.builder()
+        .familyName("family")
+        .firstName("first")
+        .phoneNumber("08000001111")
+        .build();
       User actual = assureBookUser(expected);
       assertEquals(expected,actual);
     }
@@ -189,7 +185,7 @@ class InputValidatorTest {
       User example = null;
       Throwable e = assertThrows(InputFormatException.class, () -> {
         User actual = assureBookUser(example);});
-      assertEquals(e.getMessage(),USER_CLASS_NULL);
+      assertEquals(e.getMessage(), Messages.USER_CLASS_NULL.getMessageKey());
     }
   }
 
@@ -209,7 +205,7 @@ class InputValidatorTest {
     void assurePatchBookClass2() throws InputFormatException {
       PatchBook expected = new PatchBook("08010",0);
       Throwable e = assertThrows(InputFormatException.class, () -> { assurePatchBookClass(expected);});
-      assertEquals(e.getMessage(),INVALID_PHONENUMBER);
+      assertEquals(e.getMessage(), Messages.INVALID_PHONENUMBER.getMessageKey());
     }
 
     @DisplayName("間違ったステータスがはいった引数の場合")
@@ -217,7 +213,7 @@ class InputValidatorTest {
     void assurePatchBookClass3() throws InputFormatException {
       PatchBook expected = new PatchBook("08011110000",5);
       Throwable e = assertThrows(InputFormatException.class, () -> { assurePatchBookClass(expected);});
-      assertEquals(e.getMessage(),INVALID_STATUS);
+      assertEquals(e.getMessage(), Messages.INVALID_STATUS.getMessageKey());
     }
 
     @DisplayName("Nullが引数の場合")
@@ -225,7 +221,7 @@ class InputValidatorTest {
     void assurePatchBookClass4() throws InputFormatException {
       PatchBook expected = null;
       Throwable e = assertThrows(InputFormatException.class, () -> {assurePatchBookClass(expected);});
-      assertEquals(e.getMessage(),PATCHBOOK_CLASS_NULL);
+      assertEquals(e.getMessage(), Messages.PATCHBOOK_CLASS_NULL.getMessageKey());
     }
 
   }

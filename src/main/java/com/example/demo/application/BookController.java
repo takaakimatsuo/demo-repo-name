@@ -10,7 +10,7 @@ import com.example.demo.backend.BookBusinessLogic;
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.backend.custom.Dto.PatchBook;
 import com.example.demo.backend.custom.Dto.ResponseBooks;
-import com.example.demo.common.exceptions.BookException;
+import com.example.demo.common.exceptions.BookBusinessLogicException;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.InputFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.demo.common.enums.BookMessages;
 
 @RestController
 public class BookController {
@@ -42,15 +41,15 @@ public class BookController {
    * with a ResponseHeader class, not {@code null}.
    * @throws DaoException if query execution fails.
    * @throws InputFormatException if user input is wrong.
-   * @throws BookException if logic fails.
+   * @throws BookBusinessLogicException if logic fails.
    */
   @CrossOrigin
   @GetMapping(value = "/books/{id}")
-  public ResponseBooks getBook(@PathVariable("id") String bookId) throws InputFormatException, DaoException, BookException {
+  public ResponseBooks getBook(@PathVariable("id") String bookId) throws InputFormatException, BookBusinessLogicException, DaoException {
     ResponseBooks response;
     try {
       response = dbl.getBook(assurePositive(assureInteger(bookId)));
-    } catch (DaoException | InputFormatException | BookException e) {
+    } catch (DaoException | InputFormatException | BookBusinessLogicException e) {
       logger.error("Error in getBook() in BookController.java: ",e);
       throw e;
     }
@@ -63,14 +62,14 @@ public class BookController {
    * @return A list of searched {@link com.example.demo.backend.custom.Dto.Book Book} objects,
    * with a ResponseHeader class, not {@code null}.
    * @throws DaoException if query execution fails.
-   * @throws BookException if logic fails.
+   * @throws BookBusinessLogicException if logic fails.
    */
   @CrossOrigin
   @GetMapping(value = "/books")
-  public ResponseBooks getBooks() throws DaoException, BookException {
+  public ResponseBooks getBooks() throws BookBusinessLogicException, DaoException {
     try {
       return dbl.getAllBooks();
-    } catch (DaoException | BookException e) {
+    } catch (DaoException | BookBusinessLogicException e) {
       logger.error("Error in getBook() in BookController.java: ",e);
       throw e;
     }
@@ -83,15 +82,15 @@ public class BookController {
   * with a ResponseHeader class, not {@code null}.
   * @throws DaoException if query execution fails.
   * @throws InputFormatException if user input is wrong.
-  * @throws BookException if logic fails.
+  * @throws BookBusinessLogicException if logic fails.
   */
   @CrossOrigin
   @PostMapping(value = "/books")
-  public ResponseBooks postBook(@RequestBody Book book) throws DaoException, InputFormatException, BookException {
-    ResponseBooks response = new ResponseBooks();
+  public ResponseBooks postBook(@RequestBody Book book) throws DaoException, InputFormatException, BookBusinessLogicException {
+    ResponseBooks response;
     try {
       response = dbl.addBook(assureBookClass(book));
-    } catch (InputFormatException | DaoException | BookException e) {
+    } catch (InputFormatException | DaoException | BookBusinessLogicException e) {
       logger.error("Error in postBook() in BookController.java: ",e);
       throw e;
     }
@@ -106,15 +105,15 @@ public class BookController {
    * with a ResponseHeader class, not {@code null}.
    * @throws DaoException if query execution fails.
    * @throws InputFormatException if user input is wrong.
-   * @throws BookException if logic fails.
+   * @throws BookBusinessLogicException if logic fails.
    */
   @CrossOrigin
   @PutMapping(value = "/books/{id}")
-  public ResponseBooks putBook(@PathVariable("id") String bookId, @RequestBody Book newBookData) throws InputFormatException, DaoException, BookException {
+  public ResponseBooks putBook(@PathVariable("id") String bookId, @RequestBody Book newBookData) throws InputFormatException, BookBusinessLogicException, DaoException {
     ResponseBooks response;
     try {
       response = dbl.replaceBook(assurePositive(assureInteger(bookId)),assureBookClass(newBookData));
-    } catch (InputFormatException | DaoException | BookException e) {
+    } catch (InputFormatException | DaoException | BookBusinessLogicException e) {
       logger.error("Error in putBook() in BookController.java: ",e);
       throw e;
     }
@@ -129,15 +128,15 @@ public class BookController {
    * with a ResponseHeader class, not {@code null}.
    * @throws DaoException if query execution fails.
    * @throws InputFormatException if user input is wrong.
-   * @throws BookException if logic fails.
+   * @throws BookBusinessLogicException if logic fails.
    */
   @CrossOrigin
   @PatchMapping(value = "/books/{id}")
-  public ResponseBooks patchBook(@PathVariable("id") String bookId, @RequestBody PatchBook patchData) throws InputFormatException, BookException, DaoException {
+  public ResponseBooks patchBook(@PathVariable("id") String bookId, @RequestBody PatchBook patchData) throws InputFormatException, BookBusinessLogicException, DaoException {
     ResponseBooks response;
     try {
       response = dbl.updateBook(assurePositive(assureInteger(bookId)),assurePatchBookClass(patchData));
-    } catch (InputFormatException | DaoException | BookException e) {
+    } catch (InputFormatException | DaoException | BookBusinessLogicException e) {
       logger.error("Error in patchBook() in BookController.java: ",e);
       throw e;
     }
@@ -151,15 +150,15 @@ public class BookController {
    * with a ResponseHeader class, not {@code null}.
    * @throws DaoException if query execution fails.
    * @throws InputFormatException if user input is wrong.
-   * @throws BookException if logic fails.
+   * @throws BookBusinessLogicException if logic fails.
    */
   @CrossOrigin
   @DeleteMapping(value = "/books/{id}")
-  public ResponseBooks deleteBook(@PathVariable("id") String bookId) throws DaoException, InputFormatException, BookException {
+  public ResponseBooks deleteBook(@PathVariable("id") String bookId) throws DaoException, InputFormatException, BookBusinessLogicException {
     ResponseBooks response;
     try {
       response = dbl.removeBook(assurePositive(assureInteger(bookId)));
-    } catch (DaoException | InputFormatException | BookException e) {
+    } catch (DaoException | InputFormatException | BookBusinessLogicException e) {
       logger.error("Error in deleteBook() in BookController.java: ",e);
       throw e;
     }
@@ -186,11 +185,11 @@ public class BookController {
   }
 
 
-  @ExceptionHandler({BookException.class})
+  @ExceptionHandler({BookBusinessLogicException.class})
   @ResponseStatus(value = HttpStatus.BAD_REQUEST)
   @ResponseBody
-  public String handleException(BookException e) {
-    return e.getMessage();
+  public String handleException(BookBusinessLogicException e) {
+    return e.getBookMessage();
   }
 
 

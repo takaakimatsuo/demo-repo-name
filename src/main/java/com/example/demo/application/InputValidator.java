@@ -1,24 +1,9 @@
 package com.example.demo.application;
 
-import static com.example.demo.common.messages.StaticInputErrorMessages.BOOK_CLASS_NULL;
-import static com.example.demo.common.messages.StaticInputErrorMessages.BORROWER_NULL;
-import static com.example.demo.common.messages.StaticInputErrorMessages.EMPTY_TITLE;
-import static com.example.demo.common.messages.StaticInputErrorMessages.INTEGER_NULL;
-import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_ID;
-import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_PHONENUMBER;
-import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_STATUS;
-import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_URL;
-import static com.example.demo.common.messages.StaticInputErrorMessages.NEGATIVE_PRICE;
-import static com.example.demo.common.messages.StaticInputErrorMessages.NEGATIVE_QUANTITY;
-import static com.example.demo.common.messages.StaticInputErrorMessages.PATCHBOOK_CLASS_NULL;
-import static com.example.demo.common.messages.StaticInputErrorMessages.PHONENUMBER_NULL;
-import static com.example.demo.common.messages.StaticInputErrorMessages.URL_NULL;
-import static com.example.demo.common.messages.StaticInputErrorMessages.USER_CLASS_NULL;
-import static com.example.demo.common.messages.StaticInputErrorMessages.ZERO_QUANTITY;
-
 import com.example.demo.backend.custom.Dto.Book;
-import com.example.demo.backend.custom.Dto.User;
 import com.example.demo.backend.custom.Dto.PatchBook;
+import com.example.demo.backend.custom.Dto.User;
+import com.example.demo.common.enums.Messages;
 import com.example.demo.common.exceptions.InputFormatException;
 
 import java.util.regex.Matcher;
@@ -40,12 +25,12 @@ public class InputValidator {
   static Integer assureInteger(String integer) throws InputFormatException {
     Integer result = null;
     if (integer == null) {
-      throw new InputFormatException(INTEGER_NULL);
+      throw new InputFormatException(Messages.INTEGER_NULL);
     }
     try {
       result = Integer.valueOf(integer);
     } catch (IllegalStateException | NumberFormatException e) {
-      throw new InputFormatException(INVALID_ID);
+      throw new InputFormatException(Messages.INVALID_ID);
     }
     return result;
   }
@@ -60,11 +45,11 @@ public class InputValidator {
   static Integer assurePositive(Integer integer) throws InputFormatException {
 
     if (integer == null) {
-      throw new InputFormatException(INTEGER_NULL);
+      throw new InputFormatException(Messages.INTEGER_NULL);
     }
 
     if (integer < 0) {
-      throw new InputFormatException(INVALID_ID);
+      throw new InputFormatException(Messages.INVALID_ID);
     }
 
     return integer;
@@ -80,13 +65,13 @@ public class InputValidator {
   public static void assureURL(String url) throws InputFormatException {
 
     if (url == null) {
-      throw new InputFormatException(URL_NULL);
+      throw new InputFormatException(Messages.URL_NULL);
     }
     if (!url.isEmpty()) {
       //URL can be left empty
       Matcher m = URL_PATTERN.matcher(url);
       if (!m.find()) {
-        throw new InputFormatException(INVALID_URL);
+        throw new InputFormatException(Messages.INVALID_URL);
       }
     }
   }
@@ -98,7 +83,8 @@ public class InputValidator {
    */
   public static void assureAllBorrowedBy(String[] phoneNumbers) throws InputFormatException {
     if (phoneNumbers == null) {
-      throw new InputFormatException(BORROWER_NULL);
+      return;
+//      throw new InputFormatException(Messages.BORROWER_NULL);
     }
     for (String phoneNumber: phoneNumbers) {
       assureBorrowedBy(phoneNumber);
@@ -112,7 +98,7 @@ public class InputValidator {
    */
   private static void assureBorrowedByNames(String[] names) throws InputFormatException {
     if (names == null) {
-      throw new InputFormatException(BORROWER_NULL);
+      throw new InputFormatException(Messages.BORROWER_NULL);
     }
   }
 
@@ -123,11 +109,11 @@ public class InputValidator {
    */
   public static void assureBorrowedBy(String phoneNumber) throws InputFormatException {
     if (phoneNumber == null) {
-      throw new InputFormatException(PHONENUMBER_NULL);
+      throw new InputFormatException(Messages.PHONENUMBER_NULL);
     }
     Matcher m = PHONENUMBER_PATTERN.matcher(phoneNumber);
     if (!m.find()) {
-      throw new InputFormatException(INVALID_PHONENUMBER);
+      throw new InputFormatException(Messages.INVALID_PHONENUMBER);
     }
   }
 
@@ -139,10 +125,10 @@ public class InputValidator {
    */
   private static void assureQuantity(int quantity) throws InputFormatException {
     if (quantity == 0) {
-      throw new InputFormatException(ZERO_QUANTITY);
+      throw new InputFormatException(Messages.ZERO_QUANTITY);
     }
     else if (quantity < 0) {
-      throw new InputFormatException(NEGATIVE_QUANTITY);
+      throw new InputFormatException(Messages.NEGATIVE_QUANTITY);
     }
   }
 
@@ -153,7 +139,7 @@ public class InputValidator {
    */
   private static void assurePrice(int price) throws InputFormatException {
     if (price < 0) {
-      throw new InputFormatException(NEGATIVE_PRICE);
+      throw new InputFormatException(Messages.NEGATIVE_PRICE);
     }
   }
 
@@ -164,7 +150,7 @@ public class InputValidator {
    */
   private static void assureTitle(String title) throws InputFormatException {
     if (title == null || title.isEmpty()) {
-      throw new InputFormatException(EMPTY_TITLE);
+      throw new InputFormatException(Messages.EMPTY_TITLE);
     }
   }
 
@@ -178,9 +164,9 @@ public class InputValidator {
    */
   public static Book assureBookClassNames(Book book) throws InputFormatException {
     if (book == null) {
-      throw new InputFormatException(BOOK_CLASS_NULL);
+      throw new InputFormatException(Messages.BOOK_CLASS_NULL);
     }
-    assureBorrowedByNames(book.getBorrowedBy());
+    //assureBorrowedByNames(book.getBorrowedBy());
     assureURL(book.getUrl());
     assureQuantity(book.getQuantity());
     assurePrice(book.getPrice());
@@ -198,7 +184,7 @@ public class InputValidator {
    */
   public static Book assureBookClass(Book book) throws InputFormatException {
     if (book == null) {
-      throw new InputFormatException(BOOK_CLASS_NULL);
+      throw new InputFormatException(Messages.BOOK_CLASS_NULL);
     }
     assureAllBorrowedBy(book.getBorrowedBy());
     assureURL(book.getUrl());
@@ -217,7 +203,7 @@ public class InputValidator {
    */
   static User assureBookUser(User user) throws InputFormatException {
     if (user == null) {
-      throw new InputFormatException(USER_CLASS_NULL);
+      throw new InputFormatException(Messages.USER_CLASS_NULL);
     }
     assureBorrowedBy(user.getPhoneNumber());
     return user;
@@ -225,7 +211,7 @@ public class InputValidator {
 
   private static int assureStatus(int status) throws InputFormatException {
     if (status != 0 && status != 1 && status != 2) {
-      throw new InputFormatException(INVALID_STATUS);
+      throw new InputFormatException(Messages.INVALID_STATUS);
     }
     return status;
   }
@@ -233,7 +219,7 @@ public class InputValidator {
 
   public static PatchBook assurePatchBookClass(PatchBook book) throws InputFormatException {
     if (book == null) {
-      throw new InputFormatException(PATCHBOOK_CLASS_NULL);
+      throw new InputFormatException(Messages.PATCHBOOK_CLASS_NULL);
     }
     assureStatus(book.getStatus());
     assureBorrowedBy(book.getBorrower());

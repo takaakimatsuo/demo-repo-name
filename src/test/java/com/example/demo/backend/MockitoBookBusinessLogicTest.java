@@ -4,7 +4,8 @@ package com.example.demo.backend;
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.backend.custom.Dto.PatchBook;
 import com.example.demo.backend.custom.Dto.ResponseBooks;
-import com.example.demo.common.exceptions.BookException;
+import com.example.demo.common.enums.Messages;
+import com.example.demo.common.exceptions.BookBusinessLogicException;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.DbException;
 import com.example.demo.data.access.JdbcBookDao;
@@ -21,20 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.demo.backend.errorcodes.SqlErrorCodes.SQL_CODE_DUPLICATE_KEY_ERROR;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_BORROWED;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_CANNOT_BE_DOUBLE_BORROWED;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_CANNOT_BE_LOST;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_CANNOT_BE_RETURNED;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_DELETED;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_DUPLICATE;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_FOUND;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_INSERTED;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_LOST_AND_DELETED;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_NOT_EXISTING;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_NOT_FOUND;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_NO_STOCK;
-import static com.example.demo.common.messages.StaticBookMessages.BOOK_RETURNED;
-import static com.example.demo.common.messages.StaticBookMessages.UPDATE_SUCCESS_BOOK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -69,10 +56,10 @@ class MockitoBookBusinessLogicTest {
      */
     @DisplayName("全検索で本データが一つも存在しない場合")
     @Test
-    void getAllBooks_EMPTY() throws DbException, DaoException, BookException {
+    void getAllBooks_EMPTY() throws DbException, DaoException, BookBusinessLogicException {
 
 
-      BookException expected = new BookException(BOOK_NOT_FOUND);
+      BookBusinessLogicException expected = new BookBusinessLogicException(Messages.BOOK_NOT_FOUND);
 
       when(dao.getAllBooks()).thenReturn(new ArrayList<Book>());
 
@@ -93,10 +80,10 @@ class MockitoBookBusinessLogicTest {
      */
     @DisplayName("全検索で本データが存在する場合")
     @Test
-    void getAllBooks_OK() throws DbException, DaoException, BookException {
+    void getAllBooks_OK() throws DbException, DaoException, BookBusinessLogicException {
 
       ResponseBooks expected = new ResponseBooks();
-      expected.getMessageHeader().setMessage(BOOK_FOUND);
+      expected.getMessageHeader().setMessage(Messages.BOOK_FOUND);
 
       List<Book> fakeList = new ArrayList<>();
       fakeList.add(new Book("title", 1000,"https://fake.com",10));
@@ -155,12 +142,12 @@ class MockitoBookBusinessLogicTest {
      */
     @DisplayName("存在しない本削除申請")
     @Test
-    void removeBook_WRONG() throws DbException, DaoException, BookException {
+    void removeBook_WRONG() throws DbException, DaoException, BookBusinessLogicException {
       int id = 1;
 
       when(dao.deleteBook(id)).thenReturn(0);
 
-      BookException expected = new BookException(BOOK_NOT_EXISTING);
+      BookBusinessLogicException expected = new BookBusinessLogicException(Messages.BOOK_NOT_EXISTING);
       Throwable actual = assertThrows(expected.getClass(), () -> {dbl.removeBook(id);});
 
       verify(dao, times(1)).deleteBook(anyInt());
@@ -177,10 +164,10 @@ class MockitoBookBusinessLogicTest {
      */
     @DisplayName("存在する本削除申請")
     @Test
-    void removeBook() throws DbException, DaoException, BookException {
+    void removeBook() throws DbException, DaoException, BookBusinessLogicException {
       int id = 1;
       ResponseBooks expected = new ResponseBooks();
-      expected.getMessageHeader().setMessage(BOOK_DELETED);
+      expected.getMessageHeader().setMessage(Messages.BOOK_DELETED);
 
       when(dao.deleteBook(id)).thenReturn(1);
 
@@ -242,11 +229,11 @@ class MockitoBookBusinessLogicTest {
      */
     @DisplayName("本の検索でデータが存在しない時")
     @Test
-    void getBook_WRONG() throws DbException, DaoException, BookException {
+    void getBook_WRONG() throws DbException, DaoException, BookBusinessLogicException {
       //TODO
       int id = 1;
 
-      BookException expected = new BookException(BOOK_NOT_EXISTING);
+      BookBusinessLogicException expected = new BookBusinessLogicException(Messages.BOOK_NOT_EXISTING);
 
       when(dao.getBook(id)).thenReturn(new ArrayList<>());
 
@@ -263,11 +250,11 @@ class MockitoBookBusinessLogicTest {
      */
     @DisplayName("本の検索でデータが存在する時")
     @Test
-    void getBook() throws DbException, DaoException, BookException {
+    void getBook() throws DbException, DaoException, BookBusinessLogicException {
       //TODO
       int id = 1;
       ResponseBooks expected = new ResponseBooks();
-      expected.getMessageHeader().setMessage(BOOK_FOUND);
+      expected.getMessageHeader().setMessage(Messages.BOOK_FOUND);
 
       List<Book> fakeList = new ArrayList<>();
       fakeList.add(new Book("title", 1000,"https://fake.com",10));
@@ -329,13 +316,13 @@ class MockitoBookBusinessLogicTest {
      */
     @DisplayName("本の追加")
     @Test
-    void addBook() throws DbException, DaoException, BookException {
+    void addBook() throws DbException, DaoException, BookBusinessLogicException {
       Book book = new Book("newTitle",1000,"https://fake.com",10);
       when(dao.insertBook(book)).thenReturn(1);
 
       ResponseBooks actual = dbl.addBook(book);
       verify(dao, times(1)).insertBook(isA(Book.class));
-      assertEquals(actual.getMessageHeader().getMessage(),BOOK_INSERTED);
+      assertEquals(actual.getMessageHeader().getMessage(), Messages.BOOK_INSERTED);
     }
 
 
@@ -356,7 +343,7 @@ class MockitoBookBusinessLogicTest {
 
       when(dao.insertBook(book)).thenThrow(fakeOutput);
 
-      BookException expected = new BookException("This is fake");
+      BookBusinessLogicException expected = new BookBusinessLogicException("This is fake");
 
       Throwable e = assertThrows(expected.getClass(), () -> {dbl.addBook(book);});
       verify(dao, times(1)).insertBook(isA(Book.class));
@@ -419,13 +406,13 @@ class MockitoBookBusinessLogicTest {
      */
     @DisplayName("本データの置き換え")
     @Test
-    void replaceBook() throws DbException, DaoException, BookException {
+    void replaceBook() throws DbException, DaoException, BookBusinessLogicException {
       Integer bookId = 1;
       Book book = new Book("newTitle",1000,"https://fake.com",10);
       when(dao.updateBook_data(bookId,book)).thenReturn(1);
       ResponseBooks actual = dbl.replaceBook(bookId,book);
       verify(dao, times(1)).updateBook_data(anyInt(),isA(Book.class));
-      assertEquals(actual.getMessageHeader().getMessage(), UPDATE_SUCCESS_BOOK);
+      assertEquals(actual.getMessageHeader().getMessage(), Messages.UPDATE_SUCCESS_BOOK);
     }
 
     @DisplayName("本データの置き換えですでに保存されている本のタイトルを指定")
@@ -439,7 +426,7 @@ class MockitoBookBusinessLogicTest {
 
       when(dao.updateBook_data(bookId,book)).thenThrow(fakeOutput);
 
-      BookException expected = new BookException(BOOK_DUPLICATE);
+      BookBusinessLogicException expected = new BookBusinessLogicException(Messages.BOOK_DUPLICATE);
 
       Throwable e = assertThrows(expected.getClass(), () -> {dbl.replaceBook(bookId,book);});
       verify(dao, times(1)).updateBook_data(anyInt(),isA(Book.class));
@@ -454,7 +441,7 @@ class MockitoBookBusinessLogicTest {
 
       when(dao.updateBook_data(bookId,book)).thenReturn(0);
 
-      BookException expected = new BookException(BOOK_NOT_EXISTING);
+      BookBusinessLogicException expected = new BookBusinessLogicException(Messages.BOOK_NOT_EXISTING);
 
       Throwable e = assertThrows(expected.getClass(), () -> {dbl.replaceBook(bookId,book);});
       verify(dao, times(1)).updateBook_data(anyInt(),isA(Book.class));
@@ -509,7 +496,7 @@ class MockitoBookBusinessLogicTest {
      */
     @Test
     @DisplayName("本を正しく借りることができた場合")
-    void updateBook_BORROWED() throws DbException, DaoException, BookException {
+    void updateBook_BORROWED() throws DbException, DaoException, BookBusinessLogicException {
       //TODO
       PatchBook book = new PatchBook();
       String borrower = "08011110000";
@@ -523,7 +510,7 @@ class MockitoBookBusinessLogicTest {
       verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
       verify(dao, times(1)).checkBookStockAvailability(anyInt());
       verify(dao, times(1)).updateBook_borrowed(anyInt(), anyString());
-      assertEquals(actual.getMessageHeader().getMessage(), BOOK_BORROWED);
+      assertEquals(actual.getMessageHeader().getMessage(), Messages.BOOK_BORROWED);
     }
 
 
@@ -536,7 +523,7 @@ class MockitoBookBusinessLogicTest {
      */
     @Test
     @DisplayName("同じ本を既に借りている時に、また借りようとした場合")
-    void updateBook_BORROWED_AGAIN() throws DbException, DaoException, BookException {
+    void updateBook_BORROWED_AGAIN() throws DbException, DaoException, BookBusinessLogicException {
       //TODO
       PatchBook book = new PatchBook();
       String borrower = "08011110000";
@@ -546,7 +533,7 @@ class MockitoBookBusinessLogicTest {
       when(dao.checkBookStatus(bookId,borrower)).thenReturn(BookStatus.BOOK_BORROWED_BY_THIS_USER);
       when(dao.checkBookStockAvailability(bookId)).thenReturn(true);
 
-      BookException expected = new BookException(BOOK_CANNOT_BE_DOUBLE_BORROWED);
+      BookBusinessLogicException expected = new BookBusinessLogicException(Messages.BOOK_CANNOT_BE_DOUBLE_BORROWED);
       Throwable actual = assertThrows(expected.getClass(),()->{dbl.updateBook(bookId,book);});
       verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
       assertEquals(expected.getMessage(), actual.getMessage());
@@ -563,7 +550,7 @@ class MockitoBookBusinessLogicTest {
      */
     @Test
     @DisplayName("本の借り出しを行うための在庫がない場合")
-    void updateBook_NO_STOCK() throws DbException, DaoException, BookException {
+    void updateBook_NO_STOCK() throws DbException, DaoException, BookBusinessLogicException {
       PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
@@ -572,7 +559,7 @@ class MockitoBookBusinessLogicTest {
       when(dao.checkBookStatus(bookId,borrower)).thenReturn(BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER);
       when(dao.checkBookStockAvailability(bookId)).thenReturn(false);
 
-      BookException expected = new BookException(BOOK_NO_STOCK);
+      BookBusinessLogicException expected = new BookBusinessLogicException(Messages.BOOK_NO_STOCK);
       Throwable actual = assertThrows(expected.getClass(),()->{dbl.updateBook(bookId,book);});
       verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
       verify(dao, times(1)).checkBookStockAvailability(anyInt());
@@ -589,7 +576,7 @@ class MockitoBookBusinessLogicTest {
      */
     @Test
     @DisplayName("存在しない本を借りようとする場合")
-    void updateBook_NO_() throws DbException, DaoException, BookException {
+    void updateBook_NO_() throws DbException, DaoException, BookBusinessLogicException {
       PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
@@ -598,7 +585,7 @@ class MockitoBookBusinessLogicTest {
       when(dao.checkBookStatus(bookId,borrower)).thenReturn(BookStatus.BOOK_NOT_EXISTING);
       when(dao.checkBookStockAvailability(bookId)).thenReturn(true);
 
-      BookException expected = new BookException(BOOK_NOT_EXISTING);
+      BookBusinessLogicException expected = new BookBusinessLogicException(Messages.BOOK_NOT_EXISTING);
       Throwable actual = assertThrows(expected.getClass(),()->{dbl.updateBook(bookId,book);});
       verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
       assertEquals(expected.getMessage(), actual.getMessage());
@@ -618,7 +605,7 @@ class MockitoBookBusinessLogicTest {
      */
     @Test
     @DisplayName("本の正しい返却")
-    void updateBook_RETURN() throws DbException, DaoException, BookException {
+    void updateBook_RETURN() throws DbException, DaoException, BookBusinessLogicException {
       PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
@@ -629,7 +616,7 @@ class MockitoBookBusinessLogicTest {
       ResponseBooks actual = dbl.updateBook(bookId, book);
       verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
       verify(dao, times(1)).updateBook_returned(anyInt(),anyString());
-      assertEquals(actual.getMessageHeader().getMessage(), BOOK_RETURNED);
+      assertEquals(actual.getMessageHeader().getMessage(), Messages.BOOK_RETURNED);
     }
 
 
@@ -642,7 +629,7 @@ class MockitoBookBusinessLogicTest {
      */
     @Test
     @DisplayName("借りていない本の返却")
-    void updateBook_RETURN_NOT_BORROWED() throws DbException, DaoException, BookException {
+    void updateBook_RETURN_NOT_BORROWED() throws DbException, DaoException, BookBusinessLogicException {
       PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
@@ -650,7 +637,7 @@ class MockitoBookBusinessLogicTest {
       Integer bookId = 1;
       when(dao.checkBookStatus(bookId,borrower)).thenReturn(BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER);
 
-      BookException expected = new BookException(BOOK_CANNOT_BE_RETURNED);
+      BookBusinessLogicException expected = new BookBusinessLogicException(Messages.BOOK_CANNOT_BE_RETURNED);
       Throwable actual = assertThrows(expected.getClass(),()->{dbl.updateBook(bookId,book);});
       verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
       verify(dao, times(0)).updateBook_returned(anyInt(),anyString());
@@ -674,7 +661,7 @@ class MockitoBookBusinessLogicTest {
      */
     @Test
     @DisplayName("借りていない本の紛失")
-    void updateBook_LOST_NOT_BORROWED() throws DbException, DaoException, BookException {
+    void updateBook_LOST_NOT_BORROWED() throws DbException, DaoException, BookBusinessLogicException {
       PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
@@ -683,7 +670,7 @@ class MockitoBookBusinessLogicTest {
       when(dao.checkBookStatus(bookId,book.getBorrower())).thenReturn(BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER);
 
 
-      BookException expected = new BookException(BOOK_CANNOT_BE_LOST);
+      BookBusinessLogicException expected = new BookBusinessLogicException(Messages.BOOK_CANNOT_BE_LOST);
       Throwable actual = assertThrows(expected.getClass(),()->{dbl.updateBook(bookId,book);});
       verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
       verify(dao, times(0)).updateBook_lost(anyInt(),anyString());
@@ -700,7 +687,7 @@ class MockitoBookBusinessLogicTest {
      */
     @Test
     @DisplayName("正しい本の紛失、および削除")
-    void updateBook_LOST() throws DbException, DaoException, BookException {
+    void updateBook_LOST() throws DbException, DaoException, BookBusinessLogicException {
       PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
@@ -714,15 +701,8 @@ class MockitoBookBusinessLogicTest {
       verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
       verify(dao, times(1)).updateBook_lost(anyInt(),anyString());
       verify(dao, times(1)).deleteBook(anyInt());
-      assertEquals(BOOK_LOST_AND_DELETED, actual.getMessageHeader().getMessage());
+      assertEquals(actual.getMessageHeader().getMessage(), Messages.BOOK_LOST_AND_DELETED);
     }
   }
-
-
-
-
-
-
-
 
 }

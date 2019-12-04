@@ -3,10 +3,10 @@ package com.example.demo.application;
 import com.example.demo.backend.UserBusinessLogic;
 import com.example.demo.backend.custom.Dto.User;
 import com.example.demo.backend.custom.Dto.ResponseUsers;
-import com.example.demo.common.exceptions.BookException;
+import com.example.demo.common.exceptions.BookBusinessLogicException;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.InputFormatException;
-import com.example.demo.common.exceptions.UserException;
+import com.example.demo.common.exceptions.UserBusinessLogicException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -41,11 +41,11 @@ public class UserController {
    */
   @CrossOrigin
   @PostMapping(value = "/users")
-  public ResponseUsers postUser(@RequestBody User user) throws DaoException, InputFormatException, UserException {
+  public ResponseUsers postUser(@RequestBody User user) throws DaoException, InputFormatException, UserBusinessLogicException {
     ResponseUsers response = new ResponseUsers();
     try {
       response = dbl.addUser(assureBookUser(user));
-    } catch (InputFormatException | DaoException | UserException e) {
+    } catch (InputFormatException | DaoException | UserBusinessLogicException e) {
       logger.error("Error in getBook() in BookController.java: ",e);
       throw e;
     }
@@ -61,11 +61,11 @@ public class UserController {
    */
   @CrossOrigin
   @DeleteMapping(value = "/users/{id}")
-  public ResponseUsers deleteUser(@PathVariable("id") String userId) throws DaoException, InputFormatException, UserException {
+  public ResponseUsers deleteUser(@PathVariable("id") String userId) throws DaoException, InputFormatException, UserBusinessLogicException {
     ResponseUsers response = new ResponseUsers();
     try {
       response = dbl.removeUser(assurePositive(assureInteger(userId)));
-    } catch (InputFormatException | DaoException | UserException e) {
+    } catch (InputFormatException | DaoException | UserBusinessLogicException e) {
       logger.error("Error in getBook() in BookController.java: ",e);
       throw e;
     }
@@ -92,10 +92,10 @@ public class UserController {
   }
 
 
-  @ExceptionHandler({UserException.class})
+  @ExceptionHandler({UserBusinessLogicException.class})
   @ResponseStatus(value = HttpStatus.BAD_REQUEST)
   @ResponseBody
-  public String handleException(BookException e) {
+  public String handleException(BookBusinessLogicException e) {
     return e.getMessage();
   }
 

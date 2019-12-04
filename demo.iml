@@ -29,6 +29,8 @@
     <orderEntry type="library" name="org.junit.jupiter:junit-jupiter-api:5.0.0" level="project" />
     <orderEntry type="library" name="org.jetbrains.spek:spek-junit-platform-engine:1.1.5" level="project" />
     <orderEntry type="library" name="org.junit.jupiter:junit-jupiter-engine:5.0.2" level="project" />
+    <orderEntry type="library" name="org.powermock.examples:powermock-examples-apachemina:1.4.6" level="project" />
+    <orderEntry type="library" name="org.powermock.examples:powermock-examples-apachemina:1.4.61" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-actuator:2.2.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:2.2.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:2.2.1.RELEASE" level="project" />
@@ -107,11 +109,6 @@
     <orderEntry type="library" name="Maven: com.zaxxer:HikariCP:3.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-jdbc:5.2.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-tx:5.2.1.RELEASE" level="project" />
-    <orderEntry type="library" name="org.powermock.examples:powermock-examples-apachemina:1.4.6" level="project" />
-    <orderEntry type="library" name="org.powermock.examples:powermock-examples-apachemina:1.4.61" level="project" />
-    <orderEntry type="library" name="org.slf4j:jcl-over-slf4j:1.6.1" level="project" />
-    <orderEntry type="library" name="org.slf4j:slf4j-api:1.6.6" level="project" />
-    <orderEntry type="library" name="org.slf4j:slf4j-log4j12:1.6.6" level="project" />
-    <orderEntry type="library" name="Simple Logging Facade for Java:1.6.6" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.16.16" level="project" />
   </component>
 </module>

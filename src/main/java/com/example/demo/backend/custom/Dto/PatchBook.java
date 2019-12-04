@@ -1,32 +1,19 @@
 package com.example.demo.backend.custom.Dto;
 
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Builder
+@Getter(AccessLevel.PUBLIC)
+@Setter(AccessLevel.PUBLIC)
+@NoArgsConstructor
+@AllArgsConstructor
 public class PatchBook {
   private String borrower;
   private int status;
-
-  public PatchBook(){
-
-  }
-
-  public PatchBook(String borrower, int status) {
-    this.borrower = borrower;
-    this.status = status;
-  }
-
-  public void setBorrower(String borrower) {
-    this.borrower = borrower;
-  }
-
-  public String getBorrower() {
-    return borrower;
-  }
-
-  public void setStatus(int status) {
-    this.status = status;
-  }
-
-  public int getStatus() {
-    return status;
-  }
-
 }

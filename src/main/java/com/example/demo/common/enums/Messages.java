@@ -1,6 +1,6 @@
 package com.example.demo.common.enums;
 
-public enum BookMessages {
+public enum Messages {
 
   UNEXPECTED("Unexpected output. This should generally not happen."),
   BOOK_BORROWED("Borrowed book successfully."),
@@ -20,13 +20,30 @@ public enum BookMessages {
   BOOK_CANNOT_BE_LOST("Trying to report a book as lost, which has not been borrowed by the user."),
   BOOK_NO_STOCK("No stock available."),
   BOOK_DUPLICATE("The same book already exists in the database."),
-  DB_FAILED_CONNECTION("Failed to establish connection between the database"),
-  DB_FAILED_DISCONNECTION("Failed to disconnect from the database");
+  USER_NOT_EXISTING("User not existing."),
+  USER_INSERTED("User successfully added!"),
+  USER_DELETED("User successfully deleted!"),
+  USER_DUPLICATE("User with the same phone number already exists!"),
+  USER_CLASS_NULL("UserClass is null"),
+  BOOK_CLASS_NULL("BookClass is null"),
+  INTEGER_NULL("Integer should not be null"),
+  INVALID_ID("Invalid ID specified."),
+  URL_NULL("URL is null"),
+  INVALID_URL("URL is not formatted correctly."),
+  BORROWER_NULL("Borrower(s) are null."),
+  PHONENUMBER_NULL("Phone number is null."),
+  INVALID_PHONENUMBER("Phone is not formatted correctly."),
+  NEGATIVE_QUANTITY("Quantity is less than 0."),
+  ZERO_QUANTITY("Quantity is 0."),
+  NEGATIVE_PRICE("Price is less than 0."),
+  EMPTY_TITLE("Title is empty."),
+  INVALID_STATUS("Invalid status input. Status must be set to 0 (borrow), 1 (return) or 2 (lost)."),
+  PATCHBOOK_CLASS_NULL("Book to be replaced is null");
 
 
   private String messageKey;
 
-  BookMessages(String msgKey) {
+  Messages(String msgKey) {
     messageKey = msgKey;
   }
 

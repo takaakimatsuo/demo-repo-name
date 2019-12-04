@@ -1,81 +1,37 @@
 package com.example.demo.backend.custom.Dto;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter(AccessLevel.PUBLIC)
+@Setter(AccessLevel.PUBLIC)
+@Builder
 @Component
 public class Book {
   private int id;
+  @Builder.Default
   private String title = "";
+  @Builder.Default
   private int price = 0;
+  @Builder.Default
   private String url = "";
+  @Builder.Default
   private int quantity = 1;
+  @Builder.Default
   private String[] borrowedBy = {};
 
-  public Book(){
-
-  }
-
-  public Book(String title, int price, String url, int quantity, String[] borrowedBy) {
-    setTitle(title);
-    setPrice(price);
-    setUrl(url);
-    setQuantity(quantity);
-    setBorrowedBy(borrowedBy);
-  }
 
   public Book(String title, int price, String url, int quantity) {
     setTitle(title);
     setPrice(price);
     setUrl(url);
     setQuantity(quantity);
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public int getId() {
-    return id;
-  }
-
-  public void setBorrowedBy(String[] msns) {
-    this.borrowedBy = msns;
-  }
-
-  public String[] getBorrowedBy() {
-    return this.borrowedBy;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public int getPrice() {
-    return price;
-  }
-
-  public void setPrice(int price) {
-    this.price = price;
-  }
-
-  public String getUrl() {
-    return url;
-  }
-
-
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
-  public int getQuantity() {
-    return quantity;
-  }
-
-  public void setQuantity(int quantity) {
-    this.quantity = quantity;
   }
 }

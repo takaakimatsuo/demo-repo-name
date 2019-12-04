@@ -11,9 +11,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.example.demo.DemoApplication.logger;
-import static com.example.demo.common.messages.StaticBookMessages.DB_FAILED_CONNECTION;
-import static com.example.demo.common.messages.StaticBookMessages.DB_FAILED_DISCONNECTION;
-import com.example.demo.common.enums.BookMessages;
 
 public abstract class JdbcDao {
 
@@ -34,7 +31,7 @@ public abstract class JdbcDao {
       return con;
     } catch (SQLException e) {
       logger.error("Failed connecting to DB.");
-      throw new DbException(DB_FAILED_CONNECTION);
+      throw new DbException(e.getMessage(),e.getCause(),e.getSQLState());
     }
   }
 
@@ -51,7 +48,7 @@ public abstract class JdbcDao {
       }
     } catch (SQLException e) {
       logger.error("Failed closing DB connection.");
-      throw new DbException(DB_FAILED_DISCONNECTION);
+      throw new DbException(e.getMessage(),e.getCause(),e.getSQLState());
     }
   }
 
@@ -98,7 +95,7 @@ public abstract class JdbcDao {
       con = connectToDB();
       PreparedStatement pstmt = con.prepareStatement(query);
       parameterMapper(pstmt, params);
-      logger.info("Trying to safely execute query {}.", pstmt.toString());
+      logger.info("Trying to safely execute query {} using JdbcDao.", pstmt.toString());
       ResultSet rs = pstmt.executeQuery();
       logger.info("Executed query.");
       return rs;
@@ -125,7 +122,7 @@ public abstract class JdbcDao {
       con = connectToDB();
       PreparedStatement pstmt = con.prepareStatement(query);
       parameterMapper(pstmt, params);
-      logger.info("Trying to safely execute query {}.", pstmt.toString());
+      logger.info("Trying to safely execute query {} using JdbcDao.", pstmt.toString());
       int update = pstmt.executeUpdate();
       logger.info("Executed query.");
       return update;
@@ -149,7 +146,7 @@ public abstract class JdbcDao {
     try {
       con = connectToDB();
       PreparedStatement pstmt = con.prepareStatement(query);
-      logger.info("Trying to safely execute query {}.", pstmt.toString());
+      logger.info("Trying to safely execute query {} using JdbcDao.", pstmt.toString());
       ResultSet rs = pstmt.executeQuery();
       logger.info("Executed query.");
       return rs;

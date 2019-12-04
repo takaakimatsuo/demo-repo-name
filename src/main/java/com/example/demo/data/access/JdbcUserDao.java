@@ -22,10 +22,11 @@ public class JdbcUserDao extends JdbcDao {
       return lu;
     }
     while (rs.next()) {
-      User user = new User();
-      user.setFamilyName(rs.getString("familyName"));
-      user.setFirstName(rs.getString("firstName"));
-      user.setFamilyName(rs.getString("phoneNumber"));
+      User user = User.builder()
+        .firstName(rs.getString("firstName"))
+        .familyName(rs.getString("familyName"))
+        .phoneNumber(rs.getString("phoneNumber"))
+        .build();
       lu.add(user);
     }
     return lu;

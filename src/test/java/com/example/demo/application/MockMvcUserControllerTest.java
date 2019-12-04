@@ -1,9 +1,10 @@
 package com.example.demo.application;
 
 import com.example.demo.backend.custom.Dto.ResponseUsers;
+import com.example.demo.common.enums.Messages;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.DbException;
-import com.example.demo.data.access.BookDaoTest;
+import com.example.demo.data.access.DatabaseTableInitializer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.FixMethodOrder;
@@ -19,12 +20,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 
-import static com.example.demo.common.messages.StaticInputErrorMessages.INVALID_PHONENUMBER;
-import static com.example.demo.common.messages.StaticUserMessages.USER_INSERTED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -46,12 +44,12 @@ public class MockMvcUserControllerTest {
 
   @BeforeAll
   static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DbException, DaoException {
-    BookDaoTest.dropBookshelf();
-    BookDaoTest.dropBookUser();
-    BookDaoTest.createBookshelf();
-    BookDaoTest.createBookUser();
-    BookDaoTest.fillInBookUser();
-    BookDaoTest.fillInBooks();
+    DatabaseTableInitializer.dropBookshelf();
+    DatabaseTableInitializer.dropBookUser();
+    DatabaseTableInitializer.createBookshelf();
+    DatabaseTableInitializer.createBookUser();
+    DatabaseTableInitializer.fillInBookUser();
+    DatabaseTableInitializer.fillInBooks();
   }
 
 
@@ -81,7 +79,7 @@ public class MockMvcUserControllerTest {
         .andExpect(status().isOk());
 
       ResponseUsers response = acquireBodyAsResponseUsers(result);
-      assertEquals(response.getMessageHeader().getMessage(),USER_INSERTED);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.USER_INSERTED);
     }
 
     @DisplayName("携帯電話番号が間違ったフォーマットの状態でユーザの追加")
@@ -94,7 +92,7 @@ public class MockMvcUserControllerTest {
         .andExpect(status().isBadRequest());
 
       String errorMsg = acquireBodyAsErrorMessage(result);
-      assertEquals(errorMsg,INVALID_PHONENUMBER);
+      assertEquals(errorMsg, Messages.INVALID_PHONENUMBER.getMessageKey());
     }
 
   }
