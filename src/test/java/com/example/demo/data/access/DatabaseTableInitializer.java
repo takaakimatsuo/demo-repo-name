@@ -1,31 +1,19 @@
 package com.example.demo.data.access;
 
-
-
 import com.example.demo.backend.BookBusinessLogic;
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.backend.custom.Dto.User;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.DbException;
-import com.ninja_squad.dbsetup.destination.DataSourceDestination;
-import com.ninja_squad.dbsetup.destination.Destination;
-import com.ninja_squad.dbsetup.operation.Operation;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import javax.sql.DataSource;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ninja_squad.dbsetup.Operations.deleteAllFrom;
-import static com.ninja_squad.dbsetup.Operations.insertInto;
 
 @Slf4j
 @ExtendWith(SpringExtension.class)
