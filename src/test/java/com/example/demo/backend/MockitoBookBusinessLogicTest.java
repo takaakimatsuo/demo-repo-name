@@ -417,7 +417,7 @@ class MockitoBookBusinessLogicTest {
 
     @DisplayName("本データの置き換えですでに保存されている本のタイトルを指定")
     @Test
-    void replaceBook_DUPLICATE() throws DbException, DaoException {
+    void replaceBook_DUPLICATE() throws DaoException {
       Integer bookId = 0;
       Book book = new Book("newTitle",1000,"https://fake.com",10);
 
@@ -435,7 +435,7 @@ class MockitoBookBusinessLogicTest {
 
     @DisplayName("存在しない本データの置き換え")
     @Test
-    void replaceBook_NOT_EXISTING() throws DbException, DaoException {
+    void replaceBook_NOT_EXISTING() throws DaoException {
       Integer bookId = 0;
       Book book = new Book("newTitle",1000,"https://fake.com",10);
 

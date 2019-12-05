@@ -43,7 +43,7 @@ public class MockMvcUserControllerTest {
   UserController controller;
 
   @BeforeAll
-  static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DbException, DaoException {
+  static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DaoException {
     DatabaseTableInitializer.dropBookshelf();
     DatabaseTableInitializer.dropBookUser();
     DatabaseTableInitializer.createBookshelf();

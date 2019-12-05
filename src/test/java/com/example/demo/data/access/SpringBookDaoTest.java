@@ -15,6 +15,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -48,7 +49,7 @@ class SpringBookDaoTest {
 
   private String dummyPhoneNumber1 = "08011110000";
   private String dummyPhoneNumber2 = "08011110001";
-  private String[] dummyBorrowers = {dummyPhoneNumber1,dummyPhoneNumber2};
+  private List<String>  dummyBorrowers = new ArrayList(Arrays.asList(dummyPhoneNumber1,dummyPhoneNumber2));
 
   private Book dummyBook1 = Book.builder()
     .id(1)

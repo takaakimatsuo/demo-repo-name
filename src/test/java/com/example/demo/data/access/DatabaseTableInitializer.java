@@ -76,7 +76,7 @@ public class DatabaseTableInitializer {
         log.info("Bookshelf table created.");
     }
 
-    public static void fillInBookUser() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DbException, DaoException {
+    public static void fillInBookUser() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DaoException {
         String[][] users =
           {{"English", "Johnny","00011110000"},
             {"Whatever", "Whatsoever","00011110001"},
@@ -105,7 +105,7 @@ public class DatabaseTableInitializer {
     }
 
 
-    public static void fillInBooks() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DbException, DaoException {
+    public static void fillInBooks() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DaoException {
         String[][] books =
           {{"First book ever", "100","2","https://a.example.com"},
             {"マイクロソフトの本", "2000","1","https://a.example.com"},

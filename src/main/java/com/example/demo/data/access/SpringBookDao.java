@@ -6,14 +6,15 @@ import com.example.demo.data.access.custom.enums.BookStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository("SpringBookDao")
 public class SpringBookDao implements BookDao {
   @Autowired
@@ -105,18 +106,25 @@ public class SpringBookDao implements BookDao {
       List<Book> customers = jdbcTemplate.query("select borrowedby from bookshelf where id = ?", new RowMapper<Book>() {
         public Book mapRow(ResultSet rs, int rowNum) throws SQLException {
           Book book = new Book();
-          book.setBorrowedBy(splitStringIntoArray(rs.getString("BORROWEDBY"), ",", new String[]{"\"", "}", "{"}));
+          List<String> replacer = new ArrayList<>();
+          replacer.add("\\");
+          replacer.add("}");
+          replacer.add("{");
+          replacer.add("\"");
+          book.setBorrowedBy(splitStringIntoArray(rs.getString("BORROWEDBY"), ",", replacer));
           return book;
         }
       }, bookId);
       if (customers.size() == 0) {
         st = BookStatus.BOOK_NOT_EXISTING;
       } else {
-        if (Arrays.asList(customers.get(0).getBorrowedBy()).contains(phoneNumber)) {
-          //logger.info("User currently borrowing this book.");
+        log.info(customers.get(0).getBorrowedBy().toString());
+        log.info(phoneNumber);
+        if (customers.get(0).getBorrowedBy().contains(phoneNumber)) {
+          log.info("User currently borrowing this book.");
           st = BookStatus.BOOK_BORROWED_BY_THIS_USER;
         } else {
-          //logger.info("User currently not borrowing this book yet.");
+          log.info("User currently not borrowing this book yet.");
           st = BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER;
         }
       }

@@ -9,17 +9,25 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.example.demo.application.InputValidator.assureAllBorrowedBy;
 import static com.example.demo.application.InputValidator.assureBookClassNames;
 import static com.example.demo.application.InputValidator.assureBookUser;
 import static com.example.demo.application.InputValidator.assureInteger;
 import static com.example.demo.application.InputValidator.assurePatchBookClass;
 import static com.example.demo.application.InputValidator.assurePositive;
-import static com.example.demo.application.InputValidator.assureURL;
+import static com.example.demo.application.InputValidator.assureUrl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class InputValidatorTest {
+
+  List<String> dummyPhoneNumbers = new ArrayList<String>(){{add("08000001111");add("07000001111");}};
+  List<String> dummyPhoneNumbers2 = new ArrayList<String>(){{add("08000001111"); add("07000111");}};
+  List<String> dummyPhoneNumbers3 =  new ArrayList<String>(){{add("08000001111");add("07000111ACS");}};
+
 
   @DisplayName("assureIngeger()に関するテスト")
   @Nested
@@ -95,7 +103,8 @@ class InputValidatorTest {
     @Test
     void assureURL1() throws InputFormatException {
       String url = null;
-      Throwable e = assertThrows(InputFormatException.class, () -> {assureURL(url);});
+      Throwable e = assertThrows(InputFormatException.class, () -> {
+        assureUrl(url);});
       assertEquals(e.getMessage(), Messages.URL_NULL.getMessageKey());
     }
 
@@ -103,14 +112,15 @@ class InputValidatorTest {
     @Test
     void assureURL2() throws InputFormatException {
       String url = "https://example.com";
-      assureURL(url);
+      assureUrl(url);
     }
 
     @DisplayName("正しくないURLが引数の時")
     @Test
     void assureURL3() throws InputFormatException {
       String url = "abc";
-      Throwable e = assertThrows(InputFormatException.class, () -> {assureURL(url);});
+      Throwable e = assertThrows(InputFormatException.class, () -> {
+        assureUrl(url);});
       assertEquals(e.getMessage(), Messages.INVALID_URL.getMessageKey());
     }
   }
@@ -122,23 +132,21 @@ class InputValidatorTest {
     @DisplayName("正しい電話番号が引数の場合")
     @Test
     void assureAllBorrowedBy1() throws InputFormatException {
-      String[] phoneNumbers = {"08000001111","07000001111"};
-      assureAllBorrowedBy(phoneNumbers);
+      assureAllBorrowedBy(dummyPhoneNumbers);
     }
 
     @DisplayName("正しくない電話番号が引数の場合")
     @Test
     void assureAllBorrowedBy2() throws InputFormatException {
-      String[] phoneNumbers = {"08000","07000001111"};
-      Throwable e = assertThrows(InputFormatException.class, () -> {assureAllBorrowedBy(phoneNumbers);});
+      Throwable e = assertThrows(InputFormatException.class, () -> {assureAllBorrowedBy(dummyPhoneNumbers2);});
       assertEquals(e.getMessage(),Messages.INVALID_PHONENUMBER.getMessageKey());
     }
 
     @DisplayName("文字列混ざった引数の場合")
     @Test
     void assureAllBorrowedBy3() throws InputFormatException {
-      String[] phoneNumbers = {"080ABC","07000001111"};
-      Throwable e  = assertThrows(InputFormatException.class, () -> {assureAllBorrowedBy(phoneNumbers);});
+
+      Throwable e  = assertThrows(InputFormatException.class, () -> {assureAllBorrowedBy(dummyPhoneNumbers3);});
       assertEquals(e.getMessage(),Messages.INVALID_PHONENUMBER.getMessageKey());
     }
   }

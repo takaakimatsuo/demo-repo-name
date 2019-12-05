@@ -23,10 +23,9 @@ public class BookBusinessLogic {
   private ResponseBooks res;
 
   @Autowired
-  @Qualifier("JdbcBookDao") //Based on standard Jdbc.
-  //@Qualifier("SpringBookDao") // Based on Spring JdbcTemplate.
-  public
-  BookDao dao;
+  //@Qualifier("JdbcBookDao") //Based on standard Jdbc.
+  @Qualifier("SpringBookDao") // Based on Spring JdbcTemplate.
+  public BookDao dao;
 
 
   /**
@@ -66,13 +65,13 @@ public class BookBusinessLogic {
   }
 
   /**
-   * Logic for searching a specific book stored in the bookshelf table using its id.
-   *  @param bookId Identifier of a book.
-   *  @return Returns a list containing a single BookClass object, with a MessageHeader class.
-   *  The list will be kept empty if no matching data has been found.
-   * @throws DaoException if query execution fails.
-   * @throws BookBusinessLogicException if query logic fails.
-   */
+  * Logic for searching a specific book stored in the bookshelf table using its id.
+  *  @param bookId Identifier of a book.
+  *  @return Returns a list containing a single BookClass object, with a MessageHeader class.
+  *  The list will be kept empty if no matching data has been found.
+  * @throws DaoException if query execution fails.
+  * @throws BookBusinessLogicException if query logic fails.
+  */
   public ResponseBooks getBook(Integer bookId) throws DaoException, BookBusinessLogicException {
     res =  ResponseBooks.builder().build();
 
@@ -115,6 +114,7 @@ public class BookBusinessLogic {
 
 
   /**
+   * Logic for updating the book status
    * @param bookId Identifier of a book.
    * @param updStatus Describes the user, and the user's action
    * @return An empty list of BookClass objects, with a MessageHeader class.
@@ -150,7 +150,7 @@ public class BookBusinessLogic {
         if (book.get(0).getQuantity() <= 0) {
           dao.deleteBook(bookId);//Simply remove the book from the bookshelf
           res.getMessageHeader().setMessage(Messages.BOOK_LOST_AND_DELETED);
-        }else {
+        } else {
           res.getMessageHeader().setMessage(Messages.BOOK_LOST);
         }
         break;

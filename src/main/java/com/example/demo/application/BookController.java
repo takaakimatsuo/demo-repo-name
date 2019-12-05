@@ -38,14 +38,13 @@ public class BookController {
   BookBusinessLogic dbl;
 
   /**
-   * Used for acquiring a single book data from the database, specified with an ID.
-   * @param bookId Unique identifier for the book to be searched, not {@code null}.
-   * @return A list of searched {@link com.example.demo.backend.custom.Dto.Book Book} objects,
-   * with a ResponseHeader class, not {@code null}.
-   * @throws DaoException if query execution fails.
-   * @throws InputFormatException if user input is wrong.
-   * @throws BookBusinessLogicException if logic fails.
-   */
+  * Used for acquiring a single book data from the database, specified with an ID.
+  * @param bookId Unique identifier for the book to be searched, not {@code null}.
+  * @return A list of searched {@link com.example.demo.backend.custom.Dto.Book Book} objects,* with a ResponseHeader class, not {@code null}.
+  * @throws DaoException if query execution fails.
+  * @throws InputFormatException if user input is wrong.
+  * @throws BookBusinessLogicException if logic fails.
+  */
   @CrossOrigin
   @GetMapping(value = "/books/{id}")
   public ResponseBooks getBook(@PathVariable("id") String bookId) throws InputFormatException, BookBusinessLogicException, DaoException {
@@ -90,14 +89,12 @@ public class BookController {
   @CrossOrigin
   @PostMapping(value = "/books")
   public ResponseBooks postBook(@RequestBody Book book) throws DaoException, InputFormatException, BookBusinessLogicException {
-    ResponseBooks response;
     try {
-      response = dbl.addBook(assureBookClass(book));
+      return  dbl.addBook(assureBookClass(book));
     } catch (InputFormatException | DaoException | BookBusinessLogicException e) {
       log.error("Error in postBook() in BookController.java: ",e);
       throw e;
     }
-    return response;
   }
 
   /**
@@ -113,14 +110,12 @@ public class BookController {
   @CrossOrigin
   @PutMapping(value = "/books/{id}")
   public ResponseBooks putBook(@PathVariable("id") String bookId, @RequestBody Book newBookData) throws InputFormatException, BookBusinessLogicException, DaoException {
-    ResponseBooks response;
     try {
-      response = dbl.replaceBook(assurePositive(assureInteger(bookId)),assureBookClass(newBookData));
+      return dbl.replaceBook(assurePositive(assureInteger(bookId)),assureBookClass(newBookData));
     } catch (InputFormatException | DaoException | BookBusinessLogicException e) {
       log.error("Error in putBook() in BookController.java: ",e);
       throw e;
     }
-    return response;
   }
 
   /**
@@ -136,14 +131,12 @@ public class BookController {
   @CrossOrigin
   @PatchMapping(value = "/books/{id}")
   public ResponseBooks patchBook(@PathVariable("id") String bookId, @RequestBody PatchBook patchData) throws InputFormatException, BookBusinessLogicException, DaoException {
-    ResponseBooks response;
     try {
-      response = dbl.updateBook(assurePositive(assureInteger(bookId)),assurePatchBookClass(patchData));
+       return dbl.updateBook(assurePositive(assureInteger(bookId)),assurePatchBookClass(patchData));
     } catch (InputFormatException | DaoException | BookBusinessLogicException e) {
       log.error("Error in patchBook() in BookController.java: ",e);
       throw e;
     }
-    return response;
   }
 
   /**
@@ -158,14 +151,12 @@ public class BookController {
   @CrossOrigin
   @DeleteMapping(value = "/books/{id}")
   public ResponseBooks deleteBook(@PathVariable("id") String bookId) throws DaoException, InputFormatException, BookBusinessLogicException {
-    ResponseBooks response;
     try {
-      response = dbl.removeBook(assurePositive(assureInteger(bookId)));
+       return dbl.removeBook(assurePositive(assureInteger(bookId)));
     } catch (DaoException | InputFormatException | BookBusinessLogicException e) {
       log.error("Error in deleteBook() in BookController.java: ",e);
       throw e;
     }
-    return response;
   }
 
 

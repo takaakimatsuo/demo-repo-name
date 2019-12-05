@@ -363,7 +363,7 @@ class JdbcBookDaoTest {
   class getAllBooks {
     @Test
     @DisplayName("SQL実行の失敗")
-    void getAllBooks1() throws DbException, DaoException {
+    void getAllBooks1() throws DaoException {
       DaoException expected = new DaoException("This is fake");
 
       when(dao.getAllBooks()).thenCallRealMethod();
@@ -464,7 +464,7 @@ class JdbcBookDaoTest {
     @Ignore
     @DisplayName("正しい本へのアクセス")
     @Test
-    public void getBook3() throws SQLException, DbException, DaoException {
+    public void getBook3() throws SQLException, DaoException {
 
       when(dao.connectToDB()).thenReturn(mockConnection);
       when(dao.getBook(anyInt())).thenCallRealMethod();

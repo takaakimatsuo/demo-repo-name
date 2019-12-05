@@ -35,16 +35,13 @@ public class UserController {
   @CrossOrigin
   @PostMapping(value = "/users")
   public ResponseUsers postUser(@RequestBody User user) throws DaoException, InputFormatException, UserBusinessLogicException {
-    ResponseUsers response = new ResponseUsers();
     try {
-      response = dbl.addUser(assureBookUser(user));
+      return dbl.addUser(assureBookUser(user));
     } catch (InputFormatException | DaoException | UserBusinessLogicException e) {
-      log.error("Error in postUser() in UserController.java: ",e);
+      log.error("Error in postUser() in UserController.java: ", e);
       throw e;
     }
-    return response;
   }
-
 
   /**
    * Used for deleting a user data from the database.
@@ -57,14 +54,13 @@ public class UserController {
   @CrossOrigin
   @DeleteMapping(value = "/users/{id}")
   public ResponseUsers deleteUser(@PathVariable("id") String userId) throws DaoException, InputFormatException, UserBusinessLogicException {
-    ResponseUsers response = new ResponseUsers();
+
     try {
-      response = dbl.removeUser(assurePositive(assureInteger(userId)));
+      return dbl.removeUser(assurePositive(assureInteger(userId)));
     } catch (InputFormatException | DaoException | UserBusinessLogicException e) {
       log.error("Error in deleteUser() in UserController.java: ",e);
       throw e;
     }
-    return response;
   }
 
   /**
@@ -77,14 +73,12 @@ public class UserController {
   @CrossOrigin
   @GetMapping(value = "/users/")
   public ResponseUsers deleteUser() throws DaoException, UserBusinessLogicException {
-    ResponseUsers response = new ResponseUsers();
     try {
-      response = dbl.getAllUsers();
+      return dbl.getAllUsers();
     } catch (DaoException | UserBusinessLogicException e) {
       log.error("Error in deleteUser() in UserController.java: ",e);
       throw e;
     }
-    return response;
   }
 
 

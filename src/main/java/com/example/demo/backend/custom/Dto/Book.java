@@ -1,5 +1,7 @@
 package com.example.demo.backend.custom.Dto;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
+
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,7 +28,7 @@ public class Book {
   @Builder.Default
   private int quantity = 1;
   @Builder.Default
-  private String[] borrowedBy = {};
+  private List<String> borrowedBy = new ArrayList<>();
 
 
   public Book(String title, int price, String url, int quantity) {

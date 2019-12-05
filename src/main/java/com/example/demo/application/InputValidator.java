@@ -5,16 +5,15 @@ import com.example.demo.backend.custom.Dto.PatchBook;
 import com.example.demo.backend.custom.Dto.User;
 import com.example.demo.common.enums.Messages;
 import com.example.demo.common.exceptions.InputFormatException;
-
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class InputValidator {
   private static final String PHONE_NUMBER_FORMAT = "^\\d{10,15}$";
   private static final String URL_FORMAT = "^https?://[a-z\\.:/\\+\\-\\#\\?\\=\\&\\;\\%\\~]+$";
-  private static Pattern URL_PATTERN = Pattern.compile(URL_FORMAT);
-  private static Pattern PHONENUMBER_PATTERN = Pattern.compile(PHONE_NUMBER_FORMAT);
-
+  private static final Pattern URL_PATTERN = Pattern.compile(URL_FORMAT);
+  private static final Pattern PHONENUMBER_PATTERN = Pattern.compile(PHONE_NUMBER_FORMAT);
 
   /**
    * Makes sure that the inputted String is Integer compatible.
@@ -35,7 +34,6 @@ public class InputValidator {
     return result;
   }
 
-
   /**
    * Makes sure that the inputted Integer is positive.
    * @param integer An arbitrary number as Integer.
@@ -43,26 +41,21 @@ public class InputValidator {
    * @throws InputFormatException if input is not acceptable.
    */
   static Integer assurePositive(Integer integer) throws InputFormatException {
-
     if (integer == null) {
       throw new InputFormatException(Messages.INTEGER_NULL);
     }
-
     if (integer < 0) {
       throw new InputFormatException(Messages.INVALID_ID);
     }
-
     return integer;
   }
-
-
 
   /**
    * Validates the URL format.
    * @param url URL as a String to be checked.
    * @throws InputFormatException if input is not acceptable.
    */
-  public static void assureURL(String url) throws InputFormatException {
+  public static void assureUrl(String url) throws InputFormatException {
 
     if (url == null) {
       throw new InputFormatException(Messages.URL_NULL);
@@ -81,7 +74,7 @@ public class InputValidator {
    * @param phoneNumbers A String list of phone numbers.
    * @throws InputFormatException if input is not acceptable.
    */
-  public static void assureAllBorrowedBy(String[] phoneNumbers) throws InputFormatException {
+  public static void assureAllBorrowedBy(List<String> phoneNumbers) throws InputFormatException {
 
     if (phoneNumbers == null) {
       return;
@@ -90,18 +83,7 @@ public class InputValidator {
       assureBorrowedBy(phoneNumber);
     }
   }
-
-  /**
-   * Validates that names aren't null.
-   * @param names A String list of names.
-   * @throws InputFormatException if input is not acceptable.
-   */
-  private static void assureBorrowedByNames(String[] names) throws InputFormatException {
-    if (names == null) {
-      throw new InputFormatException(Messages.BORROWER_NULL);
-    }
-  }
-
+  
   /**
    * Validates a of phone numbers.
    * @param phoneNumber A String list of phone numbers.
@@ -116,7 +98,6 @@ public class InputValidator {
       throw new InputFormatException(Messages.INVALID_PHONENUMBER);
     }
   }
-
 
   /**
    * Validates the quantity.
@@ -153,7 +134,6 @@ public class InputValidator {
     }
   }
 
-
   /**
    * Validates the {@link com.example.demo.backend.custom.Dto.Book Book} object.
    * Borrowers are written in names.
@@ -165,13 +145,12 @@ public class InputValidator {
     if (book == null) {
       throw new InputFormatException(Messages.BOOK_CLASS_NULL);
     }
-    assureURL(book.getUrl());
+    assureUrl(book.getUrl());
     assureQuantity(book.getQuantity());
     assurePrice(book.getPrice());
     assureTitle(book.getTitle());
     return book;
   }
-
 
   /**
    * Validates the {@link com.example.demo.backend.custom.Dto.Book Book} object.
@@ -185,13 +164,12 @@ public class InputValidator {
       throw new InputFormatException(Messages.BOOK_CLASS_NULL);
     }
     assureAllBorrowedBy(book.getBorrowedBy());
-    assureURL(book.getUrl());
+    assureUrl(book.getUrl());
     assureQuantity(book.getQuantity());
     assurePrice(book.getPrice());
     assureTitle(book.getTitle());
     return book;
   }
-
 
   /**
    * Validates the {@link com.example.demo.backend.custom.Dto.User User} object.
@@ -214,7 +192,6 @@ public class InputValidator {
     return status;
   }
 
-
   public static PatchBook assurePatchBookClass(PatchBook book) throws InputFormatException {
     if (book == null) {
       throw new InputFormatException(Messages.PATCHBOOK_CLASS_NULL);
@@ -223,6 +200,4 @@ public class InputValidator {
     assureBorrowedBy(book.getBorrower());
     return book;
   }
-
-
 }

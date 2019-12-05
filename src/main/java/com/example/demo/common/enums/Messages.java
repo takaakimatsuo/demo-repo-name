@@ -6,7 +6,7 @@ public enum Messages {
   BOOK_BORROWED("Borrowed book successfully."),
   BOOK_RETURNED("Returned book successfully."),
   BOOK_LOST("Reported lost book successfully."),
-  BOOK_LOST_AND_DELETED("Reported lost book successfully. The book has been deleted as quantity became less than 0."),
+  BOOK_LOST_AND_DELETED("Reported lost book successfully. The book has been deleted as its quantity became less than 0."),
   BOOK_DELETED("Book deleted successfully"),
   BOOK_INSERTED("New book inserted to database."),
   BOOK_NOT_EXISTING_OR_IS_BORROWED("Book does not exist, or is currently borrowed by someone and thus cannot be disturbed."),

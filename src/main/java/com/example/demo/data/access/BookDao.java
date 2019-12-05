@@ -1,9 +1,12 @@
 package com.example.demo.data.access;
 
+import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.backend.custom.Dto.MessageHeader;
 import com.example.demo.common.exceptions.DaoException;
-import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.data.access.custom.enums.BookStatus;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public interface BookDao {
@@ -11,11 +14,11 @@ public interface BookDao {
 
 
   /**
-   * Searches all book data from the database.
-   * @return Returns a list of searched {@link com.example.demo.backend.custom.Dto.Book Book} objects,
-   * with a {@link MessageHeader MessageHeader}, not {@code null}..
-   * @throws DaoException if query execution fails.
-   */
+  * Searches all book data from the database.
+  * @return Returns a list of searched {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+  * with a {@link MessageHeader MessageHeader}, not {@code null}.
+  * @throws DaoException if query execution fails.
+  */
   List<Book> getAllBooks() throws DaoException;
 
   /**
@@ -111,8 +114,8 @@ public interface BookDao {
    * @param replacer The specified list of Strings in the this array will be removed from the first parameter.
    * @return An array of strings.
    */
-  default String[] splitStringIntoArray(String str, String splitter, String[] replacer) {
-    String[] adjustedToArray = new String[0];
+  default List<String> splitStringIntoArray(String str, String splitter, List<String> replacer) {
+    List<String> adjustedToArray = new ArrayList<>();
     if (str == null) {
       return adjustedToArray;
     }
@@ -120,7 +123,7 @@ public interface BookDao {
       str = str.replace(rep, "");
     }
     if (str.split(splitter)[0].compareTo("") != 0) {
-      adjustedToArray = str.split(splitter);
+      adjustedToArray = Arrays.asList(str.split(splitter));
     }
     return adjustedToArray;
   }

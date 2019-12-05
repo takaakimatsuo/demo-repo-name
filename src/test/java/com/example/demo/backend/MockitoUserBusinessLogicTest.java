@@ -54,7 +54,7 @@ public class MockitoUserBusinessLogicTest {
 
     @DisplayName("すでに登録されている電話番号を使って新たなユーザを追加")
     @Test
-    void addUser_DUPLICATE() throws DbException, DaoException {
+    void addUser_DUPLICATE() throws DaoException {
 
 
       DaoException fakeOutput = new DaoException("This is fake");
