@@ -15,9 +15,8 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.*;
 
-import static com.example.demo.backend.errorcodes.SqlErrorCodes.SQL_CODE_DUPLICATE_KEY_ERROR;
+import static com.example.demo.backend.errorcodes.SqlErrorCodes.UNIQUE_VIOLATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -31,6 +30,12 @@ public class MockitoUserBusinessLogicTest {
   @Mock
   JdbcUserDao udao;
 
+  User dummyUser = User.builder()
+    .firstName("First")
+    .familyName("Family")
+    .phoneNumber("08011110000")
+    .build();
+
 
   @DisplayName("ユーザの追加に関するテスト")
   @Nested
@@ -39,61 +44,38 @@ public class MockitoUserBusinessLogicTest {
     @Test
     void addUser() throws DaoException, UserBusinessLogicException {
 
-      List<User> list = new ArrayList<>();
-      User user = User.builder()
-        .firstName("First")
-        .familyName("Family")
-        .phoneNumber("08011110000")
-        .build();
-      list.add(user);
+      when(udao.insertBookUser(dummyUser)).thenReturn(1);
 
-      when(udao.insertBookUser(user)).thenReturn(list);
-
-      ResponseUsers actual = dbl.addUser(user);
+      ResponseUsers actual = dbl.addUser(dummyUser);
       assertEquals(actual.getMessageHeader().getMessage(), Messages.USER_INSERTED);
 
     }
 
 
-    @DisplayName("すでに登録されている電話番号を使い新たなユーザを追加")
+    @DisplayName("すでに登録されている電話番号を使って新たなユーザを追加")
     @Test
     void addUser_DUPLICATE() throws DbException, DaoException {
 
-      List<User> list = new ArrayList<>();
-      User user = User.builder()
-        .firstName("First")
-        .familyName("Family")
-        .phoneNumber("08011110000")
-        .build();
-      list.add(user);
 
       DaoException fakeOutput = new DaoException("This is fake");
-      fakeOutput.setSqlCode(SQL_CODE_DUPLICATE_KEY_ERROR);
+      fakeOutput.setSqlCode(UNIQUE_VIOLATION);
 
       UserBusinessLogicException expected = new UserBusinessLogicException(Messages.USER_DUPLICATE);
 
-      when(udao.insertBookUser(user)).thenThrow(fakeOutput);
+      when(udao.insertBookUser(dummyUser)).thenThrow(fakeOutput);
 
-      Throwable e = assertThrows(expected.getClass(), () -> {dbl.addUser(user);});
+      Throwable e = assertThrows(expected.getClass(), () -> {dbl.addUser(dummyUser);});
 
     }
 
 
     @DisplayName("ユーザの追加時にDb例外")
     @Test
-    void addUser_Dp() throws DbException, DaoException {
-
-      List<User> list = new ArrayList<>();
-      User user = User.builder()
-        .firstName("First")
-        .familyName("Family")
-        .phoneNumber("08011110000")
-        .build();
-      list.add(user);
+    void addUser_Dp() throws DaoException {
 
       DbException fakeOutput = new DbException("This is fake");
-      when(udao.insertBookUser(user)).thenThrow(fakeOutput);
-      Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.addUser(user);});
+      when(udao.insertBookUser(dummyUser)).thenThrow(fakeOutput);
+      Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.addUser(dummyUser);});
 
     }
 
@@ -101,19 +83,11 @@ public class MockitoUserBusinessLogicTest {
 
     @DisplayName("ユーザの追加時にDao例外")
     @Test
-    void addUser_Dao() throws DbException, DaoException {
-
-      List<User> list = new ArrayList<>();
-      User user = User.builder()
-        .firstName("First")
-        .familyName("Family")
-        .phoneNumber("08011110000")
-        .build();
-      list.add(user);
+    void addUser_Dao() throws DaoException {
 
       DaoException fakeOutput = new DaoException("This is fake");
-      when(udao.insertBookUser(user)).thenThrow(fakeOutput);
-      Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.addUser(user);});
+      when(udao.insertBookUser(dummyUser)).thenThrow(fakeOutput);
+      Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.addUser(dummyUser);});
 
     }
   }

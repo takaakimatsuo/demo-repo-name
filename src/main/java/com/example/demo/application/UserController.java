@@ -7,24 +7,17 @@ import com.example.demo.common.exceptions.BookBusinessLogicException;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.InputFormatException;
 import com.example.demo.common.exceptions.UserBusinessLogicException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import static com.example.demo.DemoApplication.logger;
 import static com.example.demo.application.InputValidator.assureBookUser;
 import static com.example.demo.application.InputValidator.assureInteger;
 import static com.example.demo.application.InputValidator.assurePositive;
 
 
+@Slf4j
 @RestController
 public class UserController {
 
@@ -32,12 +25,12 @@ public class UserController {
   UserBusinessLogic dbl;
 
   /**
-   * Receiver for the Post request with no path-variable.
-   * This is used for inserting a new user data to the database.
+   * Used for inserting a new user data to the database.
    * @param user A UserClass object to be inserted.
    * @return A list of UserClass objects, with a ResponseHeader class.
-   * The list will hold the data of inserted user.
-   * Otherwise it is empty.
+   * @throws DaoException if query execution fails.
+   * @throws InputFormatException if user input is not acceptable.
+   * @throws UserBusinessLogicException if logic fails.
    */
   @CrossOrigin
   @PostMapping(value = "/users")
@@ -46,7 +39,7 @@ public class UserController {
     try {
       response = dbl.addUser(assureBookUser(user));
     } catch (InputFormatException | DaoException | UserBusinessLogicException e) {
-      logger.error("Error in getBook() in BookController.java: ",e);
+      log.error("Error in postUser() in UserController.java: ",e);
       throw e;
     }
     return response;
@@ -54,10 +47,12 @@ public class UserController {
 
 
   /**
-   * Receiver for the Post request with no path-variable.
-   * This is used for inserting a new user data to the database.
+   * Used for deleting a user data from the database.
    * @param userId Unique identifier for the user stored in the database.
    * @return An empty list of UserClass objects, with a ResponseHeader class.
+   * @throws DaoException if query execution fails.
+   * @throws InputFormatException if user input is not acceptable.
+   * @throws UserBusinessLogicException if logic fails.
    */
   @CrossOrigin
   @DeleteMapping(value = "/users/{id}")
@@ -66,7 +61,27 @@ public class UserController {
     try {
       response = dbl.removeUser(assurePositive(assureInteger(userId)));
     } catch (InputFormatException | DaoException | UserBusinessLogicException e) {
-      logger.error("Error in getBook() in BookController.java: ",e);
+      log.error("Error in deleteUser() in UserController.java: ",e);
+      throw e;
+    }
+    return response;
+  }
+
+  /**
+   * Used for deleting a user data from the database.
+   * @return A list of searched UserClass objects, with a ResponseHeader class.
+   * @throws DaoException if query execution fails.
+   * @throws InputFormatException if user input is not acceptable.
+   * @throws UserBusinessLogicException if logic fails.
+   */
+  @CrossOrigin
+  @GetMapping(value = "/users/")
+  public ResponseUsers deleteUser() throws DaoException, UserBusinessLogicException {
+    ResponseUsers response = new ResponseUsers();
+    try {
+      response = dbl.getAllUsers();
+    } catch (DaoException | UserBusinessLogicException e) {
+      log.error("Error in deleteUser() in UserController.java: ",e);
       throw e;
     }
     return response;
@@ -95,7 +110,7 @@ public class UserController {
   @ExceptionHandler({UserBusinessLogicException.class})
   @ResponseStatus(value = HttpStatus.BAD_REQUEST)
   @ResponseBody
-  public String handleException(BookBusinessLogicException e) {
+  public String handleException(UserBusinessLogicException e) {
     return e.getMessage();
   }
 

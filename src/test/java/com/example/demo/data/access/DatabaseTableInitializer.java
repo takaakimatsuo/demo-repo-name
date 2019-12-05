@@ -1,21 +1,36 @@
 package com.example.demo.data.access;
 
 
-import static com.example.demo.DemoApplication.logger;
 
 import com.example.demo.backend.BookBusinessLogic;
-import com.example.demo.common.exceptions.DaoException;
-import com.example.demo.common.exceptions.DbException;
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.backend.custom.Dto.User;
+import com.example.demo.common.exceptions.DaoException;
+import com.example.demo.common.exceptions.DbException;
+import com.ninja_squad.dbsetup.destination.DataSourceDestination;
+import com.ninja_squad.dbsetup.destination.Destination;
+import com.ninja_squad.dbsetup.operation.Operation;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import javax.sql.DataSource;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.ninja_squad.dbsetup.Operations.deleteAllFrom;
+import static com.ninja_squad.dbsetup.Operations.insertInto;
+
+@Slf4j
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class DatabaseTableInitializer {
-
-
 
     static JdbcUserDao userDao = new JdbcUserDao();
     static BookDao bookDao = new JdbcBookDao();
@@ -27,7 +42,7 @@ public class DatabaseTableInitializer {
         Method method = JdbcDao.class.getDeclaredMethod("executeUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int) method.invoke(bookDao, query, paramList);
-        logger.info("Dropped bookshelf table");
+        log.info("Dropped bookshelf table");
     }
 
     public static void dropBookUser() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -36,7 +51,7 @@ public class DatabaseTableInitializer {
         Method method = JdbcDao.class.getDeclaredMethod("executeUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int) method.invoke(bookDao, query, param_list);
-        logger.info("Dropped book_user table");
+        log.info("Dropped book_user table");
     }
 
     public static void createBookshelf() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -55,7 +70,7 @@ public class DatabaseTableInitializer {
         Method method = JdbcDao.class.getDeclaredMethod("executeUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int)method.invoke(bookDao,query,paramList);
-        logger.info(" bookshelf table created.");
+        log.info(" bookshelf table created.");
     }
 
     public static void createBookUser() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -70,7 +85,7 @@ public class DatabaseTableInitializer {
         Method method = JdbcDao.class.getDeclaredMethod("executeUpdate", String.class, List.class);
         method.setAccessible(true);
         int updated = (int)method.invoke(bookDao,query,param_list);
-        logger.info("Bookshelf table created.");
+        log.info("Bookshelf table created.");
     }
 
     public static void fillInBookUser() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DbException, DaoException {

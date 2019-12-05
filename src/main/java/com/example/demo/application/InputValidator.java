@@ -82,9 +82,9 @@ public class InputValidator {
    * @throws InputFormatException if input is not acceptable.
    */
   public static void assureAllBorrowedBy(String[] phoneNumbers) throws InputFormatException {
+
     if (phoneNumbers == null) {
       return;
-//      throw new InputFormatException(Messages.BORROWER_NULL);
     }
     for (String phoneNumber: phoneNumbers) {
       assureBorrowedBy(phoneNumber);
@@ -126,8 +126,7 @@ public class InputValidator {
   private static void assureQuantity(int quantity) throws InputFormatException {
     if (quantity == 0) {
       throw new InputFormatException(Messages.ZERO_QUANTITY);
-    }
-    else if (quantity < 0) {
+    } else if (quantity < 0) {
       throw new InputFormatException(Messages.NEGATIVE_QUANTITY);
     }
   }
@@ -166,7 +165,6 @@ public class InputValidator {
     if (book == null) {
       throw new InputFormatException(Messages.BOOK_CLASS_NULL);
     }
-    //assureBorrowedByNames(book.getBorrowedBy());
     assureURL(book.getUrl());
     assureQuantity(book.getQuantity());
     assurePrice(book.getPrice());

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.sql.PreparedStatement;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,15 +34,21 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 class JdbcBookDaoTest {
 
-
-  private PreparedStatement pstmt = mock(PreparedStatement.class);
-
   private ResultSet mockResultSet = mock(ResultSet.class);
 
   private Connection mockConnection = mock(Connection.class);
 
   @InjectMocks
   private static JdbcBookDao dao = mock(JdbcBookDao.class);
+
+  private int dummyBookId = 1;
+  private String dummyPhoneNumber = "08000001111";
+  Book dummyBook1 = Book.builder()
+    .title("Title")
+    .price(1)
+    .url("https://hi.com")
+    .quantity(1)
+    .build();
 
   @BeforeEach
   void reinitializeMock(){
@@ -56,46 +62,43 @@ class JdbcBookDaoTest {
     @DisplayName("SQL実行の失敗")
     @Test
     void updateBook_borrowed() throws DaoException {
-      int bookId = 1;
-      String phoneNumber = "08000001111";
+      
       DaoException expected = new DaoException("This is fake");
-      when(dao.updateBook_borrowed(anyInt(),anyString())).thenCallRealMethod();
+      when(dao.updateBookBorrowed(anyInt(),anyString())).thenCallRealMethod();
       when(dao.executeUpdate(anyString(),anyList())).thenThrow(expected);
 
       Throwable e = assertThrows(expected.getClass(), () -> {
-        dao.updateBook_borrowed(bookId, phoneNumber);
+        dao.updateBookBorrowed(dummyBookId, dummyPhoneNumber);
       });
-      verify(dao, times(1)).updateBook_borrowed(anyInt(),anyString());
+      verify(dao, times(1)).updateBookBorrowed(anyInt(),anyString());
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
     }
     @DisplayName("データベースへの接続失敗")
     @Test
     void updateBook_borrowed2() throws DaoException {
-      int bookId = 1;
-      String phoneNumber = "08000001111";
+      
       DaoException expected = new DbException("This is fake");
-      when(dao.updateBook_borrowed(anyInt(),anyString())).thenCallRealMethod();
+      when(dao.updateBookBorrowed(anyInt(),anyString())).thenCallRealMethod();
       when(dao.connectToDB()).thenThrow(expected);
       when(dao.executeUpdate(anyString(),anyList())).thenCallRealMethod();
 
       Throwable e = assertThrows(expected.getClass(), () -> {
-        dao.updateBook_borrowed(bookId, phoneNumber);
+        dao.updateBookBorrowed(dummyBookId, dummyPhoneNumber);
       });
-      verify(dao, times(1)).updateBook_borrowed(anyInt(),anyString());
+      verify(dao, times(1)).updateBookBorrowed(anyInt(),anyString());
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
     }
 
     @DisplayName("正しい本の置き換え")
     @Test
     void updateBook_borrowed3() throws DaoException {
-      int bookId = 1;
-      String phoneNumber = "08000001111";
+      
       DaoException expected = new DbException("This is fake");
-      when(dao.updateBook_borrowed(anyInt(),anyString())).thenCallRealMethod();
+      when(dao.updateBookBorrowed(anyInt(),anyString())).thenCallRealMethod();
       when(dao.executeUpdate(anyString(),anyList())).thenReturn(1);
 
-      dao.updateBook_borrowed(bookId, phoneNumber);
-      verify(dao, times(1)).updateBook_borrowed(anyInt(),anyString());
+      dao.updateBookBorrowed(dummyBookId, dummyPhoneNumber);
+      verify(dao, times(1)).updateBookBorrowed(anyInt(),anyString());
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
     }
   }
@@ -106,46 +109,42 @@ class JdbcBookDaoTest {
     @DisplayName("SQL実行の失敗")
     @Test
     void updateBook_returned1() throws DaoException {
-      int bookId = 1;
-      String phoneNumber = "08000001111";
+      
       DaoException expected = new DaoException("This is fake");
-      when(dao.updateBook_returned(anyInt(),anyString())).thenCallRealMethod();
+      when(dao.updateBookReturned(anyInt(),anyString())).thenCallRealMethod();
       when(dao.executeUpdate(anyString(),anyList())).thenThrow(expected);
 
       Throwable e = assertThrows(expected.getClass(), () -> {
-        dao.updateBook_returned(bookId, phoneNumber);
+        dao.updateBookReturned(dummyBookId, dummyPhoneNumber);
       });
-      verify(dao, times(1)).updateBook_returned(anyInt(),anyString());
+      verify(dao, times(1)).updateBookReturned(anyInt(),anyString());
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
     }
     @DisplayName("データベースへの接続失敗")
     @Test
     void updateBook_returned2() throws DaoException {
-      int bookId = 1;
-      String phoneNumber = "08000001111";
+      
       DaoException expected = new DbException("This is fake");
-      when(dao.updateBook_returned(anyInt(),anyString())).thenCallRealMethod();
+      when(dao.updateBookReturned(anyInt(),anyString())).thenCallRealMethod();
       when(dao.connectToDB()).thenThrow(expected);
       when(dao.executeUpdate(anyString(),anyList())).thenCallRealMethod();
 
       Throwable e = assertThrows(expected.getClass(), () -> {
-        dao.updateBook_returned(bookId, phoneNumber);
+        dao.updateBookReturned(dummyBookId, dummyPhoneNumber);
       });
-      verify(dao, times(1)).updateBook_returned(anyInt(),anyString());
+      verify(dao, times(1)).updateBookReturned(anyInt(),anyString());
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
     }
 
     @DisplayName("正しい本の置き換え")
     @Test
     void updateBook_returned3() throws DaoException {
-      int bookId = 1;
-      String phoneNumber = "08000001111";
-      DaoException expected = new DbException("This is fake");
-      when(dao.updateBook_returned(anyInt(),anyString())).thenCallRealMethod();
+
+      when(dao.updateBookReturned(anyInt(),anyString())).thenCallRealMethod();
       when(dao.executeUpdate(anyString(),anyList())).thenReturn(1);
 
-      dao.updateBook_returned(bookId, phoneNumber);
-      verify(dao, times(1)).updateBook_returned(anyInt(),anyString());
+      dao.updateBookReturned(dummyBookId, dummyPhoneNumber);
+      verify(dao, times(1)).updateBookReturned(anyInt(),anyString());
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
     }
   }
@@ -158,46 +157,42 @@ class JdbcBookDaoTest {
     @DisplayName("SQL実行の失敗")
     @Test
     void updateBook_lost1() throws DaoException {
-      int bookId = 1;
-      String phoneNumber = "08000001111";
+      
       DaoException expected = new DaoException("This is fake");
-      when(dao.updateBook_lost(anyInt(),anyString())).thenCallRealMethod();
+      when(dao.updateBookLost(anyInt(),anyString())).thenCallRealMethod();
       when(dao.executeUpdate(anyString(),anyList())).thenThrow(expected);
 
       Throwable e = assertThrows(expected.getClass(), () -> {
-        dao.updateBook_lost(bookId, phoneNumber);
+        dao.updateBookLost(dummyBookId, dummyPhoneNumber);
       });
-      verify(dao, times(1)).updateBook_lost(anyInt(),anyString());
+      verify(dao, times(1)).updateBookLost(anyInt(),anyString());
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
     }
     @DisplayName("データベースへの接続失敗")
     @Test
     void updateBook_lost2() throws DaoException {
-      int bookId = 1;
-      String phoneNumber = "08000001111";
+      
       DaoException expected = new DbException("This is fake");
-      when(dao.updateBook_lost(anyInt(),anyString())).thenCallRealMethod();
+      when(dao.updateBookLost(anyInt(),anyString())).thenCallRealMethod();
       when(dao.connectToDB()).thenThrow(expected);
       when(dao.executeUpdate(anyString(),anyList())).thenCallRealMethod();
 
       Throwable e = assertThrows(expected.getClass(), () -> {
-        dao.updateBook_lost(bookId, phoneNumber);
+        dao.updateBookLost(dummyBookId, dummyPhoneNumber);
       });
-      verify(dao, times(1)).updateBook_lost(anyInt(),anyString());
+      verify(dao, times(1)).updateBookLost(anyInt(),anyString());
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
     }
 
     @DisplayName("正しい本の置き換え")
     @Test
     void updateBook_lost3() throws DaoException {
-      int bookId = 1;
-      String phoneNumber = "08000001111";
-      DaoException expected = new DbException("This is fake");
-      when(dao.updateBook_lost(anyInt(),anyString())).thenCallRealMethod();
+
+      when(dao.updateBookLost(anyInt(),anyString())).thenCallRealMethod();
       when(dao.executeUpdate(anyString(),anyList())).thenReturn(1);
 
-      dao.updateBook_lost(bookId, phoneNumber);
-      verify(dao, times(1)).updateBook_lost(anyInt(),anyString());
+      dao.updateBookLost(dummyBookId, dummyPhoneNumber);
+      verify(dao, times(1)).updateBookLost(anyInt(),anyString());
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
     }
   }
@@ -208,46 +203,46 @@ class JdbcBookDaoTest {
     @DisplayName("SQL実行の失敗")
     @Test
     void updateBook_data1() throws DaoException {
-      int bookId = 1;
-      Book fakeBook = new Book("Title",1,"https://hi.com",1);
+
+      
       DaoException expected = new DaoException("This is fake");
-      when(dao.updateBook_data(anyInt(),any(Book.class))).thenCallRealMethod();
+      when(dao.replaceBook(anyInt(),any(Book.class))).thenCallRealMethod();
       when(dao.executeUpdate(anyString(),anyList())).thenThrow(expected);
 
       Throwable e = assertThrows(expected.getClass(), () -> {
-        dao.updateBook_data(bookId, fakeBook);
+        dao.replaceBook(dummyBookId, dummyBook1);
       });
-      verify(dao, times(1)).updateBook_data(anyInt(),any(Book.class));
+      verify(dao, times(1)).replaceBook(anyInt(),any(Book.class));
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
     }
     @DisplayName("データベースへの接続失敗")
     @Test
     void updateBook_data2() throws DaoException {
-      int bookId = 1;
-      Book fakeBook = new Book("Title",1,"https://hi.com",1);
+
+      
       DaoException expected = new DbException("This is fake");
-      when(dao.updateBook_data(anyInt(),any(Book.class))).thenCallRealMethod();
+      when(dao.replaceBook(anyInt(),any(Book.class))).thenCallRealMethod();
       when(dao.connectToDB()).thenThrow(expected);
       when(dao.executeUpdate(anyString(),anyList())).thenCallRealMethod();
 
       Throwable e = assertThrows(expected.getClass(), () -> {
-        dao.updateBook_data(bookId, fakeBook);
+        dao.replaceBook(dummyBookId, dummyBook1);
       });
-      verify(dao, times(1)).updateBook_data(anyInt(),any(Book.class));
+      verify(dao, times(1)).replaceBook(anyInt(),any(Book.class));
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
     }
 
     @DisplayName("正しい本の置き換え")
     @Test
     void updateBook_data3() throws DaoException {
-      int bookId = 1;
-      Book fakeBook = new Book("Title",1,"https://hi.com",1);
+
+      
       DaoException expected = new DbException("This is fake");
-      when(dao.updateBook_data(anyInt(),any(Book.class))).thenCallRealMethod();
+      when(dao.replaceBook(anyInt(),any(Book.class))).thenCallRealMethod();
       when(dao.executeUpdate(anyString(),anyList())).thenReturn(1);
 
-      dao.updateBook_data(bookId, fakeBook);
-      verify(dao, times(1)).updateBook_data(anyInt(),any(Book.class));
+      dao.replaceBook(dummyBookId, dummyBook1);
+      verify(dao, times(1)).replaceBook(anyInt(),any(Book.class));
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
     }
   }
@@ -264,14 +259,14 @@ class JdbcBookDaoTest {
     @Test
     @DisplayName("SQL実行の失敗")
     void insertBook1() throws DaoException {
-      Book fakeBook = new Book("Title",1,"https://hi.com",1);
+      
 
       DaoException expected = new DaoException("This is fake");
       when(dao.insertBook(any(Book.class))).thenCallRealMethod();
       when(dao.executeUpdate(anyString(),anyList())).thenThrow(expected);
 
       Throwable e = assertThrows(expected.getClass(), () -> {
-        dao.insertBook(fakeBook);
+        dao.insertBook(dummyBook1);
       });
       verify(dao, times(1)).insertBook(any(Book.class));
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
@@ -280,7 +275,7 @@ class JdbcBookDaoTest {
     @Test
     @DisplayName("データベースへの接続失敗")
     void insertBook2() throws DaoException {
-      Book fakeBook = new Book("Title",1,"https://hi.com",1);
+      
 
       DaoException expected = new DbException("This is fake");
       when(dao.insertBook(any(Book.class))).thenCallRealMethod();
@@ -288,7 +283,7 @@ class JdbcBookDaoTest {
       when(dao.executeUpdate(anyString(),anyList())).thenCallRealMethod();
 
       Throwable e = assertThrows(expected.getClass(), () -> {
-        dao.insertBook(fakeBook);
+        dao.insertBook(dummyBook1);
       });
       verify(dao, times(1)).insertBook(any(Book.class));
       verify(dao, times(1)).connectToDB();
@@ -298,15 +293,13 @@ class JdbcBookDaoTest {
     @Test
     @DisplayName("正しい本の追加")
     void insertBook3() throws DaoException {
-      Book fakeBook = new Book("Title",1,"https://hi.com",1);
 
       when(dao.insertBook(any(Book.class))).thenCallRealMethod();
       when(dao.executeUpdate(anyString(),anyList())).thenReturn(1);
 
-      dao.insertBook(fakeBook);
+      dao.insertBook(dummyBook1);
       verify(dao, times(1)).insertBook(any(Book.class));
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
-
     }
   }
 
@@ -315,15 +308,15 @@ class JdbcBookDaoTest {
   class deleteBook1 {
     @Test
     @DisplayName("SQL実行の失敗")
-    void deleteBook1() throws DbException, DaoException {
-      int bookId = 1;
+    void deleteBook1() throws DaoException {
+
       DaoException expected = new DaoException("This is fake");
 
       when(dao.deleteBook(anyInt())).thenCallRealMethod();
       when(dao.executeUpdate(anyString(),anyList())).thenThrow(expected);
 
       Throwable e = assertThrows(expected.getClass(), () -> {
-        dao.deleteBook(bookId);
+        dao.deleteBook(dummyBookId);
       });
       verify(dao, times(1)).deleteBook(anyInt());
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
@@ -332,7 +325,7 @@ class JdbcBookDaoTest {
     @Test
     @DisplayName("データベースへの接続失敗")
     void deleteBook2() throws DaoException {
-      Integer bookId = 1;
+
       DaoException expected = new DbException("This is fake");
 
       when(dao.deleteBook(anyInt())).thenCallRealMethod();
@@ -340,7 +333,7 @@ class JdbcBookDaoTest {
       when(dao.executeUpdate(anyString(),anyList())).thenCallRealMethod();
 
       Throwable e = assertThrows(expected.getClass(), () -> {
-        dao.deleteBook(bookId);
+        dao.deleteBook(dummyBookId);
       });
       verify(dao, times(1)).deleteBook(anyInt());
       verify(dao, times(1)).connectToDB();
@@ -351,12 +344,11 @@ class JdbcBookDaoTest {
     @Test
     @DisplayName("正しい本の削除")
     void deleteBook3() throws DaoException {
-      Integer bookId = 1;
 
       when(dao.deleteBook(anyInt())).thenCallRealMethod();
       when(dao.executeUpdate(anyString(),anyList())).thenReturn(1);
 
-      dao.deleteBook(bookId);
+      dao.deleteBook(dummyBookId);
       verify(dao, times(1)).deleteBook(anyInt());
       verify(dao, times(1)).executeUpdate(anyString(),anyList());
     }
@@ -386,7 +378,7 @@ class JdbcBookDaoTest {
 
     @Test
     @DisplayName("データベースへの接続失敗")
-    void getAllBooks2() throws DbException, DaoException{
+    void getAllBooks2() throws DaoException{
       DbException expected = new DbException("This is fake");
 
       when(dao.getAllBooks()).thenCallRealMethod();
@@ -404,7 +396,7 @@ class JdbcBookDaoTest {
     @Ignore
     @DisplayName("正しい本へのアクセス")
     @Test
-    public void getAllBooks3() throws SQLException, DbException, DaoException {
+    public void getAllBooks3() throws SQLException, DaoException {
 
       when(dao.connectToDB()).thenCallRealMethod();
       when(dao.getAllBooks()).thenCallRealMethod();
@@ -453,7 +445,7 @@ class JdbcBookDaoTest {
     @Ignore
     @DisplayName("データベースへの接続失敗")
     @Test
-    public void getBook2() throws SQLException, DbException, DaoException {
+    public void getBook2() throws DaoException {
       DbException expected = new DbException("This is fake");
 
       when(dao.connectToDB()).thenThrow(new DbException("This is fake"));

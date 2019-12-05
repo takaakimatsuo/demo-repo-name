@@ -3,6 +3,7 @@ package com.example.demo.data.access;
 
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.common.exceptions.DaoException;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,7 +17,6 @@ import org.springframework.jdbc.core.RowMapper;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.demo.DemoApplication.logger;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -30,6 +30,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Slf4j
 @SpringBootTest
 class SpringBookDaoTest {
 
@@ -115,7 +116,7 @@ class SpringBookDaoTest {
       });
       verify(sdao, times(1)).getAllBooks();
       verify(jdbcTemplate, times(1)).query(anyString(), any(RowMapper.class));
-      logger.info("Thrown error class was ",e);
+      log.info("Thrown error class was ",e);
     }
   }
 
@@ -176,7 +177,7 @@ class SpringBookDaoTest {
       });
       verify(sdao, times(1)).getBook(anyInt());
       verify(jdbcTemplate, times(1)).query(anyString(), any(RowMapper.class), anyInt());
-      logger.info("Thrown error class was ",e);
+      log.info("Thrown error class was ",e);
     }
   }
 
@@ -215,7 +216,7 @@ class SpringBookDaoTest {
       });
       verify(sdao, times(1)).insertBook(any(Book.class));
       verify(jdbcTemplate, times(1)).update(anyString(), anyString(), anyInt(), anyInt(), anyString());
-      logger.info("Thrown error class was ",e);
+      log.info("Thrown error class was ",e);
     }
   }
 
@@ -252,16 +253,23 @@ class SpringBookDaoTest {
       });
       verify(sdao, times(1)).deleteBook(anyInt());
       verify(jdbcTemplate, times(1)).update(anyString(), anyInt());
-      logger.info("Thrown error was ",e);
+      log.info("Thrown error was ",e);
     }
   }
 
 
 
 
-  @Test
-  void updateBook_borrowed() {
+  @Nested
+  @DisplayName("SpringDaoによる本の借し出しに関するテスト")
+  class updateBook_borrowed {
+    @Test
+    @DisplayName("正しい本の貸し出し")
+    void updateBook_borrowed1() {
+
+    }
   }
+
 
   @Nested
   @DisplayName("SpringDaoによる本の返却に関するテスト")
@@ -271,12 +279,12 @@ class SpringBookDaoTest {
     void updateBook_returned1() throws DaoException {
       int expected = 1;
 
-      when(sdao.updateBook_returned(anyInt(), anyString())).thenCallRealMethod();
+      when(sdao.updateBookReturned(anyInt(), anyString())).thenCallRealMethod();
       when(jdbcTemplate.update(anyString(), anyString(), anyInt())).thenReturn(1);
 
-      int actual = sdao.updateBook_returned(dummyBookId, dummyPhoneNumber1);
+      int actual = sdao.updateBookReturned(dummyBookId, dummyPhoneNumber1);
       assertEquals(expected,actual);
-      verify(sdao, times(1)).updateBook_returned(anyInt(),anyString());
+      verify(sdao, times(1)).updateBookReturned(anyInt(),anyString());
       verify(jdbcTemplate, times(1)).update(anyString(), anyString(), anyInt());
     }
 
@@ -284,8 +292,20 @@ class SpringBookDaoTest {
     @DisplayName("本の返却時にDataAccessExceptionが投げられる場合")
     void updateBook_returned2() throws DaoException {
 
+      DaoException expected = new DaoException("This is fake.");
+      when(sdao.updateBookReturned(anyInt(), anyString())).thenCallRealMethod();
+      when(jdbcTemplate.update(anyString(), anyString(), anyInt())).thenThrow(new DataAccessException("..."){});
+
+      Throwable e = assertThrows(expected.getClass(), ()->{
+        sdao.updateBookReturned(dummyBookId, dummyPhoneNumber1);
+      });
+      verify(sdao, times(1)).updateBookReturned(anyInt(), anyString());
+      verify(jdbcTemplate, times(1)).update(anyString(), anyString(), anyInt());
+      log.info("Thrown error was ",e);
+
     }
   }
+
 
 
 
@@ -299,12 +319,12 @@ class SpringBookDaoTest {
     void updateBook_lost1() throws DaoException {
       int expected = 1;
 
-      when(sdao.updateBook_lost(anyInt(),anyString())).thenCallRealMethod();
+      when(sdao.updateBookLost(anyInt(),anyString())).thenCallRealMethod();
       when(jdbcTemplate.update(anyString(), anyString(), anyInt())).thenReturn(1);
 
-      int actual = sdao.updateBook_lost(dummyBookId, dummyPhoneNumber1);
+      int actual = sdao.updateBookLost(dummyBookId, dummyPhoneNumber1);
       assertEquals(expected,actual);
-      verify(sdao, times(1)).updateBook_lost(anyInt(),anyString());
+      verify(sdao, times(1)).updateBookLost(anyInt(),anyString());
       verify(jdbcTemplate, times(1)).update(anyString(), anyString(), anyInt());
     }
 
@@ -313,15 +333,15 @@ class SpringBookDaoTest {
     void updateBook_lost2() throws DaoException {
       DaoException expected = new DaoException("This is fake.");
 
-      when(sdao.updateBook_lost(anyInt(),anyString())).thenCallRealMethod();
+      when(sdao.updateBookLost(anyInt(),anyString())).thenCallRealMethod();
       when(jdbcTemplate.update(anyString(), anyString(), anyInt())).thenThrow(new DataAccessException("..."){});
 
       Throwable e = assertThrows(expected.getClass(), ()->{
-        sdao.updateBook_lost(dummyBookId, dummyPhoneNumber1);
+        sdao.updateBookLost(dummyBookId, dummyPhoneNumber1);
       });
-      verify(sdao, times(1)).updateBook_lost(anyInt(),anyString());
+      verify(sdao, times(1)).updateBookLost(anyInt(),anyString());
       verify(jdbcTemplate, times(1)).update(anyString(), anyString(), anyInt());
-      logger.info("Thrown error was ",e);
+      log.info("Thrown error was ",e);
     }
   }
 
@@ -337,11 +357,11 @@ class SpringBookDaoTest {
     void updateBook_data() throws DaoException {
       int expected = 1;
 
-      when(sdao.updateBook_data(anyInt(),any(Book.class))).thenCallRealMethod();
+      when(sdao.replaceBook(anyInt(),any(Book.class))).thenCallRealMethod();
       when(jdbcTemplate.update(anyString(), anyString(), anyInt(), anyString(), anyInt(),  anyInt())).thenReturn(1);
-      int actual = sdao.updateBook_data(dummyBookId, dummyBook1);
+      int actual = sdao.replaceBook(dummyBookId, dummyBook1);
       assertEquals(expected,actual);
-      verify(sdao, times(1)).updateBook_data(anyInt(),any(Book.class));
+      verify(sdao, times(1)).replaceBook(anyInt(),any(Book.class));
       verify(jdbcTemplate, times(1)).update(anyString(), anyString(), anyInt(), anyString(), anyInt(),  anyInt());
     }
 
@@ -350,15 +370,15 @@ class SpringBookDaoTest {
     void updateBook_data2() throws DaoException {
       DaoException expected = new DaoException("This is fake.");
 
-      when(sdao.updateBook_data(anyInt(),any(Book.class))).thenCallRealMethod();
+      when(sdao.replaceBook(anyInt(),any(Book.class))).thenCallRealMethod();
       when(jdbcTemplate.update(anyString(), anyString(), anyInt(), anyString(), anyInt(), anyInt())).thenThrow(new DataAccessException("..."){});
 
       Throwable e = assertThrows(expected.getClass(), ()->{
-        sdao.updateBook_data(dummyBookId, dummyBook1);
+        sdao.replaceBook(dummyBookId, dummyBook1);
       });
-      verify(sdao, times(1)).updateBook_data(anyInt(),any(Book.class));
+      verify(sdao, times(1)).replaceBook(anyInt(),any(Book.class));
       verify(jdbcTemplate, times(1)).update(anyString(), anyString(), anyInt(), anyString(), anyInt(), anyInt());
-      logger.info("Thrown error was ",e);
+      log.info("Thrown error was ",e);
     }
   }
 

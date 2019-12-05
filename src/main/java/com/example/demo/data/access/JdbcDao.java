@@ -3,6 +3,8 @@ package com.example.demo.data.access;
 
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.DbException;
+import lombok.extern.slf4j.Slf4j;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -10,8 +12,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import static com.example.demo.DemoApplication.logger;
 
+@Slf4j
 public abstract class JdbcDao {
 
   /**
@@ -27,10 +29,10 @@ public abstract class JdbcDao {
 
     try {
       Connection con = DriverManager.getConnection(url, user, password);
-      logger.info("Successfully connected to DB.");
+      log.info("Successfully connected to DB.");
       return con;
     } catch (SQLException e) {
-      logger.error("Failed connecting to DB.");
+      log.error("Failed connecting to DB.");
       throw new DbException(e.getMessage(),e.getCause(),e.getSQLState());
     }
   }
@@ -44,10 +46,10 @@ public abstract class JdbcDao {
     try {
       if (con != null) {
         con.close();
-        logger.info("Successfully closed DB connection.");
+        log.info("Successfully closed DB connection.");
       }
     } catch (SQLException e) {
-      logger.error("Failed closing DB connection.");
+      log.error("Failed closing DB connection.");
       throw new DbException(e.getMessage(),e.getCause(),e.getSQLState());
     }
   }
@@ -95,9 +97,9 @@ public abstract class JdbcDao {
       con = connectToDB();
       PreparedStatement pstmt = con.prepareStatement(query);
       parameterMapper(pstmt, params);
-      logger.info("Trying to safely execute query {} using JdbcDao.", pstmt.toString());
+      log.info("Trying to safely execute query {} using JdbcDao.", pstmt.toString());
       ResultSet rs = pstmt.executeQuery();
-      logger.info("Executed query.");
+      log.info("Executed query.");
       return rs;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -122,9 +124,9 @@ public abstract class JdbcDao {
       con = connectToDB();
       PreparedStatement pstmt = con.prepareStatement(query);
       parameterMapper(pstmt, params);
-      logger.info("Trying to safely execute query {} using JdbcDao.", pstmt.toString());
+      log.info("Trying to safely execute query {} using JdbcDao.", pstmt.toString());
       int update = pstmt.executeUpdate();
-      logger.info("Executed query.");
+      log.info("Executed query.");
       return update;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -146,9 +148,9 @@ public abstract class JdbcDao {
     try {
       con = connectToDB();
       PreparedStatement pstmt = con.prepareStatement(query);
-      logger.info("Trying to safely execute query {} using JdbcDao.", pstmt.toString());
+      log.info("Trying to safely execute query {} using JdbcDao.", pstmt.toString());
       ResultSet rs = pstmt.executeQuery();
-      logger.info("Executed query.");
+      log.info("Executed query.");
       return rs;
     } catch (SQLException e) {
       e.printStackTrace();

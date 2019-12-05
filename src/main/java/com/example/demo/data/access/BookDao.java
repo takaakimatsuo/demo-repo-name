@@ -75,7 +75,7 @@ public interface BookDao {
    * @return Returns the number of updated rows.
    * @throws DaoException if query execution fails.
    */
-  int updateBook_borrowed(Integer bookId, String phoneNumber) throws DaoException;
+  int updateBookBorrowed(Integer bookId, String phoneNumber) throws DaoException;
 
   /**
    * Updates book as returned.
@@ -84,7 +84,7 @@ public interface BookDao {
    * @return Returns the number of updated rows.
    * @throws DaoException if query execution fails.
    */
-  int updateBook_returned(Integer bookId, String phoneNumber) throws DaoException;
+  int updateBookReturned(Integer bookId, String phoneNumber) throws DaoException;
 
   /**
    * Updates book as lost.
@@ -92,7 +92,7 @@ public interface BookDao {
    * @param phoneNumber Unique identifier for the user stored in the database, not {@code null}.
    * @throws DaoException if query execution fails.
    */
-  int updateBook_lost(Integer bookId, String phoneNumber) throws DaoException;
+  int updateBookLost(Integer bookId, String phoneNumber) throws DaoException;
 
   /**
    * Replaces a book data to another one in the database.
@@ -101,7 +101,7 @@ public interface BookDao {
    * @return Returns the number of updated rows.
    * @throws DaoException if query execution fails.
    */
-  int updateBook_data(Integer bookId, Book book) throws DaoException;
+  int replaceBook(Integer bookId, Book book) throws DaoException;
 
 
   /**

@@ -1,6 +1,5 @@
 package com.example.demo.application;
 
-import static com.example.demo.DemoApplication.logger;
 import static com.example.demo.application.InputValidator.assureBookClass;
 import static com.example.demo.application.InputValidator.assureInteger;
 import static com.example.demo.application.InputValidator.assurePatchBookClass;
@@ -12,8 +11,11 @@ import com.example.demo.backend.custom.Dto.PatchBook;
 import com.example.demo.backend.custom.Dto.ResponseBooks;
 import com.example.demo.common.exceptions.BookBusinessLogicException;
 import com.example.demo.common.exceptions.DaoException;
+import com.example.demo.common.exceptions.DbException;
 import com.example.demo.common.exceptions.InputFormatException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 public class BookController {
 
@@ -50,7 +53,7 @@ public class BookController {
     try {
       response = dbl.getBook(assurePositive(assureInteger(bookId)));
     } catch (DaoException | InputFormatException | BookBusinessLogicException e) {
-      logger.error("Error in getBook() in BookController.java: ",e);
+      log.error("Error in getBook() in BookController.java: ",e);
       throw e;
     }
     return response;
@@ -70,7 +73,7 @@ public class BookController {
     try {
       return dbl.getAllBooks();
     } catch (DaoException | BookBusinessLogicException e) {
-      logger.error("Error in getBook() in BookController.java: ",e);
+      log.error("Error in getBook() in BookController.java: ",e);
       throw e;
     }
   }
@@ -91,7 +94,7 @@ public class BookController {
     try {
       response = dbl.addBook(assureBookClass(book));
     } catch (InputFormatException | DaoException | BookBusinessLogicException e) {
-      logger.error("Error in postBook() in BookController.java: ",e);
+      log.error("Error in postBook() in BookController.java: ",e);
       throw e;
     }
     return response;
@@ -114,7 +117,7 @@ public class BookController {
     try {
       response = dbl.replaceBook(assurePositive(assureInteger(bookId)),assureBookClass(newBookData));
     } catch (InputFormatException | DaoException | BookBusinessLogicException e) {
-      logger.error("Error in putBook() in BookController.java: ",e);
+      log.error("Error in putBook() in BookController.java: ",e);
       throw e;
     }
     return response;
@@ -137,7 +140,7 @@ public class BookController {
     try {
       response = dbl.updateBook(assurePositive(assureInteger(bookId)),assurePatchBookClass(patchData));
     } catch (InputFormatException | DaoException | BookBusinessLogicException e) {
-      logger.error("Error in patchBook() in BookController.java: ",e);
+      log.error("Error in patchBook() in BookController.java: ",e);
       throw e;
     }
     return response;
@@ -159,20 +162,32 @@ public class BookController {
     try {
       response = dbl.removeBook(assurePositive(assureInteger(bookId)));
     } catch (DaoException | InputFormatException | BookBusinessLogicException e) {
-      logger.error("Error in deleteBook() in BookController.java: ",e);
+      log.error("Error in deleteBook() in BookController.java: ",e);
       throw e;
     }
     return response;
   }
 
 
+  @ExceptionHandler({DbException.class})
+  @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+  @ResponseBody
+  public String handleException(DbException e) {
+    log.error(e.getClass().getName());
+    log.error(e.getMessage());
+    log.error("SqlCode is {}.",e.getSqlCode());
+    return "Internal server error.";
+  }
 
 
   @ExceptionHandler({DaoException.class})
   @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
   @ResponseBody
   public String handleException(DaoException e) {
-    return e.getMessage();
+    log.error(e.getClass().getName());
+    log.error(e.getMessage());
+    log.error("SqlCode is {}.",e.getSqlCode());
+    return "Internal server error.";
   }
 
 
@@ -181,6 +196,8 @@ public class BookController {
   @ResponseStatus(value = HttpStatus.BAD_REQUEST)
   @ResponseBody
   public String handleException(InputFormatException e) {
+    log.error(e.getClass().getName());
+    log.error(e.getMessage());
     return e.getMessage();
   }
 

@@ -1,8 +1,5 @@
 package com.example.demo.data.access;
 
-
-//import static com.example.demo.DemoApplication.logger;
-
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.data.access.custom.enums.BookStatus;
@@ -15,15 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-
-
-@Component("SpringBookDao")
+@Repository("SpringBookDao")
 public class SpringBookDao implements BookDao {
   @Autowired
   private JdbcTemplate jdbcTemplate;
-
 
   private DaoException createDaoException(SQLException sqlExc) {
     return new DaoException(sqlExc.getMessage(),sqlExc.getCause(),sqlExc.getSQLState());
@@ -150,7 +144,7 @@ public class SpringBookDao implements BookDao {
   }
 
   @Override
-  public int updateBook_borrowed(Integer bookId, String phoneNumber) throws DaoException {
+  public int updateBookBorrowed(Integer bookId, String phoneNumber) throws DaoException {
     int updated = 0;
     try {
       updated = jdbcTemplate.update("UPDATE bookshelf SET borrowedBy = array_append(borrowedBy, ?) WHERE id = ?", phoneNumber, bookId);
@@ -161,7 +155,7 @@ public class SpringBookDao implements BookDao {
   }
 
   @Override
-  public int updateBook_returned(Integer bookId, String phoneNumber) throws DaoException {
+  public int updateBookReturned(Integer bookId, String phoneNumber) throws DaoException {
     int updated = 0;
     try {
       updated = jdbcTemplate.update("UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?) WHERE id = ?", phoneNumber, bookId);
@@ -172,7 +166,7 @@ public class SpringBookDao implements BookDao {
   }
 
   @Override
-  public int updateBook_lost(Integer bookId, String phoneNumber) throws DaoException {
+  public int updateBookLost(Integer bookId, String phoneNumber) throws DaoException {
     int updated = 0;
     try {
       updated = jdbcTemplate.update("UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?), quantity = (quantity-1) WHERE id = ?", phoneNumber, bookId);
@@ -183,7 +177,7 @@ public class SpringBookDao implements BookDao {
   }
 
   @Override
-  public int updateBook_data(Integer bookId, Book book) throws DaoException {
+  public int replaceBook(Integer bookId, Book book) throws DaoException {
     int updated = 0;
     try {
       updated = jdbcTemplate.update("UPDATE bookshelf SET title = ?, price = ?, url = ?, quantity = ? where id = ? AND borrowedBy = \'{}\'", book.getTitle(), book.getPrice(), book.getUrl(), book.getQuantity(), bookId);

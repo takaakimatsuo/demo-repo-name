@@ -3,6 +3,8 @@ package com.example.demo.common.exceptions;
 
 import com.example.demo.common.enums.Messages;
 
+
+
 public class UserBusinessLogicException extends Exception {
 
   private Messages message;

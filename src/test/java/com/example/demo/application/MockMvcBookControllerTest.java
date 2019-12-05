@@ -1,6 +1,7 @@
 package com.example.demo.application;
 
 
+import com.example.demo.backend.BookBusinessLogic;
 import com.example.demo.backend.custom.Dto.ResponseBooks;
 import com.example.demo.common.enums.Messages;
 import com.example.demo.common.exceptions.DaoException;
@@ -15,9 +16,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -49,6 +52,9 @@ class MockMvcBookControllerTest {
 
   @Autowired
   BookController controller;
+
+
+
 
   @BeforeAll
   static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DaoException {

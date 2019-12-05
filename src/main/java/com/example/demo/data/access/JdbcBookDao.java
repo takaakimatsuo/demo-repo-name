@@ -8,12 +8,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-import static com.example.demo.DemoApplication.logger;
 
 
-@Component("JdbcBookDao")
+@Slf4j
+@Repository("JdbcBookDao")
 public class JdbcBookDao extends JdbcDao implements BookDao {
 
 
@@ -27,7 +30,7 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
       ResultSet check = executeQuery(query, paramList);//Execute query.
       if (!check.isBeforeFirst()) {
         //SQL returned an empty output. No data matched the condition.
-        logger.info("Book with id = {} doesnt exist in the table.",bookId);
+        log.info("Book with id = {} doesnt exist in the table.",bookId);
         st = BookStatus.BOOK_NOT_EXISTING;
       } else {
         if (check.next()) {
@@ -36,10 +39,10 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
 
           if (Arrays.asList(customers).contains(phoneNumber)) {
             //Book is borrowed by the user.
-            logger.info("User already borrowing the book.");
+            log.info("User already borrowing the book.");
             st = BookStatus.BOOK_BORROWED_BY_THIS_USER;
           } else {
-            logger.info("User not borrowing the book yet.");
+            log.info("User not borrowing the book yet.");
             st = BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER;
           }
         }
@@ -62,14 +65,14 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
         available = check.getBoolean("STOCK_AVAILABLE");
       }
     } catch (SQLException e) {
-      logger.error("Error in checkBookStockAvailability(): ",e);
+      log.error("Error in checkBookStockAvailability(): ",e);
       throw new DaoException(e.getMessage(),e.getCause(),e.getSQLState());
     }
     return available;
   }
 
   @Override
-  public int updateBook_borrowed(Integer bookId, String phoneNumber) throws DaoException {
+  public int updateBookBorrowed(Integer bookId, String phoneNumber) throws DaoException {
     String query = "UPDATE bookshelf SET borrowedBy = array_append(borrowedBy, ?) WHERE id = ?";
     List<Object> paramList = new ArrayList<Object>();
     paramList.add(phoneNumber);
@@ -78,7 +81,7 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
   }
 
   @Override
-  public int updateBook_returned(Integer bookId, String phoneNumber) throws DaoException {
+  public int updateBookReturned(Integer bookId, String phoneNumber) throws DaoException {
     String query = "UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?) WHERE id = ?";
     List<Object> paramList = new ArrayList<Object>();
     paramList.add(phoneNumber);
@@ -87,7 +90,7 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
   }
 
   @Override
-  public int updateBook_lost(Integer bookId, String phoneNumber) throws DaoException {
+  public int updateBookLost(Integer bookId, String phoneNumber) throws DaoException {
     String query = "UPDATE bookshelf SET borrowedBy = array_remove(borrowedBy, ?), quantity = (quantity-1) WHERE id = ?";
     List<Object> paramList = new ArrayList<Object>();
     paramList.add(phoneNumber);
@@ -96,7 +99,7 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
   }
 
   @Override
-  public int updateBook_data(Integer bookId, Book book) throws DaoException {
+  public int replaceBook(Integer bookId, Book book) throws DaoException {
     String query = "UPDATE bookshelf SET title = ?, price = ?, url = ?, quantity = ? where id = ? AND borrowedBy = \'{}\'";
     List<Object> paramList = new ArrayList<Object>();
     paramList.add(book.getTitle());
@@ -134,9 +137,9 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
   @Override
   public List<Book> getAllBooks() throws DaoException {
     String query = "SELECT id, title, price, quantity, (SELECT ARRAY( select familyName ||' '|| firstName FROM book_user u JOIN bookshelf b ON u.phoneNumber = ANY(b.borrowedBy) WHERE b.title = OuterQuery.title)) AS \"borrowedBy\", url FROM bookshelf AS OuterQuery ORDER BY id DESC;";
-    logger.info("Requesting query execution");
+    log.info("Requesting query execution");
     ResultSet rs = executeQuery(query);
-    logger.info("Done query execution");
+    log.info("Done query execution");
     return mapRow(rs);
   }
 
@@ -146,9 +149,9 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
     String query = "select id, title, price, quantity, (SELECT ARRAY( select familyName ||' '|| firstName from book_user u JOIN bookshelf b ON u.phoneNumber = ANY(b.borrowedBy) WHERE b.title = OuterQuery.title)) AS \"borrowedBy\", url from bookshelf AS OuterQuery WHERE id = ?";
     List<Object> paramList = new ArrayList<Object>();
     paramList.add(bookId);
-    logger.info("Requesting query execution");
+    log.info("Requesting query execution");
     ResultSet rs = executeQuery(query, paramList);
-    logger.info("Done query execution");
+    log.info("Done query execution");
     return mapRow(rs);
   }
 

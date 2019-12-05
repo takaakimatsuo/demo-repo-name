@@ -1,7 +1,6 @@
 package com.example.demo.backend;
 
-import static com.example.demo.DemoApplication.logger;
-import static com.example.demo.backend.errorcodes.SqlErrorCodes.SQL_CODE_DUPLICATE_KEY_ERROR;
+import static com.example.demo.backend.errorcodes.SqlErrorCodes.UNIQUE_VIOLATION;
 
 import com.example.demo.backend.custom.Dto.Book;
 import com.example.demo.backend.custom.Dto.PatchBook;
@@ -12,19 +11,22 @@ import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.data.access.BookDao;
 import com.example.demo.data.access.custom.enums.BookStatus;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
-public final class BookBusinessLogic {
+@Slf4j
+@Service
+public class BookBusinessLogic {
   private ResponseBooks res;
 
   @Autowired
-  @Qualifier("JdbcBookDao") //Based on standard JDBC.
-  //@Qualifier("SpringBookDao") // Based on Spring JDBCtemplate.
-  private BookDao dao;
-
+  @Qualifier("JdbcBookDao") //Based on standard Jdbc.
+  //@Qualifier("SpringBookDao") // Based on Spring JdbcTemplate.
+  public
+  BookDao dao;
 
 
   /**
@@ -37,7 +39,7 @@ public final class BookBusinessLogic {
     res =  ResponseBooks.builder().build();
     List<Book> books = dao.getAllBooks();
     if (books.isEmpty()) {
-      throw new BookBusinessLogicException(Messages.BOOK_NOT_FOUND);
+      throw new BookBusinessLogicException(Messages.BOOK_NOT_EXISTING);
     } else {
       res.getMessageHeader().setMessage(Messages.BOOK_FOUND);
     }
@@ -93,19 +95,19 @@ public final class BookBusinessLogic {
    */
   private int validateUserBookRelation(BookStatus currentStatus, int requestedStatus) throws BookBusinessLogicException {
     if (currentStatus == BookStatus.UNKNOWN) {
-      logger.error("Unexpected output in validateUserBookRelation() in BookBusinessLogic. This should not happen.");
+      log.error("Unexpected output in validateUserBookRelation() in BookBusinessLogic. This should not happen.");
       throw new BookBusinessLogicException(Messages.UNEXPECTED);
     } else if (currentStatus == BookStatus.BOOK_NOT_EXISTING) {
-      logger.info("Book does not exist.");
+      log.info("Book does not exist.");
       throw new BookBusinessLogicException(Messages.BOOK_NOT_EXISTING);
     } else if (currentStatus == BookStatus.BOOK_BORROWED_BY_THIS_USER && requestedStatus == 0) {
-      logger.info("Book already borrowed by the same user.");
+      log.info("Book already borrowed by the same user.");
       throw new BookBusinessLogicException(Messages.BOOK_CANNOT_BE_DOUBLE_BORROWED);
     } else if (currentStatus == BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER && requestedStatus == 1) {
-      logger.info("Trying to return a book that has not been borrowed by the user.");
+      log.info("Trying to return a book that has not been borrowed by the user.");
       throw new BookBusinessLogicException(Messages.BOOK_CANNOT_BE_RETURNED);
     } else if (currentStatus == BookStatus.BOOK_NOT_BORROWED_BY_THIS_USER && requestedStatus == 2) {
-      logger.info("Trying to report a book as lost, which has not been borrowed by the user.");
+      log.info("Trying to report a book as lost, which has not been borrowed by the user.");
       throw new BookBusinessLogicException(Messages.BOOK_CANNOT_BE_LOST);
     }
     return requestedStatus;
@@ -128,7 +130,7 @@ public final class BookBusinessLogic {
       case 0: {
         //Borrow!
         if (dao.checkBookStockAvailability(bookId)) {
-          dao.updateBook_borrowed(bookId, updStatus.getBorrower());
+          dao.updateBookBorrowed(bookId, updStatus.getBorrower());
           res.getMessageHeader().setMessage(Messages.BOOK_BORROWED);
         } else {
           throw new BookBusinessLogicException(Messages.BOOK_NO_STOCK);
@@ -137,13 +139,13 @@ public final class BookBusinessLogic {
       }
       case 1: {
         //Return
-        dao.updateBook_returned(bookId, updStatus.getBorrower());
+        dao.updateBookReturned(bookId, updStatus.getBorrower());
         res.getMessageHeader().setMessage(Messages.BOOK_RETURNED);
         break;
       }
       case 2: {
         //Lost
-        dao.updateBook_lost(bookId,updStatus.getBorrower());
+        dao.updateBookLost(bookId,updStatus.getBorrower());
         List<Book> book = dao.getBook(bookId);
         if (book.get(0).getQuantity() <= 0) {
           dao.deleteBook(bookId);//Simply remove the book from the bookshelf
@@ -177,7 +179,7 @@ public final class BookBusinessLogic {
       }
 
     } catch (DaoException e) {
-      if (e.getSqlCode().equals(SQL_CODE_DUPLICATE_KEY_ERROR)) {
+      if (e.getSqlCode().equals(UNIQUE_VIOLATION)) {
         throw new BookBusinessLogicException(Messages.BOOK_DUPLICATE);
       }
       throw e;
@@ -187,14 +189,14 @@ public final class BookBusinessLogic {
   public ResponseBooks replaceBook(Integer bookId, Book book) throws DaoException, BookBusinessLogicException {
     res =  ResponseBooks.builder().build();
     try {
-      int updated = dao.updateBook_data(bookId, book);
+      int updated = dao.replaceBook(bookId, book);
       if (updated == 0) {
         throw new BookBusinessLogicException(Messages.BOOK_NOT_EXISTING_OR_IS_BORROWED);
       } else {
         res.getMessageHeader().setMessage(Messages.UPDATE_SUCCESS_BOOK);
       }
     } catch (DaoException e) {
-      if (e.getSqlCode().equals(SQL_CODE_DUPLICATE_KEY_ERROR)) {
+      if (e.getSqlCode().equals(UNIQUE_VIOLATION)) {
         throw new BookBusinessLogicException(Messages.BOOK_DUPLICATE);
       }
       throw e;
