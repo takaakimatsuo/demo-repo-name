@@ -55,8 +55,8 @@ public class BookBusinessLogic {
    */
   public ResponseBooks removeBook(Integer bookId) throws DaoException, BookBusinessLogicException {
     res =  ResponseBooks.builder().build();
-    int update = dao.deleteBook(bookId);
-    if (update == 0) {
+    int updated = dao.deleteBook(bookId);
+    if (updated == 0) {
       throw new BookBusinessLogicException(Messages.BOOK_NOT_EXISTING);
     } else {
       res.getMessageHeader().setMessage(Messages.BOOK_DELETED);

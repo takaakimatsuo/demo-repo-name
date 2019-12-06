@@ -1,9 +1,11 @@
 package com.example.demo.application;
 
 import com.example.demo.backend.custom.Dto.ResponseUsers;
+import com.example.demo.backend.custom.Dto.User;
 import com.example.demo.common.enums.Messages;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.DbException;
+import com.example.demo.common.exceptions.UserBusinessLogicException;
 import com.example.demo.data.access.DatabaseTableInitializer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,8 +26,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -101,11 +102,11 @@ public class MockMvcUserControllerTest {
 
   @Nested
   @DisplayName("ユーザの検索に関するテスト")
-  public class getAllUsers{
+  public class getUsers{
 
     @DisplayName("正しいユーザの検索")
     @Test
-    void getAllUsers1() throws Exception {
+    void getUsers1() throws Exception {
       ResultActions result =  mockMvc.perform(get("/users"))
         .andDo(print())
         .andExpect(status().isOk());
@@ -113,9 +114,36 @@ public class MockMvcUserControllerTest {
       ResponseUsers response = acquireBodyAsResponseUsers(result);
       assertEquals(response.getMessageHeader().getMessage(), Messages.USER_FOUND);
     }
+  }
 
 
+  @Nested
+  @DisplayName("ユーザの削除に関するテスト")
+  public class deleteUser{
 
+    @DisplayName("正しいユーザの削除")
+    @Test
+    void deleteUser1() throws Exception {
+      String userId = "1";
+      ResultActions result =  mockMvc.perform(delete("/users/"+userId))
+        .andDo(print())
+        .andExpect(status().isOk());
 
+      ResponseUsers response = acquireBodyAsResponseUsers(result);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.USER_DELETED);
+    }
+
+    @DisplayName("存在しないユーザの削除")
+    @Test
+    void deleteUser2() throws Exception {
+      String userId = "1";
+
+      ResultActions result =  mockMvc.perform(delete("/users/"+userId))
+        .andDo(print())
+        .andExpect(status().isBadRequest());
+
+      String errorMsg = acquireBodyAsErrorMessage(result);
+      assertEquals(errorMsg, Messages.USER_NOT_EXISTING.getMessageKey());
+    }
   }
 }

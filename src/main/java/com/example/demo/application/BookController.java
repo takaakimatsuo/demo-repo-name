@@ -48,14 +48,12 @@ public class BookController {
   @CrossOrigin
   @GetMapping(value = "/books/{id}")
   public ResponseBooks getBook(@PathVariable("id") String bookId) throws InputFormatException, BookBusinessLogicException, DaoException {
-    ResponseBooks response;
     try {
-      response = dbl.getBook(assurePositive(assureInteger(bookId)));
+      return dbl.getBook(assurePositive(assureInteger(bookId)));
     } catch (DaoException | InputFormatException | BookBusinessLogicException e) {
       log.error("Error in getBook() in BookController.java: ",e);
       throw e;
     }
-    return response;
   }
 
 
@@ -140,19 +138,19 @@ public class BookController {
   }
 
   /**
-   * Used for deleting a book data from the database.
-   * @param bookId Unique identifier for the book stored in the database, not {@code null}.
-   * @return An empty list of {@link com.example.demo.backend.custom.Dto.Book Book} objects,
-   * with a ResponseHeader class, not {@code null}.
-   * @throws DaoException if query execution fails.
-   * @throws InputFormatException if user input is wrong.
-   * @throws BookBusinessLogicException if logic fails.
-   */
+  * Used for deleting a book data from the database.
+  * @param bookId Unique identifier for the book stored in the database, not {@code null}.
+  * @return An empty list of {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+  * with a ResponseHeader class, not {@code null}.
+  * @throws DaoException if query execution fails.
+  * @throws InputFormatException if user input is wrong.
+  * @throws BookBusinessLogicException if logic fails.
+  */
   @CrossOrigin
   @DeleteMapping(value = "/books/{id}")
   public ResponseBooks deleteBook(@PathVariable("id") String bookId) throws DaoException, InputFormatException, BookBusinessLogicException {
     try {
-       return dbl.removeBook(assurePositive(assureInteger(bookId)));
+      return dbl.removeBook(assurePositive(assureInteger(bookId)));
     } catch (DaoException | InputFormatException | BookBusinessLogicException e) {
       log.error("Error in deleteBook() in BookController.java: ",e);
       throw e;
