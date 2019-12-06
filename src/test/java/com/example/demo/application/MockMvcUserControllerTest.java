@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -67,11 +68,11 @@ public class MockMvcUserControllerTest {
 
   @Nested
   @DisplayName("ユーザの追加に関するテスト")
-  public class test1{
+  public class postUserTest{
 
     @DisplayName("正しいユーザの追加")
     @Test
-    void postUserTest() throws Exception {
+    void postUserTest1() throws Exception {
       ResultActions result =  mockMvc.perform(post("/users")
         .contentType(MediaType.APPLICATION_JSON)
         .content("{\"familyName\":\"mockDude\", \"firstName\":\"mockDude\", \"phoneNumber\":\"08044440011\"}"))
@@ -84,7 +85,7 @@ public class MockMvcUserControllerTest {
 
     @DisplayName("携帯電話番号が間違ったフォーマットの状態でユーザの追加")
     @Test
-    void postUserTest_WRONG_INPUT() throws Exception {
+    void postUserTest2() throws Exception {
       ResultActions result =  mockMvc.perform(post("/users")
         .contentType(MediaType.APPLICATION_JSON)
         .content("{\"familyName\":\"mockDude\", \"firstName\":\"mockDude\", \"phoneNumber\":\"08041\"}"))
@@ -94,7 +95,27 @@ public class MockMvcUserControllerTest {
       String errorMsg = acquireBodyAsErrorMessage(result);
       assertEquals(errorMsg, Messages.INVALID_PHONENUMBER.getMessageKey());
     }
-
   }
 
+
+
+  @Nested
+  @DisplayName("ユーザの検索に関するテスト")
+  public class getAllUsers{
+
+    @DisplayName("正しいユーザの検索")
+    @Test
+    void getAllUsers1() throws Exception {
+      ResultActions result =  mockMvc.perform(get("/users"))
+        .andDo(print())
+        .andExpect(status().isOk());
+
+      ResponseUsers response = acquireBodyAsResponseUsers(result);
+      assertEquals(response.getMessageHeader().getMessage(), Messages.USER_FOUND);
+    }
+
+
+
+
+  }
 }

@@ -23,8 +23,8 @@ public class BookBusinessLogic {
   private ResponseBooks res;
 
   @Autowired
-  //@Qualifier("JdbcBookDao") //Based on standard Jdbc.
-  @Qualifier("SpringBookDao") // Based on Spring JdbcTemplate.
+  @Qualifier("JdbcBookDao") //Based on standard Jdbc.
+  //@Qualifier("SpringBookDao") // Based on Spring JdbcTemplate.
   public BookDao dao;
 
 

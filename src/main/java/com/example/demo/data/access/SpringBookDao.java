@@ -103,7 +103,7 @@ public class SpringBookDao implements BookDao {
   public BookStatus checkBookStatus(Integer bookId, String phoneNumber) throws DaoException {
     BookStatus st = BookStatus.UNKNOWN;
     try {
-      List<Book> customers = jdbcTemplate.query("select borrowedby from bookshelf where id = ?", new RowMapper<Book>() {
+      List<Book> customers = jdbcTemplate.query("SELECT borrowedby FROM bookshelf WHERE id = ?", new RowMapper<Book>() {
         public Book mapRow(ResultSet rs, int rowNum) throws SQLException {
           Book book = new Book();
           List<String> replacer = new ArrayList<>();
@@ -118,8 +118,6 @@ public class SpringBookDao implements BookDao {
       if (customers.size() == 0) {
         st = BookStatus.BOOK_NOT_EXISTING;
       } else {
-        log.info(customers.get(0).getBorrowedBy().toString());
-        log.info(phoneNumber);
         if (customers.get(0).getBorrowedBy().contains(phoneNumber)) {
           log.info("User currently borrowing this book.");
           st = BookStatus.BOOK_BORROWED_BY_THIS_USER;

@@ -71,8 +71,8 @@ public class UserController {
    * @throws UserBusinessLogicException if logic fails.
    */
   @CrossOrigin
-  @GetMapping(value = "/users/")
-  public ResponseUsers deleteUser() throws DaoException, UserBusinessLogicException {
+  @GetMapping(value = "/users")
+  public ResponseUsers getUsers() throws DaoException, UserBusinessLogicException {
     try {
       return dbl.getAllUsers();
     } catch (DaoException | UserBusinessLogicException e) {
