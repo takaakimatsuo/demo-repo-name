@@ -6,8 +6,8 @@ import static com.example.demo.backend.errorcodes.SqlErrorCodes.UNIQUE_VIOLATION
 
 
 
-import com.example.demo.backend.custom.Dto.User;
-import com.example.demo.backend.custom.Dto.ResponseUsers;
+import com.example.demo.backend.dto.User;
+import com.example.demo.backend.dto.ResponseUsers;
 import com.example.demo.common.enums.Messages;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.UserBusinessLogicException;

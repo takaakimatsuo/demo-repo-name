@@ -159,4 +159,28 @@ public abstract class JdbcDao {
       closeDB(con);
     }
   }
+
+
+  /**
+   * Used for executing an arbitrary SQL update, with no parameter.
+   * @param query An arbitrary sql query, not {@code null}.
+   * @return The number of update rows, not {@code null}.
+   * @throws DaoException if query execution fails.
+   */
+  int executeUpdate(String query) throws DaoException {
+    Connection con = null;
+    try {
+      con = connectToDB();
+      PreparedStatement pstmt = con.prepareStatement(query);
+      log.info("Trying to safely execute query {} using JdbcDao.", pstmt.toString());
+      int update = pstmt.executeUpdate();
+      log.info("Executed query.");
+      return update;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new DaoException(e.getMessage(),e.getCause(), e.getSQLState());
+    } finally {
+      closeDB(con);
+    }
+  }
 }

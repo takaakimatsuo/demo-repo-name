@@ -1,19 +1,13 @@
 package com.example.demo.application;
 
-import com.example.demo.backend.custom.Dto.ResponseUsers;
-import com.example.demo.backend.custom.Dto.User;
+import com.example.demo.backend.dto.ResponseUsers;
 import com.example.demo.common.enums.Messages;
 import com.example.demo.common.exceptions.DaoException;
-import com.example.demo.common.exceptions.DbException;
-import com.example.demo.common.exceptions.UserBusinessLogicException;
 import com.example.demo.data.access.DatabaseTableInitializer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.FixMethodOrder;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,6 +24,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
+
+@Disabled
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -50,8 +47,8 @@ public class MockMvcUserControllerTest {
     DatabaseTableInitializer.dropBookUser();
     DatabaseTableInitializer.createBookshelf();
     DatabaseTableInitializer.createBookUser();
-    DatabaseTableInitializer.fillInBookUser();
-    DatabaseTableInitializer.fillInBooks();
+    DatabaseTableInitializer.fillInBookUser2();
+    DatabaseTableInitializer.fillInBooks2();
   }
 
 

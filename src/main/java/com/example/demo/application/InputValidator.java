@@ -1,8 +1,8 @@
 package com.example.demo.application;
 
-import com.example.demo.backend.custom.Dto.Book;
-import com.example.demo.backend.custom.Dto.PatchBook;
-import com.example.demo.backend.custom.Dto.User;
+import com.example.demo.backend.dto.Book;
+import com.example.demo.backend.dto.PatchBook;
+import com.example.demo.backend.dto.User;
 import com.example.demo.common.enums.Messages;
 import com.example.demo.common.exceptions.InputFormatException;
 import java.util.List;
@@ -22,16 +22,14 @@ public class InputValidator {
    * @throws InputFormatException if input is not acceptable.
    */
   static Integer assureInteger(String integer) throws InputFormatException {
-    Integer result = null;
     if (integer == null) {
       throw new InputFormatException(Messages.INTEGER_NULL);
     }
     try {
-      result = Integer.valueOf(integer);
+      return Integer.valueOf(integer);
     } catch (IllegalStateException | NumberFormatException e) {
       throw new InputFormatException(Messages.INVALID_ID);
     }
-    return result;
   }
 
   /**
@@ -89,7 +87,7 @@ public class InputValidator {
    * @param phoneNumber A String list of phone numbers.
    * @throws InputFormatException if input is not acceptable.
    */
-  public static void assureBorrowedBy(String phoneNumber) throws InputFormatException {
+  private static void assureBorrowedBy(String phoneNumber) throws InputFormatException {
     if (phoneNumber == null) {
       throw new InputFormatException(Messages.PHONENUMBER_NULL);
     }
@@ -135,10 +133,10 @@ public class InputValidator {
   }
 
   /**
-   * Validates the {@link com.example.demo.backend.custom.Dto.Book Book} object.
+   * Validates the {@link Book Book} object.
    * Borrowers are written in names.
-   * @param book {@link com.example.demo.backend.custom.Dto.Book Book} object to be checked.
-   * @return The same {@link com.example.demo.backend.custom.Dto.Book Book} object.
+   * @param book {@link Book Book} object to be checked.
+   * @return The same {@link Book Book} object.
    * @throws InputFormatException if input is not acceptable.
    */
   public static Book assureBookClassNames(Book book) throws InputFormatException {
@@ -153,10 +151,10 @@ public class InputValidator {
   }
 
   /**
-   * Validates the {@link com.example.demo.backend.custom.Dto.Book Book} object.
+   * Validates the {@link Book Book} object.
    * Borrowers are written in phone numbers.
-   * @param book {@link com.example.demo.backend.custom.Dto.Book Book} object to be checked.
-   * @return The same {@link com.example.demo.backend.custom.Dto.Book Book} object.
+   * @param book {@link Book Book} object to be checked.
+   * @return The same {@link Book Book} object.
    * @throws InputFormatException if input is not acceptable.
    */
   public static Book assureBookClass(Book book) throws InputFormatException {
@@ -172,9 +170,9 @@ public class InputValidator {
   }
 
   /**
-   * Validates the {@link com.example.demo.backend.custom.Dto.User User} object.
-   * @param user  {@link com.example.demo.backend.custom.Dto.User User} object to be checked.
-   * @return The same {@link com.example.demo.backend.custom.Dto.User User}} object.
+   * Validates the {@link User User} object.
+   * @param user  {@link User User} object to be checked.
+   * @return The same {@link User User}} object.
    * @throws InputFormatException if input is not acceptable.
    */
   static User assureBookUser(User user) throws InputFormatException {

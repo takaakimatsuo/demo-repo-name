@@ -1,8 +1,8 @@
 package com.example.demo.application;
 
-import com.example.demo.backend.custom.Dto.Book;
-import com.example.demo.backend.custom.Dto.User;
-import com.example.demo.backend.custom.Dto.PatchBook;
+import com.example.demo.backend.dto.Book;
+import com.example.demo.backend.dto.User;
+import com.example.demo.backend.dto.PatchBook;
 import com.example.demo.common.enums.Messages;
 import com.example.demo.common.exceptions.InputFormatException;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +21,8 @@ import static com.example.demo.application.InputValidator.assurePositive;
 import static com.example.demo.application.InputValidator.assureUrl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+
 
 class InputValidatorTest {
 

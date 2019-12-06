@@ -1,16 +1,12 @@
 package com.example.demo.data.access;
 
 
-import com.example.demo.backend.custom.Dto.Book;
+import com.example.demo.backend.dto.Book;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.DbException;
 import org.junit.Ignore;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
-import org.springframework.boot.test.context.SpringBootTest;
 
 
 import java.sql.Connection;
@@ -23,15 +19,12 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
 class JdbcBookDaoTest {
 
   private ResultSet mockResultSet = mock(ResultSet.class);
@@ -475,7 +468,6 @@ class JdbcBookDaoTest {
       when(mockResultSet.getString("URL")).thenReturn("https://mock.com");
       when(mockResultSet.getString("BORROWEDBY")).thenReturn("{\"08011110000\",\"08011110001\"}");
       when(dao.executeQuery(anyString(),anyList())).thenReturn(mockResultSet);
-      doNothing().when(dao).closeDB(isA(Connection.class));
 
       dao.getBook(1);
       verify(dao, times(1)).getBook(anyInt());

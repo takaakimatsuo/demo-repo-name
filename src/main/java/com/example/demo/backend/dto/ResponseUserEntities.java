@@ -1,5 +1,7 @@
-package com.example.demo.backend.custom.Dto;
+package com.example.demo.backend.dto;
 
+
+import com.example.demo.backend.entity.UserEntity;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -14,12 +16,12 @@ import lombok.Setter;
 @Setter(AccessLevel.PUBLIC)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseUsers {
+public class ResponseUserEntities {
 
   @Builder.Default
-  private List<User> users  = new ArrayList<User>();
+  private List<UserEntity> users  = new ArrayList<>();
+
   @Builder.Default
   private MessageHeader messageHeader = new MessageHeader();
 
 }
-

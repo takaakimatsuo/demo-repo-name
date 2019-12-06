@@ -1,13 +1,14 @@
 package com.example.demo.data.access;
 
-import com.example.demo.backend.custom.Dto.Book;
+import com.example.demo.backend.dto.Book;
 import com.example.demo.common.exceptions.DaoException;
-import com.example.demo.data.access.custom.enums.BookStatus;
+import com.example.demo.data.access.enums.BookStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import com.example.demo.data.access.interfaces.BookDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -36,7 +37,6 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
           replacer.add("{");
           replacer.add("\"");
           List<String> customers = splitStringIntoArray(arr, ",", replacer);
-          log.info(Arrays.asList(customers).toString());
           log.info("Trying to find {}.",phoneNumber);
           if (customers.contains(phoneNumber)) {
             //Book is borrowed by the user.
@@ -119,8 +119,7 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
     paramList.add(book.getPrice());
     paramList.add(book.getQuantity());
     paramList.add(book.getUrl());
-    int updated = executeUpdate(query, paramList);
-    return updated;//Also takes care the case with no data found
+    return executeUpdate(query, paramList);
   }
 
 

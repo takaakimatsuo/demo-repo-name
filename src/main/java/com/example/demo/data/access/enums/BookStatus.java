@@ -1,5 +1,5 @@
 
-package com.example.demo.data.access.custom.enums;
+package com.example.demo.data.access.enums;
 
 
 public enum BookStatus {

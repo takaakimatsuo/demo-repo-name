@@ -1,16 +1,26 @@
 package com.example.demo.application;
 
 import com.example.demo.backend.UserBusinessLogic;
-import com.example.demo.backend.custom.Dto.User;
-import com.example.demo.backend.custom.Dto.ResponseUsers;
-import com.example.demo.common.exceptions.BookBusinessLogicException;
+import com.example.demo.backend.UserEntityBusinessLogic;
+import com.example.demo.backend.dto.ResponseUserEntities;
+import com.example.demo.backend.dto.ResponseUsers;
+import com.example.demo.backend.dto.User;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.InputFormatException;
 import com.example.demo.common.exceptions.UserBusinessLogicException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import static com.example.demo.application.InputValidator.assureBookUser;
 import static com.example.demo.application.InputValidator.assureInteger;
@@ -23,6 +33,9 @@ public class UserController {
 
   @Autowired
   UserBusinessLogic dbl;
+
+  @Autowired
+  UserEntityBusinessLogic uebl;
 
   /**
    * Used for inserting a new user data to the database.
@@ -67,7 +80,6 @@ public class UserController {
    * Used for deleting a user data from the database.
    * @return A list of searched UserClass objects, with a ResponseHeader class.
    * @throws DaoException if query execution fails.
-   * @throws InputFormatException if user input is not acceptable.
    * @throws UserBusinessLogicException if logic fails.
    */
   @CrossOrigin
@@ -76,6 +88,17 @@ public class UserController {
     try {
       return dbl.getAllUsers();
     } catch (DaoException | UserBusinessLogicException e) {
+      log.error("Error in deleteUser() in UserController.java: ",e);
+      throw e;
+    }
+  }
+
+  @CrossOrigin
+  @GetMapping(value = "/userentities")
+  public ResponseUserEntities getUserEntities() throws UserBusinessLogicException {
+    try {
+      return uebl.getAllUserEntities();
+    } catch (UserBusinessLogicException e) {
       log.error("Error in deleteUser() in UserController.java: ",e);
       throw e;
     }

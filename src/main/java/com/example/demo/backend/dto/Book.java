@@ -1,4 +1,4 @@
-package com.example.demo.backend.custom.Dto;
+package com.example.demo.backend.dto;
 
 import java.util.ArrayList;
 import java.util.List;

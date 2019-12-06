@@ -1,4 +1,4 @@
-package com.example.demo.backend.custom.Dto;
+package com.example.demo.backend.dto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import lombok.Setter;
 public class ResponseBooks {
 
   @Builder.Default
-  private List<Book> books = new ArrayList<Book>();
+  private List<Book> books = new ArrayList<>();
   @Builder.Default
   private MessageHeader messageHeader = new MessageHeader();
 

@@ -43,7 +43,7 @@ public enum Messages {
   PATCHBOOK_CLASS_NULL("Book to be replaced is null");
 
 
-  private String messageKey;
+  private final String messageKey;
 
   Messages(String msgKey) {
     messageKey = msgKey;

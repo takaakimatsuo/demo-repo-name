@@ -1,12 +1,14 @@
 package com.example.demo.data.access;
 
-import com.example.demo.backend.custom.Dto.Book;
+import com.example.demo.backend.dto.Book;
 import com.example.demo.common.exceptions.DaoException;
-import com.example.demo.data.access.custom.enums.BookStatus;
+import com.example.demo.data.access.enums.BookStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.example.demo.data.access.interfaces.BookDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -17,8 +19,9 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @Repository("SpringBookDao")
 public class SpringBookDao implements BookDao {
+
   @Autowired
-  private JdbcTemplate jdbcTemplate;
+  public JdbcTemplate jdbcTemplate;
 
   private DaoException createDaoException(SQLException sqlExc) {
     return new DaoException(sqlExc.getMessage(),sqlExc.getCause(),sqlExc.getSQLState());

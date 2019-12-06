@@ -1,8 +1,7 @@
 package com.example.demo.application;
 
 
-import com.example.demo.backend.BookBusinessLogic;
-import com.example.demo.backend.custom.Dto.ResponseBooks;
+import com.example.demo.backend.dto.ResponseBooks;
 import com.example.demo.common.enums.Messages;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.data.access.DatabaseTableInitializer;
@@ -10,17 +9,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -30,6 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -37,7 +32,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @AutoConfigureMockMvc
@@ -54,17 +52,18 @@ class MockMvcBookControllerTest {
   BookController controller;
 
 
-
-
   @BeforeAll
   static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, DaoException {
     DatabaseTableInitializer.dropBookshelf();
     DatabaseTableInitializer.dropBookUser();
     DatabaseTableInitializer.createBookshelf();
     DatabaseTableInitializer.createBookUser();
-    DatabaseTableInitializer.fillInBookUser();
-    DatabaseTableInitializer.fillInBooks();
+    //DatabaseTableInitializer.fillInBookUser();
+    DatabaseTableInitializer.fillInBookUser2();
+    //DatabaseTableInitializer.fillInBooks();
+    DatabaseTableInitializer.fillInBooks2();
   }
+
 
   @Before
   void setup(){
@@ -93,7 +92,9 @@ class MockMvcBookControllerTest {
       ResultActions result = mockMvc.perform(get("/books"))
         .andDo(print())
         .andExpect(status().isOk())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.books").exists());
+        .andExpect(MockMvcResultMatchers.jsonPath("$.books").exists())
+        .andExpect(handler().methodName("getBooks"))
+        .andExpect(handler().handlerType(BookController.class));
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
 
@@ -109,7 +110,9 @@ class MockMvcBookControllerTest {
           .get("/books/{id}", id)
           .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.books[0].id").value(id));
+        .andExpect(MockMvcResultMatchers.jsonPath("$.books[0].id").value(id))
+        .andExpect(handler().methodName("getBook"))
+        .andExpect(handler().handlerType(BookController.class));
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
       assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_FOUND);
@@ -123,7 +126,9 @@ class MockMvcBookControllerTest {
         MockMvcRequestBuilders
           .get("/books/{id}", id)
           .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest())
+        .andExpect(handler().methodName("getBook"))
+        .andExpect(handler().handlerType(BookController.class));
 
       String errorMsg = acquireBodyAsErrorMessage(result);
       assertEquals(errorMsg, Messages.BOOK_NOT_EXISTING.getMessageKey());
@@ -138,7 +143,9 @@ class MockMvcBookControllerTest {
         MockMvcRequestBuilders
           .get("/books/{id}", id)
           .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest())
+        .andExpect(handler().methodName("getBook"))
+        .andExpect(handler().handlerType(BookController.class));
 
       String errorMsg = acquireBodyAsErrorMessage(result);
       assertEquals(errorMsg,Messages.INVALID_ID.getMessageKey());
@@ -158,7 +165,9 @@ class MockMvcBookControllerTest {
         .contentType(MediaType.APPLICATION_JSON)
         .content("{\"title\":\"mockBook\", \"price\":100, \"quantity\":1, \"url\":\"https://test.com\"}"))
         .andDo(print())
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(handler().methodName("postBook"))
+        .andExpect(handler().handlerType(BookController.class));
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
       assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_INSERTED);
@@ -171,7 +180,9 @@ class MockMvcBookControllerTest {
         .contentType(MediaType.APPLICATION_JSON)
         .content("{\"title\":\"mockBook5\", \"price\":100, \"quantity\":2, \"url\":\"https://test.com\"}"))
         .andDo(print())
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(handler().methodName("postBook"))
+        .andExpect(handler().handlerType(BookController.class));
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
       assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_INSERTED);
@@ -185,7 +196,9 @@ class MockMvcBookControllerTest {
         .contentType(MediaType.APPLICATION_JSON)
         .content("{\"title\":\"DuplicatedBook\", \"price\":100, \"quantity\":2, \"url\":\"https://test.com\"}"))
         .andDo(print())
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(handler().methodName("postBook"))
+        .andExpect(handler().handlerType(BookController.class));
 
       ResponseBooks response = acquireBodyAsResponseBooks(result);
       assertEquals(response.getMessageHeader().getMessage(), Messages.BOOK_INSERTED);
@@ -208,7 +221,9 @@ class MockMvcBookControllerTest {
         .contentType(MediaType.APPLICATION_JSON)
         .content("{\"title\":\"PRICEBOOK\", \"price\":-100, \"quantity\":2, \"url\":\"https://test.com\"}"))
         .andDo(print())
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest())
+        .andExpect(handler().methodName("postBook"))
+        .andExpect(handler().handlerType(BookController.class));
 
       String errorMsg = acquireBodyAsErrorMessage(result);
       assertEquals(errorMsg, Messages.NEGATIVE_PRICE.getMessageKey());
@@ -221,7 +236,9 @@ class MockMvcBookControllerTest {
         .contentType(MediaType.APPLICATION_JSON)
         .content("{\"title\":\"QAUTNTITYBOOK\", \"price\":100, \"quantity\":0, \"url\":\"https://test.com\"}"))
         .andDo(print())
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest())
+        .andExpect(handler().methodName("postBook"))
+        .andExpect(handler().handlerType(BookController.class));
 
       String errorMsg = acquireBodyAsErrorMessage(result);
       assertEquals(errorMsg,Messages.ZERO_QUANTITY.getMessageKey());
@@ -234,7 +251,9 @@ class MockMvcBookControllerTest {
         .contentType(MediaType.APPLICATION_JSON)
         .content("{\"title\":\"QAUTNTITYBOOK\", \"price\":100, \"quantity\":-10, \"url\":\"https://test.com\"}"))
         .andDo(print())
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest())
+        .andExpect(handler().methodName("postBook"))
+        .andExpect(handler().handlerType(BookController.class));
 
       String errorMsg = acquireBodyAsErrorMessage(result);
       assertEquals(errorMsg, Messages.NEGATIVE_QUANTITY.getMessageKey());

@@ -1,9 +1,9 @@
-package com.example.demo.data.access;
+package com.example.demo.data.access.interfaces;
 
-import com.example.demo.backend.custom.Dto.Book;
-import com.example.demo.backend.custom.Dto.MessageHeader;
+import com.example.demo.backend.dto.Book;
+import com.example.demo.backend.dto.MessageHeader;
 import com.example.demo.common.exceptions.DaoException;
-import com.example.demo.data.access.custom.enums.BookStatus;
+import com.example.demo.data.access.enums.BookStatus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +15,7 @@ public interface BookDao {
 
   /**
   * Searches all book data from the database.
-  * @return Returns a list of searched {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+  * @return Returns a list of searched {@link Book Book} objects,
   * with a {@link MessageHeader MessageHeader}, not {@code null}.
   * @throws DaoException if query execution fails.
   */
@@ -24,7 +24,7 @@ public interface BookDao {
   /**
    * Searches a book data stored in the database with an ID.
    * @param bookId  Unique identifier of the book data in the database, not {@code null}.
-   * @return Returns a list of searched {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+   * @return Returns a list of searched {@link Book Book} objects,
    * with a {@link MessageHeader MessageHeader}, not {@code null}..
    * @throws DaoException if query execution fails.
    */
@@ -32,8 +32,8 @@ public interface BookDao {
 
   /**
    * Inserts a new book data to the database.
-   * @param book A {@link com.example.demo.backend.custom.Dto.Book Book} object to be inserted to the database , not {@code null}..
-   * @return Returns an empty list of {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+   * @param book A {@link Book Book} object to be inserted to the database , not {@code null}..
+   * @return Returns an empty list of {@link Book Book} objects,
    * with a {@link MessageHeader MessageHeader}, not {@code null}..
    * @throws DaoException if query execution fails.
    */
@@ -42,7 +42,7 @@ public interface BookDao {
   /**
    * Deletes a book data from the database.
    * @param bookId Unique identifier for the book stored in the database, not {@code null}.
-   * @return Returns an empty list of {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+   * @return Returns an empty list of {@link Book Book} objects,
    * with a {@link MessageHeader MessageHeader}, not {@code null}.
    * @throws DaoException if query execution fails.
    */
@@ -100,7 +100,7 @@ public interface BookDao {
   /**
    * Replaces a book data to another one in the database.
    * @param bookId Unique identifier for the book stored in the database, not {@code null}.
-   * @param book  A new {@link com.example.demo.backend.custom.Dto.Book Book} data to be replaced with another in the database, not {@code null}..
+   * @param book  A new {@link Book Book} data to be replaced with another in the database, not {@code null}..
    * @return Returns the number of updated rows.
    * @throws DaoException if query execution fails.
    */

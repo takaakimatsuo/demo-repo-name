@@ -1,11 +1,8 @@
 package com.example.demo.data.access;
 
-import com.example.demo.backend.custom.Dto.User;
+import com.example.demo.backend.dto.User;
 import com.example.demo.common.exceptions.DaoException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 
 import java.sql.Connection;
@@ -15,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
+
 
 class JdbcUserDaoTest {
 

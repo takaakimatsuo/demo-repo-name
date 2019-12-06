@@ -1,4 +1,4 @@
-package com.example.demo.backend.custom.Dto;
+package com.example.demo.backend.dto;
 
 import com.example.demo.common.enums.Messages;
 import lombok.AccessLevel;

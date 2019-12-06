@@ -2,14 +2,14 @@ package com.example.demo.backend;
 
 import static com.example.demo.backend.errorcodes.SqlErrorCodes.UNIQUE_VIOLATION;
 
-import com.example.demo.backend.custom.Dto.Book;
-import com.example.demo.backend.custom.Dto.PatchBook;
-import com.example.demo.backend.custom.Dto.ResponseBooks;
+import com.example.demo.backend.dto.Book;
+import com.example.demo.backend.dto.PatchBook;
+import com.example.demo.backend.dto.ResponseBooks;
 import com.example.demo.common.enums.Messages;
 import com.example.demo.common.exceptions.BookBusinessLogicException;
 import com.example.demo.common.exceptions.DaoException;
-import com.example.demo.data.access.BookDao;
-import com.example.demo.data.access.custom.enums.BookStatus;
+import com.example.demo.data.access.interfaces.BookDao;
+import com.example.demo.data.access.enums.BookStatus;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +23,8 @@ public class BookBusinessLogic {
   private ResponseBooks res;
 
   @Autowired
-  @Qualifier("JdbcBookDao") //Based on standard Jdbc.
-  //@Qualifier("SpringBookDao") // Based on Spring JdbcTemplate.
+  //@Qualifier("JdbcBookDao") //Based on standard Jdbc.
+  @Qualifier("SpringBookDao") // Based on Spring JdbcTemplate.
   public BookDao dao;
 
 
@@ -162,7 +162,7 @@ public class BookBusinessLogic {
 
   /**
    * Logic for adding a new book data to the database.
-   * @param book {@link com.example.demo.backend.custom.Dto.Book BookClass} to be added.
+   * @param book {@link Book BookClass} to be added.
    * @return Returns an empty list of BookClass objects, with the MessageHeader class.
    * @throws DaoException if query execution fails.
    * @throws BookBusinessLogicException if query logic fails.

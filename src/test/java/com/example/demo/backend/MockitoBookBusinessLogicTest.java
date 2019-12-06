@@ -1,23 +1,24 @@
 package com.example.demo.backend;
 
-
-import com.example.demo.backend.custom.Dto.Book;
-import com.example.demo.backend.custom.Dto.PatchBook;
-import com.example.demo.backend.custom.Dto.ResponseBooks;
+import com.example.demo.backend.dto.Book;
+import com.example.demo.backend.dto.PatchBook;
+import com.example.demo.backend.dto.ResponseBooks;
 import com.example.demo.common.enums.Messages;
 import com.example.demo.common.exceptions.BookBusinessLogicException;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.DbException;
 import com.example.demo.data.access.JdbcBookDao;
 import com.example.demo.data.access.JdbcDao;
-import com.example.demo.data.access.custom.enums.BookStatus;
+import com.example.demo.data.access.enums.BookStatus;
 import org.junit.Assert;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+
+@ExtendWith(SpringExtension.class)
 class MockitoBookBusinessLogicTest {
 
   @InjectMocks
@@ -44,8 +46,8 @@ class MockitoBookBusinessLogicTest {
   @Mock
   JdbcDao jdao;
 
-  @DisplayName("本の全検索に関するテスト")
   @Nested
+  @DisplayName("本の全検索に関するテスト")
   class test1{
     /**
      * This test checks the behavior of the {@link com.example.demo.backend.BookBusinessLogic DemoBusinessLogic} class' {@link BookBusinessLogic#getAllBooks()} method
@@ -54,11 +56,8 @@ class MockitoBookBusinessLogicTest {
      * @throws DaoException An exception that raises when executing an SQL query fails.
      * @throws DbException An exception that raises when the database connection/disconnection fails.
      */
-    @DisplayName("全検索で本データが一つも存在しない場合")
     @Test
-    void getAllBooks_EMPTY() throws DbException, DaoException, BookBusinessLogicException {
-
-
+    @DisplayName("全検索で本データが一つも存在しない場合") void getAllBooks_EMPTY() throws DbException, DaoException, BookBusinessLogicException {
       BookBusinessLogicException expected = new BookBusinessLogicException(Messages.BOOK_NOT_EXISTING);
 
       when(dao.getAllBooks()).thenReturn(new ArrayList<Book>());
@@ -67,7 +66,6 @@ class MockitoBookBusinessLogicTest {
         dbl.getAllBooks();
         verify(dao, times(1)).getAllBooks();
       });
-      //Assert.assertArrayEquals(expected, actual);
     }
 
 
@@ -78,10 +76,9 @@ class MockitoBookBusinessLogicTest {
      * @throws DaoException An exception that raises when executing an SQL query fails.
      * @throws DbException An exception that raises when the database connection/disconnection fails.
      */
-    @DisplayName("全検索で本データが存在する場合")
     @Test
+    @DisplayName("全検索で本データが存在する場合")
     void getAllBooks_OK() throws DbException, DaoException, BookBusinessLogicException {
-
       ResponseBooks expected =  ResponseBooks.builder().build();
       expected.getMessageHeader().setMessage(Messages.BOOK_FOUND);
 
@@ -100,13 +97,12 @@ class MockitoBookBusinessLogicTest {
      * ({@link com.example.demo.data.access.JdbcBookDao JdbcBookDao} or {@link com.example.demo.data.access.SpringBookDao SpringBookDao}).
      * @throws DaoException An exception that raises when executing an SQL query fails.
      */
-    @DisplayName("本の全検索でDB例外が投げられる場合")
     @Test
+    @DisplayName("本の全検索でDB例外が投げられる場合")
     void getAllBooks_Db() throws DaoException {
-
-      Throwable fakeOutput = new DaoException("This is fake");
-      when(dao.getAllBooks()).thenThrow(fakeOutput);
-      Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.getAllBooks();});
+      Throwable expected = new DaoException("This is fake");
+      when(dao.getAllBooks()).thenThrow(expected);
+      Throwable e = assertThrows(expected.getClass(), () -> {dbl.getAllBooks();});
       verify(dao, times(1)).getAllBooks();
     }
 
@@ -117,13 +113,13 @@ class MockitoBookBusinessLogicTest {
      * @throws DaoException An exception that raises when executing an SQL query fails.
      * @throws DbException An exception that raises when the database connection/disconnection fails.
      */
-    @DisplayName("本の全検索でDao例外が投げられる場合")
     @Test
+    @DisplayName("本の全検索でDao例外が投げられる場合")
     void getAllBooks_Dao() throws DbException, DaoException {
 
-      Throwable fakeOutput = new DaoException("This is fake");
-      when(dao.getAllBooks()).thenThrow(fakeOutput);
-      Throwable e = assertThrows(fakeOutput.getClass(), () -> {dbl.getAllBooks();});
+      Throwable expected = new DaoException("This is fake");
+      when(dao.getAllBooks()).thenThrow(expected);
+      Throwable e = assertThrows(expected.getClass(), () -> {dbl.getAllBooks();});
       verify(dao, times(1)).getAllBooks();
     }
 
@@ -688,16 +684,21 @@ class MockitoBookBusinessLogicTest {
     @Test
     @DisplayName("正しい本の紛失、および削除")
     void updateBook_LOST() throws DbException, DaoException, BookBusinessLogicException {
+        assertEquals(1,1);
       PatchBook book = new PatchBook();
       String borrower = "08011110000";
       book.setBorrower(borrower);
       book.setStatus(2);//LOST
       Integer bookId = 1;
+
       when(dao.checkBookStatus(bookId,borrower)).thenReturn(BookStatus.BOOK_BORROWED_BY_THIS_USER);
       List<Book> fakeList = new ArrayList<>();
       fakeList.add(new Book("title", 1000,"https://fake.com",0));
-      when(dao.getBook(bookId)).thenReturn(fakeList);
+      when(dao.updateBookLost(anyInt(),anyString())).thenReturn(1);
+      when(dao.getBook(anyInt())).thenReturn(fakeList);
+
       ResponseBooks actual = dbl.updateBook(bookId, book);
+
       verify(dao, times(1)).checkBookStatus(anyInt(),anyString());
       verify(dao, times(1)).updateBookLost(anyInt(),anyString());
       verify(dao, times(1)).deleteBook(anyInt());

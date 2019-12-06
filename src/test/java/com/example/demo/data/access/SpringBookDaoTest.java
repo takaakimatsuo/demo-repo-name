@@ -1,19 +1,21 @@
 package com.example.demo.data.access;
 
 
-import com.example.demo.backend.custom.Dto.Book;
+import com.example.demo.backend.dto.Book;
 import com.example.demo.common.exceptions.DaoException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @Slf4j
-@SpringBootTest
+@ExtendWith(SpringExtension.class)
 class SpringBookDaoTest {
 
   @InjectMocks
@@ -44,7 +46,7 @@ class SpringBookDaoTest {
   @BeforeEach
   void reinitializeMock(){
     reset(sdao);
-    reset(jdbcTemplate);
+    //reset(jdbcTemplate);
   }
 
   private String dummyPhoneNumber1 = "08011110000";

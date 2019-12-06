@@ -6,16 +6,15 @@ import static com.example.demo.application.InputValidator.assurePatchBookClass;
 import static com.example.demo.application.InputValidator.assurePositive;
 
 import com.example.demo.backend.BookBusinessLogic;
-import com.example.demo.backend.custom.Dto.Book;
-import com.example.demo.backend.custom.Dto.PatchBook;
-import com.example.demo.backend.custom.Dto.ResponseBooks;
+import com.example.demo.backend.dto.Book;
+import com.example.demo.backend.dto.PatchBook;
+import com.example.demo.backend.dto.ResponseBooks;
 import com.example.demo.common.exceptions.BookBusinessLogicException;
 import com.example.demo.common.exceptions.DaoException;
 import com.example.demo.common.exceptions.DbException;
 import com.example.demo.common.exceptions.InputFormatException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,7 +39,7 @@ public class BookController {
   /**
   * Used for acquiring a single book data from the database, specified with an ID.
   * @param bookId Unique identifier for the book to be searched, not {@code null}.
-  * @return A list of searched {@link com.example.demo.backend.custom.Dto.Book Book} objects,* with a ResponseHeader class, not {@code null}.
+  * @return A list of searched {@link Book Book} objects,* with a ResponseHeader class, not {@code null}.
   * @throws DaoException if query execution fails.
   * @throws InputFormatException if user input is wrong.
   * @throws BookBusinessLogicException if logic fails.
@@ -59,7 +58,7 @@ public class BookController {
 
   /**
    * Used for acquiring the entire book data from the database.
-   * @return A list of searched {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+   * @return A list of searched {@link Book Book} objects,
    * with a ResponseHeader class, not {@code null}.
    * @throws DaoException if query execution fails.
    * @throws BookBusinessLogicException if logic fails.
@@ -77,8 +76,8 @@ public class BookController {
 
   /**
   * Used for inserting a new book data to the database.
-  * @param book The {@link com.example.demo.backend.custom.Dto.Book Book} object to be inserted, not {@code null}.
-  * @return An empty list of {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+  * @param book The {@link Book Book} object to be inserted, not {@code null}.
+  * @return An empty list of {@link Book Book} objects,
   * with a ResponseHeader class, not {@code null}.
   * @throws DaoException if query execution fails.
   * @throws InputFormatException if user input is wrong.
@@ -98,8 +97,8 @@ public class BookController {
   /**
    * Used for replacing a book data to a new one, specified by an ID.
    * @param bookId Unique identifier for the book stored in the database, not {@code null}.
-   * @param newBookData A new {@link com.example.demo.backend.custom.Dto.Book Book} object.
-   * @return An empty list of {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+   * @param newBookData A new {@link Book Book} object.
+   * @return An empty list of {@link Book Book} objects,
    * with a ResponseHeader class, not {@code null}.
    * @throws DaoException if query execution fails.
    * @throws InputFormatException if user input is wrong.
@@ -120,7 +119,7 @@ public class BookController {
    * Used for updating the status of the book.
    * @param bookId Unique identifier for the book stored in the database, not {@code null}.
    * @param patchData Update data for the book, not {@code null}.
-   * @return An empty list of {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+   * @return An empty list of {@link Book Book} objects,
    * with a ResponseHeader class, not {@code null}.
    * @throws DaoException if query execution fails.
    * @throws InputFormatException if user input is wrong.
@@ -140,7 +139,7 @@ public class BookController {
   /**
   * Used for deleting a book data from the database.
   * @param bookId Unique identifier for the book stored in the database, not {@code null}.
-  * @return An empty list of {@link com.example.demo.backend.custom.Dto.Book Book} objects,
+  * @return An empty list of {@link Book Book} objects,
   * with a ResponseHeader class, not {@code null}.
   * @throws DaoException if query execution fails.
   * @throws InputFormatException if user input is wrong.
