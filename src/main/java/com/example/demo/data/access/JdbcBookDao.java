@@ -174,7 +174,6 @@ public class JdbcBookDao extends JdbcDao implements BookDao {
         replacer.add("\\");
         replacer.add("}");
         replacer.add("{");
-        replacer.add("\"");
         List<String> customers = splitStringIntoArray(arr, ",", replacer);
         book.setBorrowedBy(customers);
         lb.add(book);
