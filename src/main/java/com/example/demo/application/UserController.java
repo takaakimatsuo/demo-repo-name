@@ -70,16 +70,16 @@ public class UserController {
    * @throws InputFormatException if user input is not acceptable.
    * @throws UserBusinessLogicException if logic fails.
    */
-//  @CrossOrigin
-////  @GetMapping(value = "/users")
-////  public ResponseUsers getUsers() throws DaoException, UserBusinessLogicException {
-////    try {
-////      return dbl.getAllUsers();
-////    } catch (DaoException | UserBusinessLogicException e) {
-////      log.error("Error in deleteUser() in UserController.java: ",e);
-////      throw e;
-////    }
-////  }
+  @CrossOrigin
+  @GetMapping(value = "/users")
+  public ResponseUsers getUsers() throws DaoException, UserBusinessLogicException {
+    try {
+      return dbl.getAllUsers();
+    } catch (DaoException | UserBusinessLogicException e) {
+      log.error("Error in deleteUser() in UserController.java: ",e);
+      throw e;
+    }
+  }
 
 
 
