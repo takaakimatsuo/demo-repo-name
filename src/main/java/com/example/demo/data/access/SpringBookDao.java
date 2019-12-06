@@ -113,7 +113,7 @@ public class SpringBookDao implements BookDao {
           replacer.add("\\");
           replacer.add("}");
           replacer.add("{");
-          replacer.add("\"");
+          //replacer.add("\"");
           book.setBorrowedBy(splitStringIntoArray(rs.getString("BORROWEDBY"), ",", replacer));
           return book;
         }
