@@ -31,4 +31,17 @@ public class UserEntityBusinessLogic {
   }
 
 
+  public ResponseUserEntities getUserEntity(Integer id) throws UserBusinessLogicException {
+    ures =  ResponseUserEntities.builder().build();
+//    List<UserEntity> users = repository.fi
+//    if (users.isEmpty()) {
+//      throw new UserBusinessLogicException(Messages.USER_NOT_EXISTING);
+//    } else {
+//      ures.getMessageHeader().setMessage(Messages.USER_FOUND);
+//    }
+//    ures.setUsers(users);
+    return ures;
+  }
+
+
 }

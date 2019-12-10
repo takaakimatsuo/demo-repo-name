@@ -94,11 +94,22 @@ public class UserController {
   }
 
   @CrossOrigin
-  @GetMapping(value = "/userentities")
+  @GetMapping(value = "/users2")//JPA version
   public ResponseUserEntities getUserEntities() throws UserBusinessLogicException {
     try {
       return uebl.getAllUserEntities();
     } catch (UserBusinessLogicException e) {
+      log.error("Error in deleteUser() in UserController.java: ",e);
+      throw e;
+    }
+  }
+
+  @CrossOrigin
+  @GetMapping(value = "/users/{id}")
+  public ResponseUserEntities getAUserEntity(@PathVariable("id") String userId) throws UserBusinessLogicException, InputFormatException {
+    try {
+      return uebl.getUserEntity(assurePositive(assureInteger(userId)));
+    } catch (UserBusinessLogicException | InputFormatException e) {
       log.error("Error in deleteUser() in UserController.java: ",e);
       throw e;
     }

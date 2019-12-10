@@ -40,7 +40,8 @@ public class SpringBookDao implements BookDao {
   public List<Book> getAllBooks() throws DaoException {
     List<Book> output = new ArrayList<>();
     try {
-      output = jdbcTemplate.query("SELECT * FROM bookshelf", new RowMapper<Book>() {
+      log.info("Getting all books from the database.");
+      output = jdbcTemplate.query("SELECT id, title, price, quantity, (SELECT ARRAY( select familyName FROM book_user u JOIN bookshelf b ON u.phoneNumber = ANY(b.borrowedBy) WHERE b.title = OuterQuery.title)) AS \"borrowedBy\", url FROM bookshelf AS OuterQuery ORDER BY id DESC;", new RowMapper<Book>() {
         public Book mapRow(ResultSet rs, int rowNum) throws SQLException {
           Book book = new Book();
           book.setId(rs.getInt("ID"));
@@ -48,6 +49,13 @@ public class SpringBookDao implements BookDao {
           book.setPrice(rs.getInt("PRICE"));
           book.setQuantity(rs.getInt("QUANTITY"));
           book.setUrl(rs.getString("URL"));
+          String arr = rs.getString("BORROWEDBY");
+          List<String> replacer = new ArrayList<>();
+          replacer.add("\\");
+          replacer.add("}");
+          replacer.add("{");
+          List<String> customers = splitStringIntoArray(arr, ",", replacer);
+          book.setBorrowedBy(customers);
           return book;
         }
       });
@@ -61,7 +69,7 @@ public class SpringBookDao implements BookDao {
   public List<Book> getBook(Integer bookId) throws DaoException {
     List<Book> output = new ArrayList<>();
     try {
-      output = jdbcTemplate.query("select * from bookshelf where id = ?", new RowMapper<Book>() {
+      output = jdbcTemplate.query("select id, title, price, quantity, (SELECT ARRAY( select familyName from book_user u JOIN bookshelf b ON u.phoneNumber = ANY(b.borrowedBy) WHERE b.title = OuterQuery.title)) AS \"borrowedBy\", url from bookshelf AS OuterQuery WHERE id = ?", new RowMapper<Book>() {
         public Book mapRow(ResultSet rs, int rowNum) throws SQLException {
           Book book = new Book();
           book.setId(rs.getInt("ID"));
@@ -69,6 +77,13 @@ public class SpringBookDao implements BookDao {
           book.setPrice(rs.getInt("PRICE"));
           book.setQuantity(rs.getInt("QUANTITY"));
           book.setUrl(rs.getString("URL"));
+          String arr = rs.getString("BORROWEDBY");
+          List<String> replacer = new ArrayList<>();
+          replacer.add("\\");
+          replacer.add("}");
+          replacer.add("{");
+          List<String> customers = splitStringIntoArray(arr, ",", replacer);
+          book.setBorrowedBy(customers);
           return book;
         }
       }, bookId);
@@ -113,7 +128,7 @@ public class SpringBookDao implements BookDao {
           replacer.add("\\");
           replacer.add("}");
           replacer.add("{");
-          //replacer.add("\"");
+          replacer.add("\"");
           book.setBorrowedBy(splitStringIntoArray(rs.getString("BORROWEDBY"), ",", replacer));
           return book;
         }

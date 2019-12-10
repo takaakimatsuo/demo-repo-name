@@ -13,8 +13,6 @@ import javax.persistence.*;
 @Table(name="book_user")
 public class UserEntity {
 
-
-
   @Id
   @Column(name="phonenumber")
   private String phonenumber;
